@@ -1,0 +1,9 @@
+#!/bin/sh
+# Script used to build .ts files before commiting.
+
+if ! [ -d "./dist" ]; then
+  echo "Yo... deleting that ./dist isn't a good idea."
+  echo "Don't do that again. I'm regenerating it for you."
+fi
+
+yarn pre-commit && touch .commit

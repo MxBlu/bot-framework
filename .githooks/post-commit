@@ -1,0 +1,12 @@
+#!/bin/sh
+# Script used to build .ts files before commiting. 
+
+echo
+if [ -e .commit ]
+    then
+    rm .commit
+    git add ./dist
+    git commit --amend -C HEAD --no-verify
+    echo "Finished readding your files, you psychopathic animal"
+fi
+exit

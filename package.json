@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --build",
     "lint": "eslint . --ext .ts",
-    "pre-commit": "yarn lint && yarn build"
+    "repo-init": "git config --local core.hooksPath .githooks/",
+    "pre-commit": "yarn lint && yarn"
   },
   "repository": {
     "type": "git",

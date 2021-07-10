@@ -21,7 +21,9 @@ If you wish to use this framework for some psychopathic reason, you can install 
 This will install the package in your node modules, and you don't have to keep this up to date or with a custom `.npmrc`.
 
 ## Development
+Before developing, run 
+`yarn repo-init`. This will move the githooks, so you don't have to remember to constantly run `yarn build` before committing or pushing.
 
-If you're developing for this application, please make sure that the exports are **exporting** from ./dist.
+If you're developing for this application, please make sure that the exports are **exporting** from `./dist`.
 
-To generate these ./dist files (or update these with your code changes), you need to run `npm run build`.
+To generate these `./dist` files (or update these with your code changes), you need to run `yarn build`.

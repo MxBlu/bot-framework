@@ -1,3 +1,5 @@
+import { Logger } from "./logger.js";
+
 /*
   Simple generic messaging bus
   Could I just have use Node.JS emitters? ...Yes probably, but I didn't think of it till I was done
@@ -5,8 +7,6 @@
 */
 
 // TODO: Properly test
-
-import { Logger } from "./logger.js";
 
 type EventCallbackFunction<T> = (data: T, topic: MessengerTopic<T>) => Promise<void>;
 

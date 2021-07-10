@@ -6,4 +6,9 @@ if ! [ -d "./dist" ]; then
   echo "Don't do that again. I'm regenerating it for you."
 fi
 
-yarn pre-commit && touch .commit
+if ! yarn pre-commit ; then
+  echo "Linting error. Commit aborted."
+  exit 1
+fi
+
+touch .commit

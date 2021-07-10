@@ -5,4 +5,5 @@ export { Dependency } from "./dependency";
 export { MessengerTopic } from "./imm";
 export { ScrollableModal } from "./scrollable";
 export { TimerTask, HighResolutionTimer } from "./timer";
+export { Logger } from "./logger";
 //# sourceMappingURL=index.js.map

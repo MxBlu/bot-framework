@@ -15,8 +15,20 @@ export declare class BaseBot {
     scrollableManager: ScrollableModalManager;
     commandHandlers: Map<string, BotCommandHandlerFunction>;
     constructor(name: string);
+    /**
+     * Utility function designed to append additional commands into the base bot utility.
+     * Implementations should be called BEFORE super.init().
+     * @param commands : A map with alias and BotCommandHandlerFunction.
+     * Returns void.
+     */
+    addCommandHandlers(commands: Map<string, BotCommandHandlerFunction>): void;
+    /**
+     * Primary function in charge of launching the bot.
+     * This should be run after addCommandHandlers() is called.
+     * @param discordToken : Discord token received from the bot.
+     */
     init(discordToken: string): Promise<void>;
-    initCommandHandlers(): void;
+    private initCommandHandlers;
     initEventHandlers(): void;
     private parseCommand;
     readyHandler: () => void;

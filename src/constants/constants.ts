@@ -11,3 +11,6 @@ export const DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 
 // Min time delta to trigger a timer event
 export const TRIGGER_RESOLUTION = 500; // 500ms
+
+// Channel to post error logs to
+export const DISCORD_ERROR_CHANNEL = process.env.DISCORD_ERROR_CHANNEL;

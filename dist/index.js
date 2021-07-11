@@ -8,4 +8,5 @@ export * from "./scrollable.js";
 export * from "./timer.js";
 export * from "./logger.js";
 export * from "./bot_utils.js";
+export * from "./commands/command_interface.js";
 //# sourceMappingURL=index.js.map

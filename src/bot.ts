@@ -44,7 +44,7 @@ export class BaseBot {
 
   /**
    * Utility function designed to append additional commands into the base bot utility.
-   * Implementations must be called before running init().
+   * Implementations should be called BEFORE super.init().
    * @param commands : A map with alias and BotCommandHandlerFunction.
    * Returns void.
    */
@@ -75,7 +75,7 @@ export class BaseBot {
     this.commandHandlers.set("h", this.helpHandler);
   }
 
-  private initEventHandlers(): void {
+  public initEventHandlers(): void {
     this.discord.once('ready', this.readyHandler);
     this.discord.on('message', this.messageHandler);
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));

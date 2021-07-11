@@ -17,7 +17,7 @@ export declare class BaseBot {
     constructor(name: string);
     /**
      * Utility function designed to append additional commands into the base bot utility.
-     * Implementations must be called before running init().
+     * Implementations should be called BEFORE super.init().
      * @param commands : A map with alias and BotCommandHandlerFunction.
      * Returns void.
      */
@@ -29,7 +29,7 @@ export declare class BaseBot {
      */
     init(discordToken: string): Promise<void>;
     private initCommandHandlers;
-    private initEventHandlers;
+    initEventHandlers(): void;
     private parseCommand;
     readyHandler: () => void;
     onReady(): Promise<void>;

@@ -4,7 +4,7 @@ import { LogLevel } from "./constants/log_levels.js";
 export declare class Logger {
     name: string;
     loggerVerbosity: LogLevel;
-    constructor(name: string, loggerVerbosity?: any);
+    constructor(name: string);
     log(message: string, verbosity: LogLevel): void;
     error(message: string): void;
     warn(message: string): void;

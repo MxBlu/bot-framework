@@ -1,4 +1,8 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import EventEmitter from "events";
+
 import { DEFAULT_LOG_LEVEL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 
@@ -27,9 +31,9 @@ export class Logger {
   // Min verbosity for a log message to be processed
   loggerVerbosity: LogLevel;
 
-  constructor(name: string, loggerVerbosity = DEFAULT_LOG_LEVEL) {
+  constructor(name: string) {
     this.name = name;
-    this.loggerVerbosity = loggerVerbosity;
+    this.loggerVerbosity = Number(process.env[`${name}.LOG_LEVEL`]) || DEFAULT_LOG_LEVEL;
 
     // If this name is largest so far, update global name padding size
     if (name.length > namePaddingSize) {

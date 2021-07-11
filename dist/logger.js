@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import EventEmitter from "events";
 import { DEFAULT_LOG_LEVEL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
@@ -17,10 +19,9 @@ var namePaddingSize = 0;
   Also logs errors to Discord if available
 */
 var Logger = /** @class */ (function () {
-    function Logger(name, loggerVerbosity) {
-        if (loggerVerbosity === void 0) { loggerVerbosity = DEFAULT_LOG_LEVEL; }
+    function Logger(name) {
         this.name = name;
-        this.loggerVerbosity = loggerVerbosity;
+        this.loggerVerbosity = Number(process.env[name + ".LOG_LEVEL"]) || DEFAULT_LOG_LEVEL;
         // If this name is largest so far, update global name padding size
         if (name.length > namePaddingSize) {
             namePaddingSize = name.length;

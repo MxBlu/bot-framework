@@ -28,8 +28,10 @@ export class BaseBot {
 
   // For when we hit an error logging to Discord itself
   errLogDisabled: boolean;
+
   // Manager for scrolling modals
   scrollableManager: ScrollableModalManager;
+
   // Map of command names to handlers
   commandHandlers: Map<string, BotCommandHandlerFunction>;
 
@@ -40,6 +42,23 @@ export class BaseBot {
     this.commandHandlers = new Map<string, BotCommandHandlerFunction>();
   }
 
+  /**
+   * Utility function designed to append additional commands into the base bot utility.
+   * Implementations must be called before running init().
+   * @param commands : A map with alias and BotCommandHandlerFunction.
+   * Returns void.
+   */
+  public addCommandHandlers(commands: Map<string, BotCommandHandlerFunction>): void {
+    commands.forEach((func, alias) => {
+      this.commandHandlers.set(alias, func);
+    })
+  }
+
+  /**
+   * Primary function in charge of launching the bot.
+   * This should be run after addCommandHandlers() is called.
+   * @param discordToken : Discord token received from the bot.
+   */
   public async init(discordToken: string): Promise<void> {
     this.discord  = new DiscordClient();
     this.scrollableManager = new ScrollableModalManager(this.discord);
@@ -50,12 +69,13 @@ export class BaseBot {
     this.discord.login(discordToken);
   }
 
-  public initCommandHandlers(): void {
+
+  private initCommandHandlers(): void {
     this.commandHandlers.set("help", this.helpHandler);
     this.commandHandlers.set("h", this.helpHandler);
   }
 
-  public initEventHandlers(): void {
+  private initEventHandlers(): void {
     this.discord.once('ready', this.readyHandler);
     this.discord.on('message', this.messageHandler);
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));

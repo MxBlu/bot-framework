@@ -61,11 +61,15 @@ export class BaseBot {
     this.discord.login(discordToken);
   }
 
-
-  public initCommandHandlers(): void {
+  private initCommandHandlers(): void {
+    // Add help command
     this.commandHandlers.set("help", this.helpHandler);
     this.commandHandlers.set("h", this.helpHandler);
 
+    // Load in any subclass interfaces
+    this.loadInterfaces();
+
+    // Add commands on the interface
     this.interfaces.forEach(iface => {
       iface.commands().forEach((func, alias) => {
         this.commandHandlers.set(alias, func);
@@ -73,13 +77,27 @@ export class BaseBot {
     });
   }
 
-  public initEventHandlers(): void {
+  private initEventHandlers(): void {
     this.discord.once('ready', this.readyHandler);
     this.discord.on('message', this.messageHandler);
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
 
     // Subscribe to ERROR logs being published
     NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.errorLogHandler);
+
+    this.initCustomEventHandlers();
+  }
+
+  // Subscribe to any extra events outside of the base ones
+  public initCustomEventHandlers(): void {
+    // Stub function, subclass to override
+    return;
+  }
+
+  // Add all interfaces to the interfaces array
+  public loadInterfaces(): void {
+    // Stub function, subclass to override
+    return;
   }
 
   // Utility functions

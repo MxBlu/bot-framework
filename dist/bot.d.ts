@@ -23,8 +23,10 @@ export declare class BaseBot {
      * @param discordToken : Discord token received from the bot.
      */
     init(discordToken: string): Promise<void>;
-    initCommandHandlers(): void;
-    initEventHandlers(): void;
+    private initCommandHandlers;
+    private initEventHandlers;
+    initCustomEventHandlers(): void;
+    loadInterfaces(): void;
     private parseCommand;
     readyHandler: () => void;
     onReady(): Promise<void>;

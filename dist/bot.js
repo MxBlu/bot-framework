@@ -136,8 +136,12 @@ var BaseBot = /** @class */ (function () {
     };
     BaseBot.prototype.initCommandHandlers = function () {
         var _this = this;
+        // Add help command
         this.commandHandlers.set("help", this.helpHandler);
         this.commandHandlers.set("h", this.helpHandler);
+        // Load in any subclass interfaces
+        this.loadInterfaces();
+        // Add commands on the interface
         this.interfaces.forEach(function (iface) {
             iface.commands().forEach(function (func, alias) {
                 _this.commandHandlers.set(alias, func);
@@ -151,6 +155,17 @@ var BaseBot = /** @class */ (function () {
         this.discord.on('error', function (err) { return _this.logger.error("Discord error: " + err); });
         // Subscribe to ERROR logs being published
         NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.errorLogHandler);
+        this.initCustomEventHandlers();
+    };
+    // Subscribe to any extra events outside of the base ones
+    BaseBot.prototype.initCustomEventHandlers = function () {
+        // Stub function, subclass to override
+        return;
+    };
+    // Add all interfaces to the interfaces array
+    BaseBot.prototype.loadInterfaces = function () {
+        // Stub function, subclass to override
+        return;
     };
     // Utility functions
     BaseBot.prototype.parseCommand = function (cmdMessage) {

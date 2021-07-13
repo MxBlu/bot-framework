@@ -1,6 +1,6 @@
-import { BotCommandHandlerFunction } from "../bot";
+import { BotCommandHandlerFunction } from "../bot.js";
 
 export interface CommandInterface { 
-  // commandName, function
+  // Returns a map of aliases to command functions to call
   commands(): Map<string, BotCommandHandlerFunction>;
 }

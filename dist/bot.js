@@ -115,6 +115,7 @@ var BaseBot = /** @class */ (function () {
         this.name = name;
         this.logger = new Logger(name);
         this.errLogDisabled = false;
+        this.interfaces = [];
         this.commandHandlers = new Map();
     }
     /**

@@ -118,18 +118,6 @@ var BaseBot = /** @class */ (function () {
         this.commandHandlers = new Map();
     }
     /**
-     * Utility function designed to append additional commands into the base bot utility.
-     * Implementations should be called BEFORE super.init().
-     * @param commands : A map with alias and BotCommandHandlerFunction.
-     * Returns void.
-     */
-    BaseBot.prototype.addCommandHandlers = function (commands) {
-        var _this = this;
-        commands.forEach(function (func, alias) {
-            _this.commandHandlers.set(alias, func);
-        });
-    };
-    /**
      * Primary function in charge of launching the bot.
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
@@ -147,8 +135,14 @@ var BaseBot = /** @class */ (function () {
         });
     };
     BaseBot.prototype.initCommandHandlers = function () {
+        var _this = this;
         this.commandHandlers.set("help", this.helpHandler);
         this.commandHandlers.set("h", this.helpHandler);
+        this.interfaces.forEach(function (iface) {
+            iface.commands().forEach(function (func, alias) {
+                _this.commandHandlers.set(alias, func);
+            });
+        });
     };
     BaseBot.prototype.initEventHandlers = function () {
         var _this = this;

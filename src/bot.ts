@@ -1,6 +1,7 @@
 import { Message, Client as DiscordClient, TextChannel } from "discord.js";
 
 import { sendMessage } from "./bot_utils.js";
+import { CommandInterface } from "./commands/command_interface.js";
 import { DISCORD_ERROR_CHANNEL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -32,6 +33,9 @@ export class BaseBot {
   // Manager for scrolling modals
   scrollableManager: ScrollableModalManager;
 
+  // Command interfaces that provide handlers
+  interfaces: CommandInterface[];
+
   // Map of command names to handlers
   commandHandlers: Map<string, BotCommandHandlerFunction>;
 
@@ -40,18 +44,6 @@ export class BaseBot {
     this.logger = new Logger(name);
     this.errLogDisabled = false;
     this.commandHandlers = new Map<string, BotCommandHandlerFunction>();
-  }
-
-  /**
-   * Utility function designed to append additional commands into the base bot utility.
-   * Implementations should be called BEFORE super.init().
-   * @param commands : A map with alias and BotCommandHandlerFunction.
-   * Returns void.
-   */
-  public addCommandHandlers(commands: Map<string, BotCommandHandlerFunction>): void {
-    commands.forEach((func, alias) => {
-      this.commandHandlers.set(alias, func);
-    })
   }
 
   /**
@@ -70,9 +62,15 @@ export class BaseBot {
   }
 
 
-  private initCommandHandlers(): void {
+  public initCommandHandlers(): void {
     this.commandHandlers.set("help", this.helpHandler);
     this.commandHandlers.set("h", this.helpHandler);
+
+    this.interfaces.forEach(iface => {
+      iface.commands().forEach((func, alias) => {
+        this.commandHandlers.set(alias, func);
+      })
+    });
   }
 
   public initEventHandlers(): void {

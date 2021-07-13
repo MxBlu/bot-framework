@@ -1,4 +1,5 @@
 import { Message, Client as DiscordClient } from "discord.js";
+import { CommandInterface } from "./commands/command_interface.js";
 import { Logger } from "./logger.js";
 import { ScrollableModalManager } from "./scrollable.js";
 export declare type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
@@ -13,22 +14,16 @@ export declare class BaseBot {
     logger: Logger;
     errLogDisabled: boolean;
     scrollableManager: ScrollableModalManager;
+    interfaces: CommandInterface[];
     commandHandlers: Map<string, BotCommandHandlerFunction>;
     constructor(name: string);
-    /**
-     * Utility function designed to append additional commands into the base bot utility.
-     * Implementations should be called BEFORE super.init().
-     * @param commands : A map with alias and BotCommandHandlerFunction.
-     * Returns void.
-     */
-    addCommandHandlers(commands: Map<string, BotCommandHandlerFunction>): void;
     /**
      * Primary function in charge of launching the bot.
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
     init(discordToken: string): Promise<void>;
-    private initCommandHandlers;
+    initCommandHandlers(): void;
     initEventHandlers(): void;
     private parseCommand;
     readyHandler: () => void;

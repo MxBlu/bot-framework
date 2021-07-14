@@ -1,4 +1,4 @@
-import { Message, Client as DiscordClient, TextChannel } from "discord.js";
+import { Message, Client as DiscordClient, TextChannel, ClientOptions } from "discord.js";
 
 import { sendMessage } from "./bot_utils.js";
 import { CommandInterface } from "./commands/command_interface.js";
@@ -52,8 +52,8 @@ export class BaseBot {
    * This should be run after addCommandHandlers() is called.
    * @param discordToken : Discord token received from the bot.
    */
-  public async init(discordToken: string): Promise<void> {
-    this.discord  = new DiscordClient();
+  public async init(discordToken: string, discordClientOptions: ClientOptions = {}): Promise<void> {
+    this.discord  = new DiscordClient(discordClientOptions);
     this.scrollableManager = new ScrollableModalManager(this.discord);
 
     this.initCommandHandlers();

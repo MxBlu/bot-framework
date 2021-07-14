@@ -123,10 +123,11 @@ var BaseBot = /** @class */ (function () {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    BaseBot.prototype.init = function (discordToken) {
+    BaseBot.prototype.init = function (discordToken, discordClientOptions) {
+        if (discordClientOptions === void 0) { discordClientOptions = {}; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.discord = new DiscordClient();
+                this.discord = new DiscordClient(discordClientOptions);
                 this.scrollableManager = new ScrollableModalManager(this.discord);
                 this.initCommandHandlers();
                 this.initEventHandlers();

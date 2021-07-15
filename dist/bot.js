@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import { Client as DiscordClient, TextChannel } from "discord.js";
 import { sendMessage } from "./bot_utils.js";
-import { DISCORD_ERROR_CHANNEL } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 import { ScrollableModalManager } from "./scrollable.js";
@@ -85,6 +85,7 @@ var BaseBot = /** @class */ (function () {
         // Error handler
         this.errorLogHandler = function (log) { return __awaiter(_this, void 0, void 0, function () {
             var targetChannel, e_1;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -104,9 +105,14 @@ var BaseBot = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         e_1 = _a.sent();
-                        console.error('Discord error log exception, disabling error log');
-                        console.error(e_1);
+                        // Trip error flag, prevents error logs hitting here again
                         this.errLogDisabled = true;
+                        this.logger.error("Discord error logging exception, disabling error log: " + e_1);
+                        // Reset error status after DISCORD_LOG_ERROR_STATUS_RESET ms
+                        setTimeout(function () {
+                            _this.errLogDisabled = false;
+                            _this.logger.debug("Discord error logging re-enabled");
+                        }, DISCORD_LOG_ERROR_STATUS_RESET);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }

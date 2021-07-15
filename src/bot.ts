@@ -2,7 +2,7 @@ import { Message, Client as DiscordClient, TextChannel, ClientOptions } from "di
 
 import { sendMessage } from "./bot_utils.js";
 import { CommandInterface } from "./commands/command_interface.js";
-import { DISCORD_ERROR_CHANNEL } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 import { ScrollableModalManager } from "./scrollable.js";
@@ -174,9 +174,15 @@ export class BaseBot {
           sendMessage(targetChannel, log);
         }
       } catch (e) {
-        console.error('Discord error log exception, disabling error log');
-        console.error(e);
+        // Trip error flag, prevents error logs hitting here again
         this.errLogDisabled = true;
+        this.logger.error(`Discord error logging exception, disabling error log: ${e}`);
+
+        // Reset error status after DISCORD_LOG_ERROR_STATUS_RESET ms
+        setTimeout(() => { 
+          this.errLogDisabled = false;
+          this.logger.debug("Discord error logging re-enabled");
+        }, DISCORD_LOG_ERROR_STATUS_RESET);
       }
     }
   }

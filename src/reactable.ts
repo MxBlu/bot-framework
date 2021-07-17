@@ -2,9 +2,9 @@ import { CollectorFilter, GuildMember, Message, MessageReaction, ReactionCollect
 
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 
-export type ReactionHandlerFunction<T> = (modal: Reactable<T>, reaction: MessageReaction, 
+export type ReactionHandlerFunction<T> = (reactable: Reactable<T>, reaction: MessageReaction, 
   user: GuildMember) => Promise<void>;
-export type ReactableRemovalFunction<T> = (modal: Reactable<T>) => Promise<void>;
+export type ReactableRemovalFunction<T> = (reactable: Reactable<T>) => Promise<void>;
 
 // Big fancy wrapper around ReactionCollectors that works out cleaner
 export class Reactable<T> {

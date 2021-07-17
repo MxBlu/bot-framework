@@ -1,6 +1,6 @@
 import { GuildMember, Message, MessageReaction, ReactionCollector } from "discord.js";
-export declare type ReactionHandlerFunction<T> = (modal: Reactable<T>, reaction: MessageReaction, user: GuildMember) => Promise<void>;
-export declare type ReactableRemovalFunction<T> = (modal: Reactable<T>) => Promise<void>;
+export declare type ReactionHandlerFunction<T> = (reactable: Reactable<T>, reaction: MessageReaction, user: GuildMember) => Promise<void>;
+export declare type ReactableRemovalFunction<T> = (reactable: Reactable<T>) => Promise<void>;
 export declare class Reactable<T> {
     message: Message;
     collector: ReactionCollector;

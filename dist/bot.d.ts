@@ -1,7 +1,6 @@
 import { Message, Client as DiscordClient, ClientOptions } from "discord.js";
 import { CommandInterface } from "./commands/command_interface.js";
 import { Logger } from "./logger.js";
-import { ScrollableModalManager } from "./scrollable.js";
 export declare type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
 export declare class BotCommand {
     message: Message;
@@ -13,7 +12,6 @@ export declare class BaseBot {
     discord: DiscordClient;
     logger: Logger;
     errLogDisabled: boolean;
-    scrollableManager: ScrollableModalManager;
     interfaces: CommandInterface[];
     commandHandlers: Map<string, BotCommandHandlerFunction>;
     constructor(name: string);

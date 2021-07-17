@@ -5,7 +5,6 @@ import { CommandInterface } from "./commands/command_interface.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-import { ScrollableModalManager } from "./scrollable.js";
 
 const commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
 
@@ -30,9 +29,6 @@ export class BaseBot {
   // For when we hit an error logging to Discord itself
   errLogDisabled: boolean;
 
-  // Manager for scrolling modals
-  scrollableManager: ScrollableModalManager;
-
   // Command interfaces that provide handlers
   interfaces: CommandInterface[];
 
@@ -54,7 +50,6 @@ export class BaseBot {
    */
   public async init(discordToken: string, discordClientOptions: ClientOptions = {}): Promise<void> {
     this.discord  = new DiscordClient(discordClientOptions);
-    this.scrollableManager = new ScrollableModalManager(this.discord);
 
     this.initCommandHandlers();
     this.initEventHandlers();

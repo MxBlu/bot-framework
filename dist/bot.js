@@ -39,7 +39,6 @@ import { sendMessage } from "./bot_utils.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-import { ScrollableModalManager } from "./scrollable.js";
 var commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
 var BotCommand = /** @class */ (function () {
     function BotCommand() {
@@ -134,7 +133,6 @@ var BaseBot = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 this.discord = new DiscordClient(discordClientOptions);
-                this.scrollableManager = new ScrollableModalManager(this.discord);
                 this.initCommandHandlers();
                 this.initEventHandlers();
                 this.discord.login(discordToken);

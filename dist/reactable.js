@@ -171,7 +171,7 @@ var Reactable = /** @class */ (function () {
             });
         }); });
         // On "end", call deactivate
-        this.collector.on("end", function () { return _this.deactivate; });
+        this.collector.on("end", function () { return _this.deactivate(); });
     };
     return Reactable;
 }());

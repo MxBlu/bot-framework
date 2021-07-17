@@ -103,6 +103,6 @@ export class Reactable<T> {
       reaction.users.remove(user);
     });
     // On "end", call deactivate
-    this.collector.on("end", () => this.deactivate);
+    this.collector.on("end", () => this.deactivate());
   }
 }

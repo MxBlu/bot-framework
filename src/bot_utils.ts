@@ -1,4 +1,4 @@
-import { DMChannel, Message, NewsChannel, TextChannel } from "discord.js";
+import { DMChannel, Guild, GuildChannel, GuildMember, Message, NewsChannel, Role, TextChannel } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -87,4 +87,43 @@ export const stringSearch = function(str1: string, str2: string): boolean {
 export const isAdmin = async function(message: Message): Promise<boolean> {
   const author = await message.guild.members.fetch(message.author.id);
   return author.permissions.has("ADMINISTRATOR");
+}
+
+// Given a mention or name, provide a GuildMember if any exist matching
+export const findGuildMember = async (userString: string, guild: Guild): Promise<GuildMember> => {
+  // Try checking for a mention
+  const userRx = userString.match(/^<@!(\d+)>$/);
+  if (userRx != null) {
+    return guild.members.cache.get(userRx[1]);
+  } else {
+    // Otherwise, try checking if it's a substring of nickname/username
+    // Ensure the member cache is populated
+    await guild.members.fetch();
+    return guild.members.cache.find(
+          m => stringSearch(m.nickname, userString) || 
+              stringSearch(m.user.username, userString));
+  }
+}
+
+// Given a mention or name, provide a GuildMember if any exist matching
+export const findGuildChannel = async (channelString: string, guild: Guild): Promise<GuildChannel> => {
+  // Try checking for a channel mention
+  const channelRx = channelString.match(/^<#(\d+)>$/);
+  if (channelRx != null) {
+    return guild.channels.cache.get(channelRx[1]);
+  } else {
+    // Otherwise, try checking if it's a substring of channel name
+    return guild.channels.cache.find(c => stringEquivalence(c.name, channelString));
+  }
+}
+
+export const findGuildRole = async (roleString: string, guild: Guild): Promise<Role> => {
+  // Try checking for a role mention
+  const roleRx = roleString.match(/^<@&(\d+)>$/);
+  if (roleRx != null) {
+    return guild.roles.cache.get(roleRx[1]);
+  } else {
+    // Otherwise, try checking if it's a substring of role name
+    return guild.roles.cache.find(r => stringEquivalence(r.name, roleString));
+  }
 }

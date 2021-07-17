@@ -116,4 +116,55 @@ export var isAdmin = function (message) {
         });
     });
 };
+// Given a mention or name, provide a GuildMember if any exist matching
+export var findGuildMember = function (userString, guild) { return __awaiter(void 0, void 0, void 0, function () {
+    var userRx;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                userRx = userString.match(/^<@!(\d+)>$/);
+                if (!(userRx != null)) return [3 /*break*/, 1];
+                return [2 /*return*/, guild.members.cache.get(userRx[1])];
+            case 1: 
+            // Otherwise, try checking if it's a substring of nickname/username
+            // Ensure the member cache is populated
+            return [4 /*yield*/, guild.members.fetch()];
+            case 2:
+                // Otherwise, try checking if it's a substring of nickname/username
+                // Ensure the member cache is populated
+                _a.sent();
+                return [2 /*return*/, guild.members.cache.find(function (m) { return stringSearch(m.nickname, userString) ||
+                        stringSearch(m.user.username, userString); })];
+        }
+    });
+}); };
+// Given a mention or name, provide a GuildMember if any exist matching
+export var findGuildChannel = function (channelString, guild) { return __awaiter(void 0, void 0, void 0, function () {
+    var channelRx;
+    return __generator(this, function (_a) {
+        channelRx = channelString.match(/^<#(\d+)>$/);
+        if (channelRx != null) {
+            return [2 /*return*/, guild.channels.cache.get(channelRx[1])];
+        }
+        else {
+            // Otherwise, try checking if it's a substring of channel name
+            return [2 /*return*/, guild.channels.cache.find(function (c) { return stringEquivalence(c.name, channelString); })];
+        }
+        return [2 /*return*/];
+    });
+}); };
+export var findGuildRole = function (roleString, guild) { return __awaiter(void 0, void 0, void 0, function () {
+    var roleRx;
+    return __generator(this, function (_a) {
+        roleRx = roleString.match(/^<@&(\d+)>$/);
+        if (roleRx != null) {
+            return [2 /*return*/, guild.roles.cache.get(roleRx[1])];
+        }
+        else {
+            // Otherwise, try checking if it's a substring of role name
+            return [2 /*return*/, guild.roles.cache.find(function (r) { return stringEquivalence(r.name, roleString); })];
+        }
+        return [2 /*return*/];
+    });
+}); };
 //# sourceMappingURL=bot_utils.js.map

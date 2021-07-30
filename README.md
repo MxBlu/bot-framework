@@ -12,6 +12,10 @@ Good luck!
 
 There are example implementations of these frameworks found in weeb_bot and quote_bot, both of which can be found on MxBlu's collection.
 
+## Requirements
+
+Requires Node v14 minimum (due to requirement of discord.js master)
+
 ## Usage
 
 If you wish to use this framework for some psychopathic reason, you can install it utilizing

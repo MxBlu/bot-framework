@@ -13,7 +13,7 @@ export const DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 export const TRIGGER_RESOLUTION = 500; // 500ms
 
 // Channel to post error logs to
-export const DISCORD_ERROR_CHANNEL = process.env.DISCORD_ERROR_CHANNEL;
+export const DISCORD_ERROR_CHANNEL = BigInt(process.env.DISCORD_ERROR_CHANNEL) || 0;
 
 // Time to wait before resetting "error" status on Discord logging
 export const DISCORD_LOG_ERROR_STATUS_RESET = 60000; // 10 minutes

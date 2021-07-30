@@ -1,7 +1,8 @@
-import { Message, Client as DiscordClient, ClientOptions } from "discord.js";
+import { Message, Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
 import { CommandInterface } from "./commands/command_interface.js";
 import { Logger } from "./logger.js";
 export declare type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
+declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 export declare class BotCommand {
     message: Message;
     command: string;
@@ -20,7 +21,7 @@ export declare class BaseBot {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    init(discordToken: string, discordClientOptions?: ClientOptions): Promise<void>;
+    init(discordToken: string, intents?: BitFieldResolvable<IntentsString, number>, discordClientOptions?: ClientOptionsWithoutIntents): Promise<void>;
     private initCommandHandlers;
     private initEventHandlers;
     initCustomEventHandlers(): void;
@@ -33,3 +34,4 @@ export declare class BaseBot {
     private errorLogHandler;
     getHelpMessage(): string;
 }
+export {};

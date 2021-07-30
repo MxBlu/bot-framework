@@ -1,4 +1,4 @@
-import { Message, Client as DiscordClient, TextChannel, ClientOptions } from "discord.js";
+import { Message, Client as DiscordClient, TextChannel, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
 
 import { sendMessage } from "./bot_utils.js";
 import { CommandInterface } from "./commands/command_interface.js";
@@ -9,6 +9,8 @@ import { Logger, NewLogEmitter } from "./logger.js";
 const commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
 
 export type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
+
+type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 
 export class BotCommand {
   message: Message;
@@ -48,8 +50,13 @@ export class BaseBot {
    * This should be run after addCommandHandlers() is called.
    * @param discordToken : Discord token received from the bot.
    */
-  public async init(discordToken: string, discordClientOptions: ClientOptions = {}): Promise<void> {
-    this.discord  = new DiscordClient(discordClientOptions);
+  public async init(discordToken: string, 
+      intents: BitFieldResolvable<IntentsString, number> = [ "GUILDS", "GUILD_MESSAGES" ], 
+      discordClientOptions: ClientOptionsWithoutIntents = { }): Promise<void> {
+    this.discord  = new DiscordClient({
+      ...discordClientOptions,
+      intents
+    });
 
     this.initCommandHandlers();
     this.initEventHandlers();
@@ -158,12 +165,12 @@ export class BaseBot {
   // Error handler
 
   private errorLogHandler = async (log: string): Promise<void> => {
-    if (!this.errLogDisabled) {
+    if (!this.errLogDisabled && DISCORD_ERROR_CHANNEL != 0) {
       try {
         // Remove any consequtive spaces to make logs more legible
         log = log.replace(/  +/, ' ');
         // Should ensure that it works for DM channels too
-        const targetChannel = await this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
+        const targetChannel = await this.discord.channels.fetch(`${DISCORD_ERROR_CHANNEL}`);
         // Only send if we can access the error channel
         if (targetChannel != null && targetChannel instanceof TextChannel) {
           sendMessage(targetChannel, log);

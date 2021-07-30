@@ -153,7 +153,7 @@ var Reactable = /** @class */ (function () {
             return !user.bot && handledEmojis.includes(reaction.emoji.name);
         };
         // Generate reaction collector
-        this.collector = this.message.createReactionCollector(filter, { time: duration });
+        this.collector = this.message.createReactionCollector({ filter: filter, time: duration });
         // On "collect" (aka a reaction), call relevant handler function
         this.collector.on("collect", function (reaction, user) { return __awaiter(_this, void 0, void 0, function () {
             var guildUser, handler;

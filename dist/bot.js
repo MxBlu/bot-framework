@@ -1,3 +1,14 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -88,13 +99,13 @@ var BaseBot = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.errLogDisabled) return [3 /*break*/, 4];
+                        if (!(!this.errLogDisabled && DISCORD_ERROR_CHANNEL != 0)) return [3 /*break*/, 4];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         // Remove any consequtive spaces to make logs more legible
                         log = log.replace(/  +/, ' ');
-                        return [4 /*yield*/, this.discord.channels.fetch(DISCORD_ERROR_CHANNEL)];
+                        return [4 /*yield*/, this.discord.channels.fetch("" + DISCORD_ERROR_CHANNEL)];
                     case 2:
                         targetChannel = _a.sent();
                         // Only send if we can access the error channel
@@ -128,11 +139,12 @@ var BaseBot = /** @class */ (function () {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    BaseBot.prototype.init = function (discordToken, discordClientOptions) {
+    BaseBot.prototype.init = function (discordToken, intents, discordClientOptions) {
+        if (intents === void 0) { intents = ["GUILDS", "GUILD_MESSAGES"]; }
         if (discordClientOptions === void 0) { discordClientOptions = {}; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.discord = new DiscordClient(discordClientOptions);
+                this.discord = new DiscordClient(__assign(__assign({}, discordClientOptions), { intents: intents }));
                 this.initCommandHandlers();
                 this.initEventHandlers();
                 this.discord.login(discordToken);

@@ -84,12 +84,12 @@ export class Reactable<T> {
     const handledEmojis = Array.from(this.reactionHandlers.keys());
     // Create a filter for reactions
     // We only want reactions from non-bot users and for reactions we have handlers for
-    const filter: CollectorFilter = (reaction: MessageReaction, user: User) => {
+    const filter: CollectorFilter<[MessageReaction, User]> = (reaction: MessageReaction, user: User) => {
       return !user.bot && handledEmojis.includes(reaction.emoji.name);
     };
 
     // Generate reaction collector
-    this.collector = this.message.createReactionCollector(filter, { time: duration });
+    this.collector = this.message.createReactionCollector({ filter, time: duration });
     // On "collect" (aka a reaction), call relevant handler function
     this.collector.on("collect", async (reaction, user) => {
       // Convert User to GuildMember - much more useful

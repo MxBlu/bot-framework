@@ -1,4 +1,4 @@
-import { DMChannel, Guild, GuildChannel, GuildMember, Message, NewsChannel, Role, TextChannel } from "discord.js";
+import { DMChannel, Guild, GuildChannel, GuildMember, Message, NewsChannel, Role, Snowflake, TextChannel, ThreadChannel } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -53,7 +53,7 @@ export const sendCmdMessage = function (message: Message, msg: string,
 }
 
 // Send message to a given channel, chunking if necessary
-export const sendMessage = function (targetChannel: TextChannel | DMChannel | NewsChannel, 
+export const sendMessage = function (targetChannel: TextChannel | DMChannel | NewsChannel | ThreadChannel, 
     msg: string): void {
   const msgChunks = chunkString(msg);
   msgChunks.forEach(
@@ -94,7 +94,7 @@ export const findGuildMember = async (userString: string, guild: Guild): Promise
   // Try checking for a mention
   const userRx = userString.match(/^<@!(\d+)>$/);
   if (userRx != null) {
-    return guild.members.cache.get(userRx[1]);
+    return guild.members.cache.get(userRx[1] as Snowflake);
   } else {
     // Otherwise, try checking if it's a substring of nickname/username
     // Ensure the member cache is populated
@@ -106,11 +106,11 @@ export const findGuildMember = async (userString: string, guild: Guild): Promise
 }
 
 // Given a mention or name, provide a GuildMember if any exist matching
-export const findGuildChannel = async (channelString: string, guild: Guild): Promise<GuildChannel> => {
+export const findGuildChannel = async (channelString: string, guild: Guild): Promise<GuildChannel | ThreadChannel> => {
   // Try checking for a channel mention
   const channelRx = channelString.match(/^<#(\d+)>$/);
   if (channelRx != null) {
-    return guild.channels.cache.get(channelRx[1]);
+    return guild.channels.cache.get(channelRx[1] as Snowflake);
   } else {
     // Otherwise, try checking if it's a substring of channel name
     return guild.channels.cache.find(c => stringEquivalence(c.name, channelString));
@@ -121,7 +121,7 @@ export const findGuildRole = async (roleString: string, guild: Guild): Promise<R
   // Try checking for a role mention
   const roleRx = roleString.match(/^<@&(\d+)>$/);
   if (roleRx != null) {
-    return guild.roles.cache.get(roleRx[1]);
+    return guild.roles.cache.get(roleRx[1] as Snowflake);
   } else {
     // Otherwise, try checking if it's a substring of role name
     return guild.roles.cache.find(r => stringEquivalence(r.name, roleString));

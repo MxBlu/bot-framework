@@ -66,7 +66,7 @@ export class BaseBot {
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {
       provider.provideAliases().forEach(alias => {
-        this.commandHandlers.set(alias, provider.handle);
+        this.commandHandlers.set(alias.toLowerCase(), provider.handle);
       });
     });
   }

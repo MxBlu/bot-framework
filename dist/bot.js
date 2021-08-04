@@ -139,7 +139,7 @@ var BaseBot = /** @class */ (function () {
         // Assign aliases to handler command for each provider 
         this.providers.forEach(function (provider) {
             provider.provideAliases().forEach(function (alias) {
-                _this.commandHandlers.set(alias, provider.handle);
+                _this.commandHandlers.set(alias.toLowerCase(), provider.handle);
             });
         });
     };

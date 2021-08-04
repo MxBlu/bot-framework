@@ -1,7 +1,6 @@
 import { Message, Client as DiscordClient, ClientOptions } from "discord.js";
-import { CommandInterface } from "./commands/command_interface.js";
+import { BotCommandHandlerFunction, CommandProvider } from "./command_provider.js";
 import { Logger } from "./logger.js";
-export declare type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
 export declare class BotCommand {
     message: Message;
     command: string;
@@ -12,7 +11,7 @@ export declare class BaseBot {
     discord: DiscordClient;
     logger: Logger;
     errLogDisabled: boolean;
-    interfaces: CommandInterface[];
+    providers: CommandProvider[];
     commandHandlers: Map<string, BotCommandHandlerFunction>;
     constructor(name: string);
     /**
@@ -29,7 +28,6 @@ export declare class BaseBot {
     readyHandler: () => void;
     onReady(): Promise<void>;
     private messageHandler;
-    private helpHandler;
     private errorLogHandler;
     getHelpMessage(): string;
 }

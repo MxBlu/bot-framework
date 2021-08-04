@@ -38,6 +38,7 @@ import { Client as DiscordClient, TextChannel } from "discord.js";
 import { sendMessage } from "./bot_utils.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
+import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 var commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
 var BotCommand = /** @class */ (function () {
@@ -67,17 +68,6 @@ var BaseBot = /** @class */ (function () {
                         ("!" + command.command + " - '" + command.arguments.join(' ') + "'"));
                     this.commandHandlers.get(command.command)(command);
                 }
-                return [2 /*return*/];
-            });
-        }); };
-        this.helpHandler = function (command) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                if (command.arguments == null ||
-                    command.arguments[0].toLowerCase() !== this.name.toLowerCase()) {
-                    // Only send help for !help <bot name>
-                    return [2 /*return*/];
-                }
-                sendMessage(command.message.channel, this.getHelpMessage());
                 return [2 /*return*/];
             });
         }); };
@@ -120,7 +110,7 @@ var BaseBot = /** @class */ (function () {
         this.name = name;
         this.logger = new Logger(name);
         this.errLogDisabled = false;
-        this.interfaces = [];
+        this.providers = [];
         this.commandHandlers = new Map();
     }
     /**
@@ -142,15 +132,14 @@ var BaseBot = /** @class */ (function () {
     };
     BaseBot.prototype.initCommandHandlers = function () {
         var _this = this;
-        // Add help command
-        this.commandHandlers.set("help", this.helpHandler);
-        this.commandHandlers.set("h", this.helpHandler);
         // Load in any subclass interfaces
         this.loadInterfaces();
-        // Add commands on the interface
-        this.interfaces.forEach(function (iface) {
-            iface.commands().forEach(function (func, alias) {
-                _this.commandHandlers.set(alias, func);
+        // Add help command
+        this.providers.push(new HelpCommand(this.name, this.getHelpMessage()));
+        // Assign aliases to handler command for each provider 
+        this.providers.forEach(function (provider) {
+            provider.provideAliases().forEach(function (alias) {
+                _this.commandHandlers.set(alias, provider.handle);
             });
         });
     };

@@ -1,14 +1,13 @@
 import { Message, Client as DiscordClient, TextChannel, ClientOptions } from "discord.js";
 
 import { sendMessage } from "./bot_utils.js";
-import { CommandInterface } from "./commands/command_interface.js";
+import { BotCommandHandlerFunction, CommandProvider } from "./command_provider.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
+import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 
 const commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
-
-export type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
 
 export class BotCommand {
   message: Message;
@@ -30,7 +29,7 @@ export class BaseBot {
   errLogDisabled: boolean;
 
   // Command interfaces that provide handlers
-  interfaces: CommandInterface[];
+  providers: CommandProvider[];
 
   // Map of command names to handlers
   commandHandlers: Map<string, BotCommandHandlerFunction>;
@@ -39,7 +38,7 @@ export class BaseBot {
     this.name = name;
     this.logger = new Logger(name);
     this.errLogDisabled = false;
-    this.interfaces = [];
+    this.providers = [];
     this.commandHandlers = new Map<string, BotCommandHandlerFunction>();
   }
 
@@ -58,18 +57,17 @@ export class BaseBot {
   }
 
   private initCommandHandlers(): void {
-    // Add help command
-    this.commandHandlers.set("help", this.helpHandler);
-    this.commandHandlers.set("h", this.helpHandler);
-
     // Load in any subclass interfaces
     this.loadInterfaces();
 
-    // Add commands on the interface
-    this.interfaces.forEach(iface => {
-      iface.commands().forEach((func, alias) => {
-        this.commandHandlers.set(alias, func);
-      })
+    // Add help command
+    this.providers.push(new HelpCommand(this.name, this.getHelpMessage()));
+
+    // Assign aliases to handler command for each provider 
+    this.providers.forEach(provider => {
+      provider.provideAliases().forEach(alias => {
+        this.commandHandlers.set(alias, provider.handle);
+      });
     });
   }
 
@@ -143,16 +141,6 @@ export class BaseBot {
           `!${command.command} - '${command.arguments.join(' ')}'`);
       this.commandHandlers.get(command.command)(command);
     }
-  }
-
-  private helpHandler = async (command: BotCommand): Promise<void> => {
-    if (command.arguments == null ||
-          command.arguments[0].toLowerCase() !== this.name.toLowerCase()) {
-      // Only send help for !help <bot name>
-      return;
-    }
-
-    sendMessage(command.message.channel, this.getHelpMessage());
   }
 
   // Error handler

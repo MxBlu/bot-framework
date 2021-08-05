@@ -27,10 +27,8 @@ export class BaseBot {
 
   // For when we hit an error logging to Discord itself
   errLogDisabled: boolean;
-
   // Command interfaces that provide handlers
   providers: CommandProvider[];
-
   // Map of command names to handlers
   commandHandlers: Map<string, BotCommandHandlerFunction>;
 
@@ -56,6 +54,8 @@ export class BaseBot {
     this.discord.login(discordToken);
   }
 
+  // Initialise and map all command handlers
+  // Runs after loadInterfaces()
   private initCommandHandlers(): void {
     // Load in any subclass interfaces
     this.loadInterfaces();
@@ -71,6 +71,8 @@ export class BaseBot {
     });
   }
 
+  // Initialise all event handlers
+  // Runs before initCustomEventHandlers()
   private initEventHandlers(): void {
     this.discord.once('ready', this.readyHandler);
     this.discord.on('message', this.messageHandler);
@@ -92,6 +94,11 @@ export class BaseBot {
   public loadInterfaces(): void {
     // Stub function, subclass to override
     return;
+  }
+
+  // Return a string for the bot-level help message
+  public getHelpMessage(): string {
+    throw new Error("Method not implemented");
   }
 
   // Utility functions
@@ -119,14 +126,8 @@ export class BaseBot {
 
   // Discord event handlers
 
-  public readyHandler = (): void => {
+  private readyHandler = (): void => {
     this.logger.info("Discord connected");
-    this.onReady();
-  }
-
-  public onReady(): Promise<void> {
-    // To override on superclass
-    return;
   }
 
   private messageHandler = async (message: Message): Promise<void> => {
@@ -168,10 +169,6 @@ export class BaseBot {
         }, DISCORD_LOG_ERROR_STATUS_RESET);
       }
     }
-  }
-
-  public getHelpMessage(): string {
-    throw new Error("Method not implemented");
   }
 
 }

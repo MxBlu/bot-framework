@@ -55,10 +55,10 @@ export class BaseBot {
   }
 
   // Initialise and map all command handlers
-  // Runs after loadInterfaces()
+  // Runs after loadProviders()
   private initCommandHandlers(): void {
     // Load in any subclass interfaces
-    this.loadInterfaces();
+    this.loadProviders();
 
     // Add help command, passing in all currently registered providers (help is not yet registered)
     this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
@@ -90,8 +90,8 @@ export class BaseBot {
     return;
   }
 
-  // Add all interfaces to the interfaces array
-  public loadInterfaces(): void {
+  // Add all providers to the providers array
+  public loadProviders(): void {
     // Stub function, subclass to override
     return;
   }

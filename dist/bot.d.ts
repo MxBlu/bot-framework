@@ -23,7 +23,7 @@ export declare class BaseBot {
     private initCommandHandlers;
     private initEventHandlers;
     initCustomEventHandlers(): void;
-    loadInterfaces(): void;
+    loadProviders(): void;
     getHelpMessage(): string;
     private parseCommand;
     private readyHandler;

@@ -130,11 +130,11 @@ var BaseBot = /** @class */ (function () {
         });
     };
     // Initialise and map all command handlers
-    // Runs after loadInterfaces()
+    // Runs after loadProviders()
     BaseBot.prototype.initCommandHandlers = function () {
         var _this = this;
         // Load in any subclass interfaces
-        this.loadInterfaces();
+        this.loadProviders();
         // Add help command, passing in all currently registered providers (help is not yet registered)
         this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
         // Assign aliases to handler command for each provider 
@@ -160,8 +160,8 @@ var BaseBot = /** @class */ (function () {
         // Stub function, subclass to override
         return;
     };
-    // Add all interfaces to the interfaces array
-    BaseBot.prototype.loadInterfaces = function () {
+    // Add all providers to the providers array
+    BaseBot.prototype.loadProviders = function () {
         // Stub function, subclass to override
         return;
     };

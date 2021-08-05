@@ -53,7 +53,6 @@ var BaseBot = /** @class */ (function () {
         // Discord event handlers
         this.readyHandler = function () {
             _this.logger.info("Discord connected");
-            _this.onReady();
         };
         this.messageHandler = function (message) { return __awaiter(_this, void 0, void 0, function () {
             var command;
@@ -130,12 +129,14 @@ var BaseBot = /** @class */ (function () {
             });
         });
     };
+    // Initialise and map all command handlers
+    // Runs after loadInterfaces()
     BaseBot.prototype.initCommandHandlers = function () {
         var _this = this;
         // Load in any subclass interfaces
         this.loadInterfaces();
-        // Add help command
-        this.providers.push(new HelpCommand(this.name, this.getHelpMessage()));
+        // Add help command, passing in all currently registered providers (help is not yet registered)
+        this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
         // Assign aliases to handler command for each provider 
         this.providers.forEach(function (provider) {
             provider.provideAliases().forEach(function (alias) {
@@ -143,6 +144,8 @@ var BaseBot = /** @class */ (function () {
             });
         });
     };
+    // Initialise all event handlers
+    // Runs before initCustomEventHandlers()
     BaseBot.prototype.initEventHandlers = function () {
         var _this = this;
         this.discord.once('ready', this.readyHandler);
@@ -162,6 +165,10 @@ var BaseBot = /** @class */ (function () {
         // Stub function, subclass to override
         return;
     };
+    // Return a string for the bot-level help message
+    BaseBot.prototype.getHelpMessage = function () {
+        throw new Error("Method not implemented");
+    };
     // Utility functions
     BaseBot.prototype.parseCommand = function (cmdMessage) {
         // Compare against command syntax
@@ -178,13 +185,6 @@ var BaseBot = /** @class */ (function () {
         command.command = matchObj[1].toLowerCase();
         command.arguments = cmdArgs;
         return command;
-    };
-    BaseBot.prototype.onReady = function () {
-        // To override on superclass
-        return;
-    };
-    BaseBot.prototype.getHelpMessage = function () {
-        throw new Error("Method not implemented");
     };
     return BaseBot;
 }());

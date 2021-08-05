@@ -1,22 +1,30 @@
 import { BotCommand } from "../bot.js";
 import { sendMessage } from "../bot_utils.js";
+import { CommandProvider } from "../command_provider.js";
 
-export class HelpCommand {
+// Command to return a help message for the current bot
+export class HelpCommand implements CommandProvider {
   // Bot name, used to ensure the command is only run for a given bot
   botName: string;
   // Help message to send on call
   helpMessage: string;
 
-  constructor(botName: string, helpMessage: string) {
+  constructor(botName: string, botHelpMessage: string, providers: CommandProvider[]) {
     this.botName = botName;
-    this.helpMessage = helpMessage;
+
+    // Generate the help message to use 
+    this.generateHelpMessage(botHelpMessage, providers);
   }
 
-  // Return a string array of aliases handled
   public provideAliases(): string[] {
     return [ "h", "help" ];
   }
-  //Return a function to handle commands
+
+  // Help shouldn't have it's own help message...
+  public provideHelpMessage(): string {
+    throw new Error("Help does not have a help message");
+  }
+
   public handle(command: BotCommand): Promise<void> {
     if (command.arguments == null ||
           command.arguments[0].toLowerCase() !== this.botName.toLowerCase()) {
@@ -27,4 +35,15 @@ export class HelpCommand {
     sendMessage(command.message.channel, this.helpMessage);
   }
 
+  // Generate help message from bot help string and all registered command providers
+  private generateHelpMessage(botHelpMessage: string, providers: CommandProvider[]) {
+    // Add bot help message first
+    this.helpMessage = botHelpMessage + "\n";
+    this.helpMessage += "\n";
+    
+    // Then add the help text for each command
+    for (const provider of providers) {
+      this.helpMessage += provider.provideHelpMessage() + "\n";
+    }
+  }
 }

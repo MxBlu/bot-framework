@@ -24,10 +24,9 @@ export declare class BaseBot {
     private initEventHandlers;
     initCustomEventHandlers(): void;
     loadInterfaces(): void;
+    getHelpMessage(): string;
     private parseCommand;
-    readyHandler: () => void;
-    onReady(): Promise<void>;
+    private readyHandler;
     private messageHandler;
     private errorLogHandler;
-    getHelpMessage(): string;
 }

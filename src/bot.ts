@@ -60,8 +60,7 @@ export class BaseBot {
     // Load in any subclass interfaces
     this.loadInterfaces();
 
-    // Add help command
-    this.providers.push(new HelpCommand(this.name, this.getHelpMessage()));
+    // Add help command, passing in all currently registered providers (help is not yet registered)
 
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {

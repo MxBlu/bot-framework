@@ -66,7 +66,8 @@ var BaseBot = /** @class */ (function () {
                     this.logger.debug("Command received from '" + message.author.username + "' in '" + message.guild.name + "': " +
                         ("!" + command.command + " - '" + command.arguments.join(' ') + "'"));
                     handler = this.commandHandlers.get(command.command);
-                    handler.bind(handler, command);
+                    // Call registered handler, binding "this" to the handler instance
+                    handler.call(handler, command);
                 }
                 return [2 /*return*/];
             });

@@ -140,7 +140,8 @@ export class BaseBot {
     if (command != null) {
       this.logger.debug(`Command received from '${message.author.username}' in '${message.guild.name}': ` +
           `!${command.command} - '${command.arguments.join(' ')}'`);
-      this.commandHandlers.get(command.command)(command);
+      const handler = this.commandHandlers.get(command.command)
+      handler.bind(handler, command);
     }
   }
 

@@ -55,7 +55,7 @@ var BaseBot = /** @class */ (function () {
             _this.logger.info("Discord connected");
         };
         this.messageHandler = function (message) { return __awaiter(_this, void 0, void 0, function () {
-            var command;
+            var command, handler;
             return __generator(this, function (_a) {
                 // Ignore bot messages to avoid messy situations
                 if (message.author.bot) {
@@ -65,7 +65,8 @@ var BaseBot = /** @class */ (function () {
                 if (command != null) {
                     this.logger.debug("Command received from '" + message.author.username + "' in '" + message.guild.name + "': " +
                         ("!" + command.command + " - '" + command.arguments.join(' ') + "'"));
-                    this.commandHandlers.get(command.command)(command);
+                    handler = this.commandHandlers.get(command.command);
+                    handler.bind(handler, command);
                 }
                 return [2 /*return*/];
             });

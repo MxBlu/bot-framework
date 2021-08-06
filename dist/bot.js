@@ -55,7 +55,7 @@ var BaseBot = /** @class */ (function () {
             _this.logger.info("Discord connected");
         };
         this.messageHandler = function (message) { return __awaiter(_this, void 0, void 0, function () {
-            var command, handler;
+            var command;
             return __generator(this, function (_a) {
                 // Ignore bot messages to avoid messy situations
                 if (message.author.bot) {
@@ -65,9 +65,7 @@ var BaseBot = /** @class */ (function () {
                 if (command != null) {
                     this.logger.debug("Command received from '" + message.author.username + "' in '" + message.guild.name + "': " +
                         ("!" + command.command + " - '" + command.arguments.join(' ') + "'"));
-                    handler = this.commandHandlers.get(command.command);
-                    // Call registered handler, binding "this" to the handler instance
-                    handler.call(handler, command);
+                    this.commandHandlers.get(command.command)(command);
                 }
                 return [2 /*return*/];
             });
@@ -142,7 +140,8 @@ var BaseBot = /** @class */ (function () {
         // Assign aliases to handler command for each provider 
         this.providers.forEach(function (provider) {
             provider.provideAliases().forEach(function (alias) {
-                _this.commandHandlers.set(alias.toLowerCase(), provider.handle);
+                // Map alias to handle function, binding this to the provider
+                _this.commandHandlers.set(alias.toLowerCase(), provider.handle.bind(provider));
             });
         });
     };

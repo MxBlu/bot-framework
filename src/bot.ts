@@ -66,7 +66,8 @@ export class BaseBot {
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {
       provider.provideAliases().forEach(alias => {
-        this.commandHandlers.set(alias.toLowerCase(), provider.handle);
+        // Map alias to handle function, binding this to the provider
+        this.commandHandlers.set(alias.toLowerCase(), provider.handle.bind(provider));
       });
     });
   }
@@ -140,9 +141,7 @@ export class BaseBot {
     if (command != null) {
       this.logger.debug(`Command received from '${message.author.username}' in '${message.guild.name}': ` +
           `!${command.command} - '${command.arguments.join(' ')}'`);
-      const handler = this.commandHandlers.get(command.command);
-      // Call registered handler, binding "this" to the handler instance
-      handler.call(handler, command);
+      this.commandHandlers.get(command.command)(command);
     }
   }
 

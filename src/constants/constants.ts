@@ -6,6 +6,9 @@ import { LogLevel } from "./log_levels.js";
 // Default logging level
 export const DEFAULT_LOG_LEVEL = LogLevel[process.env.LOG_LEVEL] || LogLevel.INFO;
 
+// Padding length with name
+export const LOGGER_NAME_PAD_LENGTH = 20;
+
 // Default time for a modal to stay active
 export const DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 

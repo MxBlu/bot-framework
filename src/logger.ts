@@ -3,11 +3,11 @@ dotenv.config();
 
 import EventEmitter from "events";
 
-import { DEFAULT_LOG_LEVEL } from "./constants/constants.js";
+import { DEFAULT_LOG_LEVEL, LOGGER_NAME_PAD_LENGTH } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 
 // Get a date-time string of the current date-time
-function getDateTimeString() {
+function getDateTimeString(): string {
   const now = new Date();
 
   const yr = now.getFullYear();
@@ -19,6 +19,13 @@ function getDateTimeString() {
   const sec = now.getSeconds().toString().padStart(2, '0');
 
   return `${yr}-${mth}-${day} ${hrs}:${min}:${sec}`;
+}
+
+// Collapse down longer strings by trimming namespace substrings
+function collapseNamespaces(name: string): string {
+  const namespaces = name.split('.');
+  const mostQualifiedName = namespaces.pop();
+  return namespaces.map(n => n.substr(0, 1)).concat(mostQualifiedName).join('.');
 }
 
 /*
@@ -42,8 +49,9 @@ export class Logger {
     // Only log events above our specified verbosity
     if (this.loggerVerbosity >= severity) {
       const severityStr = LogLevel[severity];
+      const nameStr = collapseNamespaces(this.name);
       // Aiming for `${datetime} ${severity /pad(5)} --- ${name}: ${message}`
-      const logStr = `${getDateTimeString()} ${severityStr.padEnd(5)} --- ${this.name}: ${message}`;
+      const logStr = `${getDateTimeString()} ${severityStr.padEnd(5)} --- ${nameStr.padEnd(LOGGER_NAME_PAD_LENGTH)}: ${message}`;
       // Log ERROR to stderr, rest to stdout
       if (severity == LogLevel.ERROR) {
         console.error(logStr);

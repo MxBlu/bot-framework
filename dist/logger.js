@@ -3,16 +3,17 @@ dotenv.config();
 import EventEmitter from "events";
 import { DEFAULT_LOG_LEVEL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
-// Get a time string of the current time
-function getTimeString() {
+// Get a date-time string of the current date-time
+function getDateTimeString() {
     var now = new Date();
+    var yr = now.getFullYear();
+    var mth = now.getMonth().toString().padStart(2, '0');
+    var day = now.getDate().toString().padStart(2, '0');
     var hrs = now.getHours().toString().padStart(2, '0');
     var min = now.getMinutes().toString().padStart(2, '0');
     var sec = now.getSeconds().toString().padStart(2, '0');
-    return hrs + ":" + min + ":" + sec;
+    return yr + "-" + mth + "-" + day + " " + hrs + ":" + min + ":" + sec;
 }
-// Size to pad the name field in log lines
-var namePaddingSize = 0;
 /*
   Simple logging assistant
   Mostly for the job of appending timestamps
@@ -22,26 +23,23 @@ var Logger = /** @class */ (function () {
     function Logger(name) {
         this.name = name;
         this.loggerVerbosity = Number(process.env[name + ".LOG_LEVEL"]) || DEFAULT_LOG_LEVEL;
-        // If this name is largest so far, update global name padding size
-        if (name.length > namePaddingSize) {
-            namePaddingSize = name.length;
-        }
     }
     // Log to console, and publish to NewLog emitter
-    Logger.prototype.log = function (message, verbosity) {
+    Logger.prototype.log = function (message, severity) {
         // Only log events above our specified verbosity
-        if (this.loggerVerbosity >= verbosity) {
-            var verbosityStr = LogLevel[verbosity];
-            var logStr = getTimeString() + " " + ("[" + this.name + "]").padStart(namePaddingSize + 2) + " " + ("[" + verbosityStr + "]").padStart(7) + " " + message;
+        if (this.loggerVerbosity >= severity) {
+            var severityStr = LogLevel[severity];
+            // Aiming for `${datetime} ${severity /pad(5)} --- ${name}: ${message}`
+            var logStr = getDateTimeString() + " " + severityStr.padEnd(5) + " --- " + this.name + ": " + message;
             // Log ERROR to stderr, rest to stdout
-            if (verbosity == LogLevel.ERROR) {
+            if (severity == LogLevel.ERROR) {
                 console.error(logStr);
             }
             else {
                 console.log(logStr);
             }
             // Publish event to emitter
-            NewLogEmitter.emit(verbosityStr, logStr);
+            NewLogEmitter.emit(severityStr, logStr);
         }
     };
     // Log event as ERROR
@@ -68,5 +66,6 @@ var Logger = /** @class */ (function () {
 }());
 export { Logger };
 // Message topic for logging events
+// Events emitted are the different levels of severity
 export var NewLogEmitter = new EventEmitter();
 //# sourceMappingURL=logger.js.map

@@ -142,7 +142,7 @@ var CloudflareBypassImpl = /** @class */ (function () {
                         return [4 /*yield*/, Promise.all(elements.map(function (el) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0: return [4 /*yield*/, el.getProperty('innerText')];
-                                    case 1: return [2 /*return*/, _a.sent()];
+                                    case 1: return [2 /*return*/, (_a.sent()).jsonValue()];
                                 }
                             }); }); }))];
                     case 5:

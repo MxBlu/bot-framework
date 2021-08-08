@@ -70,7 +70,7 @@ class CloudflareBypassImpl {
 
     // Get the page contents
     const elements = await page.$$(cssSelector);
-    const matchTexts = await Promise.all(elements.map(async el => await el.getProperty('innerText'))) as unknown[] as string[];
+    const matchTexts = await Promise.all(elements.map(async el => (await el.getProperty('innerText')).jsonValue())) as string[];
     
     // Close the page async, logging an error if we run into one
     page.close().catch(reason => 

@@ -114,6 +114,40 @@ var CloudflareBypassImpl = /** @class */ (function () {
             });
         });
     };
+    // Fetch strings from a page via CSS selector using a Puppeteer instance (loading it if necessary)
+    CloudflareBypassImpl.prototype.fetchElementTextMatches = function (uri, cssSelector) {
+        return __awaiter(this, void 0, void 0, function () {
+            var page, matches;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // Ensure we have a browser instance loaded for use
+                    return [4 /*yield*/, this.ensureLoaded()];
+                    case 1:
+                        // Ensure we have a browser instance loaded for use
+                        _a.sent();
+                        return [4 /*yield*/, this.browser.newPage()];
+                    case 2:
+                        page = _a.sent();
+                        return [4 /*yield*/, page.goto(uri, {
+                                timeout: 45000,
+                                waitUntil: 'domcontentloaded'
+                            })];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, page.select(cssSelector)];
+                    case 4:
+                        matches = _a.sent();
+                        // Close the page async, logging an error if we run into one
+                        page.close()["catch"](function (reason) {
+                            return _this.logger.error("Page failed to unload after request to " + uri + ": " + reason);
+                        });
+                        return [2 /*return*/, matches];
+                }
+            });
+        });
+    };
     return CloudflareBypassImpl;
 }());
 export var CloudflareBypass = new CloudflareBypassImpl();

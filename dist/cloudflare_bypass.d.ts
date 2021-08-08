@@ -7,6 +7,7 @@ declare class CloudflareBypassImpl {
     ensureLoaded(): Promise<void>;
     ensureUnloaded(): Promise<void>;
     fetch(uri: string): Promise<string>;
+    fetchElementTextMatches(uri: string, cssSelector: string): Promise<string[]>;
 }
 export declare const CloudflareBypass: CloudflareBypassImpl;
 export {};

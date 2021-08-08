@@ -55,6 +55,28 @@ class CloudflareBypassImpl {
 
     return content;
   }
+
+  // Fetch strings from a page via CSS selector using a Puppeteer instance (loading it if necessary)
+  public async fetchElementTextMatches(uri: string, cssSelector: string): Promise<string[]> {
+    // Ensure we have a browser instance loaded for use
+    await this.ensureLoaded();
+
+    // Create a page and navigate to the URL, waiting for the content to be loaded
+    const page = await this.browser.newPage();
+    await page.goto(uri, {
+      timeout: 45000,
+      waitUntil: 'domcontentloaded'
+    });
+
+    // Get the page contents
+    const matches = await page.select(cssSelector);
+    
+    // Close the page async, logging an error if we run into one
+    page.close().catch(reason => 
+        this.logger.error(`Page failed to unload after request to ${uri}: ${reason}`));
+
+    return matches;
+  }
 }
 
 export const CloudflareBypass = new CloudflareBypassImpl();

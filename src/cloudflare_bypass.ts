@@ -69,13 +69,14 @@ class CloudflareBypassImpl {
     });
 
     // Get the page contents
-    const matches = await page.select(cssSelector);
+    const elements = await page.$$(cssSelector);
+    const matchTexts = await Promise.all(elements.map(async el => await el.getProperty('innerText'))) as unknown[] as string[];
     
     // Close the page async, logging an error if we run into one
     page.close().catch(reason => 
         this.logger.error(`Page failed to unload after request to ${uri}: ${reason}`));
 
-    return matches;
+    return matchTexts;
   }
 }
 

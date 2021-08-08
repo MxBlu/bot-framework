@@ -117,7 +117,7 @@ var CloudflareBypassImpl = /** @class */ (function () {
     // Fetch strings from a page via CSS selector using a Puppeteer instance (loading it if necessary)
     CloudflareBypassImpl.prototype.fetchElementTextMatches = function (uri, cssSelector) {
         return __awaiter(this, void 0, void 0, function () {
-            var page, matches;
+            var page, elements, matchTexts;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -136,14 +136,22 @@ var CloudflareBypassImpl = /** @class */ (function () {
                             })];
                     case 3:
                         _a.sent();
-                        return [4 /*yield*/, page.select(cssSelector)];
+                        return [4 /*yield*/, page.$$(cssSelector)];
                     case 4:
-                        matches = _a.sent();
+                        elements = _a.sent();
+                        return [4 /*yield*/, Promise.all(elements.map(function (el) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, el.getProperty('innerText')];
+                                    case 1: return [2 /*return*/, _a.sent()];
+                                }
+                            }); }); }))];
+                    case 5:
+                        matchTexts = _a.sent();
                         // Close the page async, logging an error if we run into one
                         page.close()["catch"](function (reason) {
                             return _this.logger.error("Page failed to unload after request to " + uri + ": " + reason);
                         });
-                        return [2 /*return*/, matches];
+                        return [2 /*return*/, matchTexts];
                 }
             });
         });

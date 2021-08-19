@@ -41,7 +41,7 @@ export class Logger {
 
   constructor(name: string) {
     this.name = name;
-    this.loggerVerbosity = Number(process.env[`${name}.LOG_LEVEL`]) || DEFAULT_LOG_LEVEL;
+    this.loggerVerbosity = LogLevel[process.env[`${name}.LOG_LEVEL`]] || DEFAULT_LOG_LEVEL;
   }
 
   // Log to console, and publish to NewLog emitter

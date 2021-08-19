@@ -2,7 +2,7 @@ import { Message, Client as DiscordClient, TextChannel, ClientOptions } from "di
 
 import { sendMessage } from "./bot_utils.js";
 import { BotCommandHandlerFunction, CommandProvider } from "./command_provider.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -26,7 +26,7 @@ export class BaseBot {
   logger: Logger;
 
   // For when we hit an error logging to Discord itself
-  errLogDisabled: boolean;
+  discordLogDisabled: boolean;
   // Command interfaces that provide handlers
   providers: CommandProvider[];
   // Map of command names to handlers
@@ -35,7 +35,7 @@ export class BaseBot {
   constructor(name: string) {
     this.name = name;
     this.logger = new Logger(name);
-    this.errLogDisabled = false;
+    this.discordLogDisabled = false;
     this.providers = [];
     this.commandHandlers = new Map<string, BotCommandHandlerFunction>();
   }
@@ -80,7 +80,16 @@ export class BaseBot {
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
 
     // Subscribe to ERROR logs being published
-    NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.errorLogHandler);
+    if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {
+      NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.logHandler);
+    }
+    // If we have general logging enabled, send all logs to Discord
+    if (DISCORD_GENERAL_LOGGING_ENABLED) {
+      NewLogEmitter.on(LogLevel[LogLevel.INFO], this.logHandler);
+      NewLogEmitter.on(LogLevel[LogLevel.WARN], this.logHandler);
+      NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler);
+      NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
+    }
 
     this.initCustomEventHandlers();
   }
@@ -145,10 +154,10 @@ export class BaseBot {
     }
   }
 
-  // Error handler
+  // Log message handler
 
-  private errorLogHandler = async (log: string): Promise<void> => {
-    if (!this.errLogDisabled) {
+  private logHandler = async (log: string): Promise<void> => {
+    if (!this.discordLogDisabled) {
       try {
         // Remove any consequtive spaces to make logs more legible
         log = log.replace(/  +/, ' ');
@@ -160,13 +169,13 @@ export class BaseBot {
         }
       } catch (e) {
         // Trip error flag, prevents error logs hitting here again
-        this.errLogDisabled = true;
-        this.logger.error(`Discord error logging exception, disabling error log: ${e}`);
+        this.discordLogDisabled = true;
+        this.logger.error(`Discord logging exception, disabling log: ${e}`);
 
         // Reset error status after DISCORD_LOG_ERROR_STATUS_RESET ms
         setTimeout(() => { 
-          this.errLogDisabled = false;
-          this.logger.debug("Discord error logging re-enabled");
+          this.discordLogDisabled = false;
+          this.logger.debug("Discord logging re-enabled");
         }, DISCORD_LOG_ERROR_STATUS_RESET);
       }
     }

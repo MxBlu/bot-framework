@@ -9,6 +9,10 @@ export var LOGGER_NAME_PAD_LENGTH = 20;
 export var DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 // Min time delta to trigger a timer event
 export var TRIGGER_RESOLUTION = 500; // 500ms
+// Env flag to determine whether to send error logs to the specified error channel
+export var DISCORD_ERROR_LOGGING_ENABLED = (process.env.DISCORD_ERROR_LOGGING_ENABLED === 'true') || true;
+// Env flag to determine whether to send all logs to the specified error channel
+export var DISCORD_GENERAL_LOGGING_ENABLED = (process.env.DISCORD_GENERAL_LOGGING_ENABLED === 'true') || false;
 // Channel to post error logs to
 export var DISCORD_ERROR_CHANNEL = process.env.DISCORD_ERROR_CHANNEL;
 // Time to wait before resetting "error" status on Discord logging

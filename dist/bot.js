@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import { Client as DiscordClient, TextChannel } from "discord.js";
 import { sendMessage } from "./bot_utils.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -70,14 +70,14 @@ var BaseBot = /** @class */ (function () {
                 return [2 /*return*/];
             });
         }); };
-        // Error handler
-        this.errorLogHandler = function (log) { return __awaiter(_this, void 0, void 0, function () {
+        // Log message handler
+        this.logHandler = function (log) { return __awaiter(_this, void 0, void 0, function () {
             var targetChannel, e_1;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.errLogDisabled) return [3 /*break*/, 4];
+                        if (!!this.discordLogDisabled) return [3 /*break*/, 4];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -94,12 +94,12 @@ var BaseBot = /** @class */ (function () {
                     case 3:
                         e_1 = _a.sent();
                         // Trip error flag, prevents error logs hitting here again
-                        this.errLogDisabled = true;
-                        this.logger.error("Discord error logging exception, disabling error log: " + e_1);
+                        this.discordLogDisabled = true;
+                        this.logger.error("Discord logging exception, disabling log: " + e_1);
                         // Reset error status after DISCORD_LOG_ERROR_STATUS_RESET ms
                         setTimeout(function () {
-                            _this.errLogDisabled = false;
-                            _this.logger.debug("Discord error logging re-enabled");
+                            _this.discordLogDisabled = false;
+                            _this.logger.debug("Discord logging re-enabled");
                         }, DISCORD_LOG_ERROR_STATUS_RESET);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
@@ -108,7 +108,7 @@ var BaseBot = /** @class */ (function () {
         }); };
         this.name = name;
         this.logger = new Logger(name);
-        this.errLogDisabled = false;
+        this.discordLogDisabled = false;
         this.providers = [];
         this.commandHandlers = new Map();
     }
@@ -153,7 +153,16 @@ var BaseBot = /** @class */ (function () {
         this.discord.on('message', this.messageHandler);
         this.discord.on('error', function (err) { return _this.logger.error("Discord error: " + err); });
         // Subscribe to ERROR logs being published
-        NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.errorLogHandler);
+        if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {
+            NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.logHandler);
+        }
+        // If we have general logging enabled, send all logs to Discord
+        if (DISCORD_GENERAL_LOGGING_ENABLED) {
+            NewLogEmitter.on(LogLevel[LogLevel.INFO], this.logHandler);
+            NewLogEmitter.on(LogLevel[LogLevel.WARN], this.logHandler);
+            NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler);
+            NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
+        }
         this.initCustomEventHandlers();
     };
     // Subscribe to any extra events outside of the base ones

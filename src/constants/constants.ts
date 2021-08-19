@@ -15,6 +15,12 @@ export const DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 // Min time delta to trigger a timer event
 export const TRIGGER_RESOLUTION = 500; // 500ms
 
+// Env flag to determine whether to send error logs to the specified error channel
+export const DISCORD_ERROR_LOGGING_ENABLED = (process.env.DISCORD_ERROR_LOGGING_ENABLED === 'true') || true;
+
+// Env flag to determine whether to send all logs to the specified error channel
+export const DISCORD_GENERAL_LOGGING_ENABLED = (process.env.DISCORD_GENERAL_LOGGING_ENABLED === 'true') || false;
+
 // Channel to post error logs to
 export const DISCORD_ERROR_CHANNEL = process.env.DISCORD_ERROR_CHANNEL;
 

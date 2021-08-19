@@ -10,7 +10,7 @@ export declare class BaseBot {
     name: string;
     discord: DiscordClient;
     logger: Logger;
-    errLogDisabled: boolean;
+    discordLogDisabled: boolean;
     providers: CommandProvider[];
     commandHandlers: Map<string, BotCommandHandlerFunction>;
     constructor(name: string);
@@ -28,5 +28,5 @@ export declare class BaseBot {
     private parseCommand;
     private readyHandler;
     private messageHandler;
-    private errorLogHandler;
+    private logHandler;
 }

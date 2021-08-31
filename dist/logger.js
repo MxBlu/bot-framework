@@ -69,6 +69,18 @@ var Logger = /** @class */ (function () {
     Logger.prototype.trace = function (message) {
         this.log(message, LogLevel.TRACE);
     };
+    // Set this logger to handle all fall-through logging events from Node.JS
+    Logger.prototype.registerAsGlobal = function () {
+        var _this = this;
+        process
+            .on('unhandledRejection', function (reason, p) {
+            _this.error("Uncaught promise rejection: " + p + ", reason: " + reason);
+        });
+        process.on('uncaughtException', function (err) {
+            _this.error("Uncaught exception, exiting: " + err);
+            process.exit(1);
+        });
+    };
     return Logger;
 }());
 export { Logger };

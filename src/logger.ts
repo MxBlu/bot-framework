@@ -88,6 +88,18 @@ export class Logger {
     this.log(message, LogLevel.TRACE);
   }
 
+  // Set this logger to handle all fall-through logging events from Node.JS
+  public registerAsGlobal(): void {
+    process
+      .on('unhandledRejection', (reason, p) => {
+        this.error(`Uncaught promise rejection: ${p}, reason: ${reason}`);
+      });
+    process.on('uncaughtException', err => {
+        this.error(`Uncaught exception, exiting: ${err}`);
+        process.exit(1);
+      });
+  }
+
 }
 
 // Message topic for logging events

@@ -11,5 +11,6 @@ export declare class Logger {
     info(message: string): void;
     debug(message: string): void;
     trace(message: string): void;
+    registerAsGlobal(): void;
 }
 export declare const NewLogEmitter: EventEmitter;

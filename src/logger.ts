@@ -92,10 +92,16 @@ export class Logger {
   public registerAsGlobal(): void {
     process
       .on('unhandledRejection', (reason, p) => {
-        this.error(`Uncaught promise rejection: ${p}, reason: ${reason}`);
+        if (reason instanceof Error) {
+          this.error(`Uncaught promise rejection: ${reason}\n` +
+                    `${reason.stack}`);
+        } else {
+          this.error(`Uncaught promise rejection: ${reason}`);
+        }
       });
     process.on('uncaughtException', err => {
-        this.error(`Uncaught exception, exiting: ${err}`);
+        this.error(`Uncaught exception, exiting: ${err}\n` +
+                  `${err.stack}`);
         process.exit(1);
       });
   }

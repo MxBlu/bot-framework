@@ -74,10 +74,17 @@ var Logger = /** @class */ (function () {
         var _this = this;
         process
             .on('unhandledRejection', function (reason, p) {
-            _this.error("Uncaught promise rejection: " + p + ", reason: " + reason);
+            if (reason instanceof Error) {
+                _this.error("Uncaught promise rejection: " + reason + "\n" +
+                    ("" + reason.stack));
+            }
+            else {
+                _this.error("Uncaught promise rejection: " + reason);
+            }
         });
         process.on('uncaughtException', function (err) {
-            _this.error("Uncaught exception, exiting: " + err);
+            _this.error("Uncaught exception, exiting: " + err + "\n" +
+                ("" + err.stack));
             process.exit(1);
         });
     };

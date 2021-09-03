@@ -73,7 +73,7 @@ var Logger = /** @class */ (function () {
     Logger.prototype.registerAsGlobal = function () {
         var _this = this;
         process
-            .on('unhandledRejection', function (reason, p) {
+            .on('unhandledRejection', function (reason) {
             if (reason instanceof Error) {
                 _this.error("Uncaught promise rejection: " + reason + "\n" +
                     ("" + reason.stack));

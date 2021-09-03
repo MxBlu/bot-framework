@@ -91,7 +91,7 @@ export class Logger {
   // Set this logger to handle all fall-through logging events from Node.JS
   public registerAsGlobal(): void {
     process
-      .on('unhandledRejection', (reason, p) => {
+      .on('unhandledRejection', (reason) => {
         if (reason instanceof Error) {
           this.error(`Uncaught promise rejection: ${reason}\n` +
                     `${reason.stack}`);

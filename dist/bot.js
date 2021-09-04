@@ -129,6 +129,7 @@ var BaseBot = /** @class */ (function () {
      * @param discordToken : Discord token received from the bot.
      */
     BaseBot.prototype.init = function (discordToken, intents, discordClientOptions) {
+        if (intents === void 0) { intents = ["GUILD_MESSAGES"]; }
         if (discordClientOptions === void 0) { discordClientOptions = {}; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {

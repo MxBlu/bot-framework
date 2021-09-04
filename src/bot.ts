@@ -48,7 +48,7 @@ export class BaseBot {
    * @param discordToken : Discord token received from the bot.
    */
   public async init(discordToken: string, 
-      intents: BitFieldResolvable<IntentsString, number> = [ "GUILD_MESSAGES" ], 
+      intents: BitFieldResolvable<IntentsString, number> = [ "GUILDS", "GUILD_MESSAGES" ], 
       discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
     this.discord  = new DiscordClient({
       ...discordClientOptions,

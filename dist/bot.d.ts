@@ -1,7 +1,7 @@
 import { Message, Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
 import { CommandProvider } from "./command_provider.js";
 import { Logger } from "./logger.js";
-declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
+export declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 export declare class BotCommand {
     message: Message;
     command: string;
@@ -31,4 +31,3 @@ export declare class BaseBot {
     private messageHandler;
     private logHandler;
 }
-export {};

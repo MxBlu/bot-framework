@@ -9,7 +9,7 @@ import { Logger, NewLogEmitter } from "./logger.js";
 
 const commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
 
-type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
+export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 
 export class BotCommand {
   message: Message;

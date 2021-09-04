@@ -162,7 +162,7 @@ var BaseBot = /** @class */ (function () {
     BaseBot.prototype.initEventHandlers = function () {
         var _this = this;
         this.discord.once('ready', this.readyHandler);
-        this.discord.on('message', this.messageHandler);
+        this.discord.on('messageCreate', this.messageHandler);
         this.discord.on('error', function (err) { return _this.logger.error("Discord error: " + err); });
         // Subscribe to ERROR logs being published
         if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {

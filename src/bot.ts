@@ -83,7 +83,7 @@ export class BaseBot {
   // Runs before initCustomEventHandlers()
   private initEventHandlers(): void {
     this.discord.once('ready', this.readyHandler);
-    this.discord.on('message', this.messageHandler);
+    this.discord.on('messageCreate', this.messageHandler);
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
 
     // Subscribe to ERROR logs being published

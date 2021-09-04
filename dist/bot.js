@@ -1,3 +1,14 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +45,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-import { Client as DiscordClient, TextChannel } from "discord.js";
+import { Client as DiscordClient } from "discord.js";
 import { sendMessage } from "./bot_utils.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
@@ -65,7 +76,7 @@ var BaseBot = /** @class */ (function () {
                 if (command != null) {
                     this.logger.debug("Command received from '" + message.author.username + "' in '" + message.guild.name + "': " +
                         ("!" + command.command + " - '" + command.arguments.join(' ') + "'"));
-                    this.commandHandlers.get(command.command)(command);
+                    this.commandHandlers.get(command.command).handle(command);
                 }
                 return [2 /*return*/];
             });
@@ -77,7 +88,7 @@ var BaseBot = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.discordLogDisabled) return [3 /*break*/, 4];
+                        if (!(!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "")) return [3 /*break*/, 4];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -87,7 +98,7 @@ var BaseBot = /** @class */ (function () {
                     case 2:
                         targetChannel = _a.sent();
                         // Only send if we can access the error channel
-                        if (targetChannel != null && targetChannel instanceof TextChannel) {
+                        if (targetChannel != null && targetChannel.isText()) {
                             sendMessage(targetChannel, log);
                         }
                         return [3 /*break*/, 4];
@@ -117,11 +128,11 @@ var BaseBot = /** @class */ (function () {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    BaseBot.prototype.init = function (discordToken, discordClientOptions) {
+    BaseBot.prototype.init = function (discordToken, intents, discordClientOptions) {
         if (discordClientOptions === void 0) { discordClientOptions = {}; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.discord = new DiscordClient(discordClientOptions);
+                this.discord = new DiscordClient(__assign(__assign({}, discordClientOptions), { intents: intents }));
                 this.initCommandHandlers();
                 this.initEventHandlers();
                 this.discord.login(discordToken);
@@ -141,7 +152,7 @@ var BaseBot = /** @class */ (function () {
         this.providers.forEach(function (provider) {
             provider.provideAliases().forEach(function (alias) {
                 // Map alias to handle function, binding this to the provider
-                _this.commandHandlers.set(alias.toLowerCase(), provider.handle.bind(provider));
+                _this.commandHandlers.set(alias.toLowerCase(), provider);
             });
         });
     };

@@ -1,13 +1,15 @@
-import { Message, Client as DiscordClient, TextChannel, ClientOptions } from "discord.js";
+import { Message, Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
 
 import { sendMessage } from "./bot_utils.js";
-import { BotCommandHandlerFunction, CommandProvider } from "./command_provider.js";
+import { CommandProvider } from "./command_provider.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 
 const commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
+
+type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 
 export class BotCommand {
   message: Message;
@@ -30,14 +32,14 @@ export class BaseBot {
   // Command interfaces that provide handlers
   providers: CommandProvider[];
   // Map of command names to handlers
-  commandHandlers: Map<string, BotCommandHandlerFunction>;
+  commandHandlers: Map<string, CommandProvider>;
 
   constructor(name: string) {
     this.name = name;
     this.logger = new Logger(name);
     this.discordLogDisabled = false;
     this.providers = [];
-    this.commandHandlers = new Map<string, BotCommandHandlerFunction>();
+    this.commandHandlers = new Map<string, CommandProvider>();
   }
 
   /**
@@ -45,8 +47,13 @@ export class BaseBot {
    * This should be run after addCommandHandlers() is called.
    * @param discordToken : Discord token received from the bot.
    */
-  public async init(discordToken: string, discordClientOptions: ClientOptions = {}): Promise<void> {
-    this.discord  = new DiscordClient(discordClientOptions);
+  public async init(discordToken: string, 
+      intents: BitFieldResolvable<IntentsString, number>, 
+      discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
+    this.discord  = new DiscordClient({
+      ...discordClientOptions,
+      intents
+    });
 
     this.initCommandHandlers();
     this.initEventHandlers();
@@ -67,7 +74,7 @@ export class BaseBot {
     this.providers.forEach(provider => {
       provider.provideAliases().forEach(alias => {
         // Map alias to handle function, binding this to the provider
-        this.commandHandlers.set(alias.toLowerCase(), provider.handle.bind(provider));
+        this.commandHandlers.set(alias.toLowerCase(), provider);
       });
     });
   }
@@ -150,21 +157,21 @@ export class BaseBot {
     if (command != null) {
       this.logger.debug(`Command received from '${message.author.username}' in '${message.guild.name}': ` +
           `!${command.command} - '${command.arguments.join(' ')}'`);
-      this.commandHandlers.get(command.command)(command);
+      this.commandHandlers.get(command.command).handle(command);
     }
   }
 
   // Log message handler
 
   private logHandler = async (log: string): Promise<void> => {
-    if (!this.discordLogDisabled) {
+    if (!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "") {
       try {
         // Remove any consequtive spaces to make logs more legible
         log = log.replace(/  +/, ' ');
         // Should ensure that it works for DM channels too
         const targetChannel = await this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
         // Only send if we can access the error channel
-        if (targetChannel != null && targetChannel instanceof TextChannel) {
+        if (targetChannel != null && targetChannel.isText()) {
           sendMessage(targetChannel, log);
         }
       } catch (e) {

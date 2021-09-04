@@ -1,4 +1,4 @@
-import { DMChannel, Guild, GuildChannel, GuildMember, Message, NewsChannel, Role, TextChannel } from "discord.js";
+import { Guild, GuildChannel, GuildMember, Message, Role, TextBasedChannels, ThreadChannel } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -53,7 +53,7 @@ export const sendCmdMessage = function (message: Message, msg: string,
 }
 
 // Send message to a given channel, chunking if necessary
-export const sendMessage = function (targetChannel: TextChannel | DMChannel | NewsChannel, 
+export const sendMessage = function (targetChannel: TextBasedChannels, 
     msg: string): void {
   const msgChunks = chunkString(msg);
   msgChunks.forEach(
@@ -106,7 +106,7 @@ export const findGuildMember = async (userString: string, guild: Guild): Promise
 }
 
 // Given a mention or name, provide a GuildMember if any exist matching
-export const findGuildChannel = async (channelString: string, guild: Guild): Promise<GuildChannel> => {
+export const findGuildChannel = async (channelString: string, guild: Guild): Promise<ThreadChannel | GuildChannel> => {
   // Try checking for a channel mention
   const channelRx = channelString.match(/^<#(\d+)>$/);
   if (channelRx != null) {

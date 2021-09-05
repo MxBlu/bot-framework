@@ -5,6 +5,13 @@ import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 export type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
 export type InteractableRemovalFunction<T> = (interactable: Interactable<T>) => Promise<void>;
 
+export interface InteractableHandlerOption {
+  customId?: string;
+  label?: string;
+  emoji?: string;
+  style?: MessageButtonStyle;
+}
+
 // Big fancy wrapper around InteractionCollector that works out cleaner
 export class Interactable<T> {
   // Message that contains the modal
@@ -48,24 +55,31 @@ export class Interactable<T> {
   }
 
   // Assign a handler for a given emoji
-  public registerHandler(label: string, handler: InteractableHandlerFunction<T>, 
-      style: MessageButtonStyle = "SECONDARY", customId: string = null): void {
+  public registerHandler(handler: InteractableHandlerFunction<T>, 
+      options: InteractableHandlerOption): void {
     // If we already have a collector, it's too late to register a handler
     if (this.collector != null) {
       throw new Error("Interactable already activated");
     }
 
-    // Generate a random ID if one isn't specified
-    if (customId == null) {
-      // Generate a random 10 character string
-      customId = Math.random().toString(36).substring(2, 12);
+    // Ensure either a label or an emoji is defined
+    if (options.label == null && options.emoji == null) {
+      throw new Error("Interactable handler does not have either a label or an emoji");
     }
+    
+    const label = options.label;
+    const emoji = options.emoji;
+    const style = options.style || "SECONDARY";
+    // Generate a random ID if one isn't specified
+    // Random 10 character string
+    const customId = options.customId || Math.random().toString(36).substring(2, 12);
 
     // Add the button to the action row
     this.actionRow.addComponents(
       new MessageButton()
         .setCustomId(customId)
         .setLabel(label)
+        .setEmoji(emoji)
         .setStyle(style)
     );
     // Register the handler

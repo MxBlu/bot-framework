@@ -39,20 +39,26 @@ export class Interactable {
         });
     }
     // Assign a handler for a given emoji
-    registerHandler(label, handler, style = "SECONDARY", customId = null) {
+    registerHandler(handler, options) {
         // If we already have a collector, it's too late to register a handler
         if (this.collector != null) {
             throw new Error("Interactable already activated");
         }
-        // Generate a random ID if one isn't specified
-        if (customId == null) {
-            // Generate a random 10 character string
-            customId = Math.random().toString(36).substring(2, 12);
+        // Ensure either a label or an emoji is defined
+        if (options.label == null && options.emoji == null) {
+            throw new Error("Interactable handler does not have either a label or an emoji");
         }
+        const label = options.label;
+        const emoji = options.emoji;
+        const style = options.style || "SECONDARY";
+        // Generate a random ID if one isn't specified
+        // Random 10 character string
+        const customId = options.customId || Math.random().toString(36).substring(2, 12);
         // Add the button to the action row
         this.actionRow.addComponents(new MessageButton()
             .setCustomId(customId)
             .setLabel(label)
+            .setEmoji(emoji)
             .setStyle(style));
         // Register the handler
         this.interactionHandlers.set(customId, handler);

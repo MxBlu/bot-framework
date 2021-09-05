@@ -31,6 +31,7 @@ export class BaseBot {
             // Handle command interactions
             if (interaction.isCommand()) {
                 const commandInteraction = interaction;
+                // If a handler exists for the commandName, handle the command
                 const handler = this.commandHandlers.get(commandInteraction.commandName);
                 if (handler != null) {
                     this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +

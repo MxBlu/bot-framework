@@ -50,7 +50,20 @@ export const chunkString = function (str) {
 export const sendCmdReply = function (interaction, msg, logger, level) {
     return __awaiter(this, void 0, void 0, function* () {
         logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
-        return interaction.reply({ content: msg });
+        return sendChunkedReply(interaction, msg);
+    });
+};
+// Send reply to a user command which may potentially be large
+export const sendChunkedReply = function (interaction, msg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Split up message into max length chunks
+        const msgChunks = chunkString(msg);
+        // Send first message as a reply
+        yield interaction.reply({ content: msgChunks.shift() });
+        // Send subsequent messages as follow-ups
+        for (const chunk of msgChunks) {
+            yield interaction.followUp({ content: chunk });
+        }
     });
 };
 // Send message to a given channel, chunking if necessary

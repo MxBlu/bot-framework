@@ -49,8 +49,21 @@ export const chunkString = function (str: string): string[] {
 export const sendCmdReply = async function (interaction: CommandInteraction, msg: string, 
     logger: Logger, level: LogLevel): Promise<void> {
   logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
-  return interaction.reply({ content: msg });
+  return sendChunkedReply(interaction, msg);
 }
+
+// Send reply to a user command which may potentially be large
+export const sendChunkedReply = async function (interaction: CommandInteraction, msg: string)
+    : Promise<void> {
+  // Split up message into max length chunks
+  const msgChunks = chunkString(msg);
+  // Send first message as a reply
+  await interaction.reply({ content: msgChunks.shift() });
+  // Send subsequent messages as follow-ups
+  for (const chunk of msgChunks) {
+    await interaction.followUp({ content: chunk });
+  }
+};
 
 // Send message to a given channel, chunking if necessary
 export const sendMessage = function (targetChannel: TextBasedChannels, 

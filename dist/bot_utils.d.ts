@@ -3,6 +3,7 @@ import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
 export declare const chunkString: (str: string) => string[];
 export declare const sendCmdReply: (interaction: CommandInteraction, msg: string, logger: Logger, level: LogLevel) => Promise<void>;
+export declare const sendChunkedReply: (interaction: CommandInteraction, msg: string) => Promise<void>;
 export declare const sendMessage: (targetChannel: TextBasedChannels, msg: string) => void;
 export declare const stringEquivalence: (str1: string, str2: string) => boolean;
 export declare const stringSearch: (str1: string, str2: string) => boolean;

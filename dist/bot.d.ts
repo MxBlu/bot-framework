@@ -1,25 +1,18 @@
-import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
+import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction, ContextMenuInteraction } from "discord.js";
 import { REST } from '@discordjs/rest';
-import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v9';
-import { CommandProvider } from "./command_provider.js";
+import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v9';
+import { CommandProvider, ModernApplicationCommandJSONBody } from "./command_provider.js";
 import { Logger } from "./logger.js";
 export declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
-export declare const enum ApplicationCommandType {
-    CHAT_INPUT = 1,
-    USER = 2,
-    MESSAGE = 3
-}
-export declare type ModernApplicationCommandJSONBody = RESTPostAPIApplicationCommandsJSONBody & {
-    type?: ApplicationCommandType;
-};
 export declare class BaseBot {
     name: string;
     discord: DiscordClient;
     discordRest: REST;
     logger: Logger;
     discordLogDisabled: boolean;
-    providers: CommandProvider[];
-    commandHandlers: Map<string, CommandProvider>;
+    providers: CommandProvider<Interaction>[];
+    slashCommandHandlers: Map<string, CommandProvider<CommandInteraction>>;
+    contextCommandHandlers: Map<string, CommandProvider<ContextMenuInteraction>>;
     constructor(name: string);
     /**
      * Primary function in charge of launching the bot.
@@ -29,7 +22,7 @@ export declare class BaseBot {
     init(discordToken: string, intents?: BitFieldResolvable<IntentsString, number>, discordClientOptions?: ClientOptionsWithoutIntents): Promise<void>;
     private initCommandHandlers;
     private initEventHandlers;
-    private registerSlashCommands;
+    private registerCommands;
     initCustomEventHandlers(): void;
     loadProviders(): void;
     getHelpMessage(): string;

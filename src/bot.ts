@@ -1,23 +1,15 @@
-import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction, Guild } from "discord.js";
+import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction, Guild, ContextMenuInteraction } from "discord.js";
 import { REST } from '@discordjs/rest';
-import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
+import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
 import { sendMessage } from "./bot_utils.js";
-import { CommandProvider } from "./command_provider.js";
+import { ApplicationCommandType, CommandProvider, ModernApplicationCommandJSONBody } from "./command_provider.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 
 export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
-
-// Temporary types while waiting for discord-api-types to add new types in
-export const enum ApplicationCommandType {
-  CHAT_INPUT = 1,
-  USER = 2,
-  MESSAGE = 3
-}
-export type ModernApplicationCommandJSONBody = RESTPostAPIApplicationCommandsJSONBody & { type?: ApplicationCommandType };
 
 export class BaseBot {
   // Bot name
@@ -32,16 +24,19 @@ export class BaseBot {
   // For when we hit an error logging to Discord itself
   discordLogDisabled: boolean;
   // Command interfaces that provide handlers
-  providers: CommandProvider[];
+  providers: CommandProvider<Interaction>[];
   // Map of command names to handlers
-  commandHandlers: Map<string, CommandProvider>;
+  slashCommandHandlers: Map<string, CommandProvider<CommandInteraction>>;
+  // Map of command names to context menu handlers
+  contextCommandHandlers: Map<string, CommandProvider<ContextMenuInteraction>>;
 
   constructor(name: string) {
     this.name = name;
     this.logger = new Logger(name);
     this.discordLogDisabled = false;
     this.providers = [];
-    this.commandHandlers = new Map<string, CommandProvider>();
+    this.slashCommandHandlers = new Map();
+    this.contextCommandHandlers = new Map();
   }
 
   /**
@@ -103,25 +98,34 @@ export class BaseBot {
   
   // Register all command providers loaded as slash commands
   // Runs after readyhandler()
-  private registerSlashCommands(): void {
+  private registerCommands(): void {
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {
       provider.provideSlashCommands().forEach(async (command) => {
+        // Default type to CHAT_INPUT - aka a slash command
+        if (command.type == null) {
+          command.type = ApplicationCommandType.CHAT_INPUT;
+        }
+
         try {
           // Based on the flag, either register commands globally
           //  or on each guild currently available
           if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
-            await this.registerApplicationCommand(command.toJSON(), null);
+            await this.registerApplicationCommand(command, null);
           } else {
             await Promise.all(
               this.discord.guilds.cache.map(guild => {
-                this.registerApplicationCommand(command.toJSON(), guild.id);
+                this.registerApplicationCommand(command, guild.id);
               })
             );
           }
 
           // Map command name to handler
-          this.commandHandlers.set(command.name, provider);
+          if (command.type == ApplicationCommandType.CHAT_INPUT) {
+            this.slashCommandHandlers.set(command.name, provider);
+          } else {
+            this.contextCommandHandlers.set(command.name, provider);
+          }
         } catch (e) {
           this.logger.error(`Failed to register command '${command.name}': ${e}`);
         }
@@ -179,7 +183,7 @@ export class BaseBot {
     this.logger.info("Discord connected");
 
     // Register commands with API and map handlers
-    this.registerSlashCommands();
+    this.registerCommands();
   }
 
   private interactionHandler = async (interaction: Interaction): Promise<void> => {
@@ -188,16 +192,27 @@ export class BaseBot {
       return;
     }
 
-    // Handle command interactions
     if (interaction.isCommand()) {
+      // Handle command interactions
       const commandInteraction = interaction as CommandInteraction;
 
       // If a handler exists for the commandName, handle the command
-      const handler = this.commandHandlers.get(commandInteraction.commandName);
+      const handler = this.slashCommandHandlers.get(commandInteraction.commandName);
       if (handler != null) {
         this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
           `!${interaction.commandName}'`);
-        handler.handle(interaction);
+        handler.handle(commandInteraction);
+      }
+    } else if (interaction.isContextMenu()) {
+      // Handle context menu interactions
+      const contextInteraction = interaction as ContextMenuInteraction;
+
+      // If a handler exists for the commandName, handle the command
+      const handler = this.slashCommandHandlers.get(contextInteraction.commandName);
+      if (handler != null) {
+        this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+          `!${interaction.commandName}'`);
+        handler.handle(contextInteraction);
       }
     }
   }
@@ -207,8 +222,13 @@ export class BaseBot {
     if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
       this.providers.forEach(provider => {
         provider.provideSlashCommands().forEach(async (command) => {
+          // Default type to CHAT_INPUT - aka a slash command
+          if (command.type == null) {
+            command.type = ApplicationCommandType.CHAT_INPUT;
+          }
+
           try {
-            this.registerApplicationCommand(command.toJSON(), guild.id);
+            this.registerApplicationCommand(command, guild.id);
           } catch (e) {
             this.logger.error(`Failed to register command '${command.name}': ${e}`);
           }

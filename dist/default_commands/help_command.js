@@ -20,6 +20,7 @@ export class HelpCommand {
             new SlashCommandBuilder()
                 .setName('help')
                 .setDescription(`Shows available commands for ${this.botName}`)
+                .toJSON()
         ];
     }
     // Help shouldn't have it's own help message...

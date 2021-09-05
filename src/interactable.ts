@@ -41,10 +41,8 @@ export class Interactable<T> {
       return;
     }
 
-    // Delete all components
-    this.message.components.forEach(row => {
-      row.spliceComponents(0, row.components.length);
-    });
+    // Delete all components on the message
+    this.message.edit({ components: [] });
     // Null reference to the collector
     this.collector = null;
   }

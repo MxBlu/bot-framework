@@ -32,10 +32,8 @@ export class Interactable {
                 // This will trigger end and recursively call this function, so just return for now
                 return;
             }
-            // Delete all components
-            this.message.components.forEach(row => {
-                row.spliceComponents(0, row.components.length);
-            });
+            // Delete all components on the message
+            this.message.edit({ components: [] });
             // Null reference to the collector
             this.collector = null;
         });

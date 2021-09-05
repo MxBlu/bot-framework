@@ -8,7 +8,6 @@ import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_L
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-import { SlashCommandBuilder } from "@discordjs/builders";
 
 export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 
@@ -182,7 +181,7 @@ export class BaseBot {
       const handler = this.commandHandlers.get(commandInteraction.commandName);
       if (handler != null) {
         this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
-          `!${interaction.commandName} - '${interaction.options}'`); //TODO: Will that actually work?
+          `!${interaction.commandName}'`);
         handler.handle(interaction);
       }
     }

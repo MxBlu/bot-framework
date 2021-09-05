@@ -34,7 +34,7 @@ export class BaseBot {
                 const handler = this.commandHandlers.get(commandInteraction.commandName);
                 if (handler != null) {
                     this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
-                        `!${interaction.commandName} - '${interaction.options}'`); //TODO: Will that actually work?
+                        `!${interaction.commandName}'`);
                     handler.handle(interaction);
                 }
             }

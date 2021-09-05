@@ -97,9 +97,9 @@ export const stringSearch = function (str1, str2) {
     return str1.toLowerCase().includes(str2.toLowerCase());
 };
 // Test if the author of a given message is admin
-export const isAdmin = function (message) {
+export const isAdmin = function (guild, user) {
     return __awaiter(this, void 0, void 0, function* () {
-        const author = yield message.guild.members.fetch(message.author.id);
+        const author = yield guild.members.fetch(user.id);
         return author.permissions.has("ADMINISTRATOR");
     });
 };

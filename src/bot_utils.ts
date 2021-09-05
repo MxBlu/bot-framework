@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, Message, Role, TextBasedChannels, ThreadChannel } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, Role, TextBasedChannels, ThreadChannel, User } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -102,8 +102,8 @@ export const stringSearch = function(str1: string, str2: string): boolean {
 }
 
 // Test if the author of a given message is admin
-export const isAdmin = async function(message: Message): Promise<boolean> {
-  const author = await message.guild.members.fetch(message.author.id);
+export const isAdmin = async function(guild: Guild, user: User): Promise<boolean> {
+  const author = await guild.members.fetch(user.id);
   return author.permissions.has("ADMINISTRATOR");
 }
 

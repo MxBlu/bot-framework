@@ -8,8 +8,8 @@ export declare class Interactable<T> {
     props: T;
     removalHandler: InteractableRemovalFunction<T>;
     interactionHandlers: Map<string, InteractableHandlerFunction<T>>;
-    constructor(message: Message);
-    activate(duration?: number): Promise<void>;
+    constructor();
+    activate(message: Message, duration?: number): Promise<void>;
     deactivate(): Promise<void>;
     registerHandler(label: string, handler: InteractableHandlerFunction<T>, style?: MessageButtonStyle, customId?: string): void;
     registerRemovalHandler(handler: InteractableRemovalFunction<T>): void;

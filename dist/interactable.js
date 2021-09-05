@@ -11,15 +11,16 @@ import { MessageActionRow, MessageButton } from "discord.js";
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 // Big fancy wrapper around InteractionCollector that works out cleaner
 export class Interactable {
-    constructor(message) {
-        this.message = message;
+    constructor() {
         this.collector = null;
         this.interactionHandlers = new Map();
         this.actionRow = new MessageActionRow();
     }
     // Activate the Interactable for given duration 
-    activate(duration = DEFAULT_MODAL_DURATION) {
+    activate(message, duration = DEFAULT_MODAL_DURATION) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Set the target message
+            this.message = message;
             // Generate the InteractionCollector to subscribe events
             this.createCollector(duration);
         });

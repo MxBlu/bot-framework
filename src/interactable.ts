@@ -20,15 +20,16 @@ export class Interactable<T> {
   // Map of all button IDs to their handler function
   interactionHandlers: Map<string, InteractableHandlerFunction<T>>;
 
-  constructor(message: Message) {
-    this.message = message;
+  constructor() {
     this.collector = null;
     this.interactionHandlers = new Map();
     this.actionRow = new MessageActionRow();
   }
 
   // Activate the Interactable for given duration 
-  public async activate(duration = DEFAULT_MODAL_DURATION): Promise<void> {
+  public async activate(message: Message, duration = DEFAULT_MODAL_DURATION): Promise<void> {
+    // Set the target message
+    this.message = message;
     // Generate the InteractionCollector to subscribe events
     this.createCollector(duration);
   }

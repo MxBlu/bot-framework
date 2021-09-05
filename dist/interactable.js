@@ -48,18 +48,21 @@ export class Interactable {
         if (options.label == null && options.emoji == null) {
             throw new Error("Interactable handler does not have either a label or an emoji");
         }
-        const label = options.label;
-        const emoji = options.emoji;
-        const style = options.style || "SECONDARY";
         // Generate a random ID if one isn't specified
         // Random 10 character string
         const customId = options.customId || Math.random().toString(36).substring(2, 12);
+        // Generate MessageButton
+        const button = new MessageButton();
+        if (options.label != null) {
+            button.setLabel(options.label);
+        }
+        else {
+            button.setEmoji(options.emoji);
+        }
+        button.setStyle(options.style || "SECONDARY");
+        button.setCustomId(customId);
         // Add the button to the action row
-        this.actionRow.addComponents(new MessageButton()
-            .setCustomId(customId)
-            .setLabel(label)
-            .setEmoji(emoji)
-            .setStyle(style));
+        this.actionRow.addComponents(button);
         // Register the handler
         this.interactionHandlers.set(customId, handler);
     }

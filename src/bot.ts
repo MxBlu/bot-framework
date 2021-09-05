@@ -150,7 +150,7 @@ export class BaseBot {
 
   // Register a slash command with the API
   // If guildId is null, command is registered as a global command
-  private async registerApplicationCommand(
+  public async registerApplicationCommand(
       command: ModernApplicationCommandJSONBody, guildId: string): 
       Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
     // If guildId is set, register it as a guild command

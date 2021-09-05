@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -18,105 +7,63 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 import { Client as DiscordClient } from "discord.js";
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
 import { sendMessage } from "./bot_utils.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-var commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
-var BotCommand = /** @class */ (function () {
-    function BotCommand() {
-    }
-    return BotCommand;
-}());
-export { BotCommand };
-var BaseBot = /** @class */ (function () {
-    function BaseBot(name) {
-        var _this = this;
+export class BaseBot {
+    constructor(name) {
         // Discord event handlers
-        this.readyHandler = function () {
-            _this.logger.info("Discord connected");
+        this.readyHandler = () => {
+            this.logger.info("Discord connected");
+            // Register commands with API and map handlers
+            this.registerSlashCommands();
         };
-        this.messageHandler = function (message) { return __awaiter(_this, void 0, void 0, function () {
-            var command;
-            return __generator(this, function (_a) {
-                // Ignore bot messages to avoid messy situations
-                if (message.author.bot) {
-                    return [2 /*return*/];
+        this.interactionHandler = (interaction) => __awaiter(this, void 0, void 0, function* () {
+            // Ignore bot interactiosn to avoid messy situations
+            if (interaction.user.bot) {
+                return;
+            }
+            // Handle command interactions
+            if (interaction.isCommand()) {
+                const commandInteraction = interaction;
+                const handler = this.commandHandlers.get(commandInteraction.commandName);
+                if (handler != null) {
+                    this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+                        `!${interaction.commandName} - '${interaction.options}'`); //TODO: Will that actually work?
+                    handler.handle(interaction);
                 }
-                command = this.parseCommand(message);
-                if (command != null) {
-                    this.logger.debug("Command received from '" + message.author.username + "' in '" + message.guild.name + "': " +
-                        ("!" + command.command + " - '" + command.arguments.join(' ') + "'"));
-                    this.commandHandlers.get(command.command).handle(command);
-                }
-                return [2 /*return*/];
-            });
-        }); };
+            }
+        });
         // Log message handler
-        this.logHandler = function (log) { return __awaiter(_this, void 0, void 0, function () {
-            var targetChannel, e_1;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "")) return [3 /*break*/, 4];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        // Remove any consequtive spaces to make logs more legible
-                        log = log.replace(/  +/, ' ');
-                        return [4 /*yield*/, this.discord.channels.fetch(DISCORD_ERROR_CHANNEL)];
-                    case 2:
-                        targetChannel = _a.sent();
-                        // Only send if we can access the error channel
-                        if (targetChannel != null && targetChannel.isText()) {
-                            sendMessage(targetChannel, log);
-                        }
-                        return [3 /*break*/, 4];
-                    case 3:
-                        e_1 = _a.sent();
-                        // Trip error flag, prevents error logs hitting here again
-                        this.discordLogDisabled = true;
-                        this.logger.error("Discord logging exception, disabling log: " + e_1);
-                        // Reset error status after DISCORD_LOG_ERROR_STATUS_RESET ms
-                        setTimeout(function () {
-                            _this.discordLogDisabled = false;
-                            _this.logger.debug("Discord logging re-enabled");
-                        }, DISCORD_LOG_ERROR_STATUS_RESET);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+        this.logHandler = (log) => __awaiter(this, void 0, void 0, function* () {
+            if (!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "") {
+                try {
+                    // Remove any consequtive spaces to make logs more legible
+                    log = log.replace(/  +/, ' ');
+                    // Should ensure that it works for DM channels too
+                    const targetChannel = yield this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
+                    // Only send if we can access the error channel
+                    if (targetChannel != null && targetChannel.isText()) {
+                        sendMessage(targetChannel, log);
+                    }
                 }
-            });
-        }); };
+                catch (e) {
+                    // Trip error flag, prevents error logs hitting here again
+                    this.discordLogDisabled = true;
+                    this.logger.error(`Discord logging exception, disabling log: ${e}`);
+                    // Reset error status after DISCORD_LOG_ERROR_STATUS_RESET ms
+                    setTimeout(() => {
+                        this.discordLogDisabled = false;
+                        this.logger.debug("Discord logging re-enabled");
+                    }, DISCORD_LOG_ERROR_STATUS_RESET);
+                }
+            }
+        });
         this.name = name;
         this.logger = new Logger(name);
         this.discordLogDisabled = false;
@@ -128,42 +75,29 @@ var BaseBot = /** @class */ (function () {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    BaseBot.prototype.init = function (discordToken, intents, discordClientOptions) {
-        if (intents === void 0) { intents = ["GUILDS", "GUILD_MESSAGES"]; }
-        if (discordClientOptions === void 0) { discordClientOptions = {}; }
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.discord = new DiscordClient(__assign(__assign({}, discordClientOptions), { intents: intents }));
-                this.initCommandHandlers();
-                this.initEventHandlers();
-                this.discord.login(discordToken);
-                return [2 /*return*/];
-            });
+    init(discordToken, intents = ["GUILDS", "GUILD_MESSAGES"], discordClientOptions = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
+            this.discordRest = new REST({ version: '9' }).setToken(discordToken);
+            this.initCommandHandlers();
+            this.initEventHandlers();
+            this.discord.login(discordToken);
         });
-    };
+    }
     // Initialise and map all command handlers
     // Runs after loadProviders()
-    BaseBot.prototype.initCommandHandlers = function () {
-        var _this = this;
+    initCommandHandlers() {
         // Load in any subclass interfaces
         this.loadProviders();
         // Add help command, passing in all currently registered providers (help is not yet registered)
         this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
-        // Assign aliases to handler command for each provider 
-        this.providers.forEach(function (provider) {
-            provider.provideAliases().forEach(function (alias) {
-                // Map alias to handle function, binding this to the provider
-                _this.commandHandlers.set(alias.toLowerCase(), provider);
-            });
-        });
-    };
+    }
     // Initialise all event handlers
     // Runs before initCustomEventHandlers()
-    BaseBot.prototype.initEventHandlers = function () {
-        var _this = this;
+    initEventHandlers() {
         this.discord.once('ready', this.readyHandler);
-        this.discord.on('messageCreate', this.messageHandler);
-        this.discord.on('error', function (err) { return _this.logger.error("Discord error: " + err); });
+        this.discord.on('interactionCreate', this.interactionHandler);
+        this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
         // Subscribe to ERROR logs being published
         if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {
             NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.logHandler);
@@ -176,39 +110,64 @@ var BaseBot = /** @class */ (function () {
             NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
         }
         this.initCustomEventHandlers();
-    };
+    }
+    // Register all command providers loaded as slash commands
+    // Runs after readyhandler()
+    registerSlashCommands() {
+        // Assign aliases to handler command for each provider 
+        this.providers.forEach(provider => {
+            provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    // Based on the flag, either register commands globally
+                    //  or on each guild currently available
+                    if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+                        yield this.registerSlashCommand(command, null);
+                    }
+                    else {
+                        yield Promise.all(this.discord.guilds.cache.map(guild => {
+                            this.registerSlashCommand(command, guild.id);
+                        }));
+                    }
+                    // Map command name to handler
+                    this.commandHandlers.set(command.name, provider);
+                }
+                catch (e) {
+                    this.logger.error(`Failed to register command '${command.name}': ${e}`);
+                }
+            }));
+        });
+    }
     // Subscribe to any extra events outside of the base ones
-    BaseBot.prototype.initCustomEventHandlers = function () {
+    initCustomEventHandlers() {
         // Stub function, subclass to override
         return;
-    };
+    }
     // Add all providers to the providers array
-    BaseBot.prototype.loadProviders = function () {
+    loadProviders() {
         // Stub function, subclass to override
         return;
-    };
+    }
     // Return a string for the bot-level help message
-    BaseBot.prototype.getHelpMessage = function () {
+    getHelpMessage() {
         throw new Error("Method not implemented");
-    };
+    }
     // Utility functions
-    BaseBot.prototype.parseCommand = function (cmdMessage) {
-        // Compare against command syntax
-        var matchObj = cmdMessage.content.match(commandSyntax);
-        // Check if command is valid
-        if (matchObj == null || !this.commandHandlers.has(matchObj[1].toLowerCase())) {
-            return null;
-        }
-        // Remove double spaces from arg string, then split it into an array
-        // If no args exist (matchObj[2] == null), create empty array
-        var cmdArgs = matchObj[2] ? matchObj[2].replace(/  +/g, ' ').trim().split(' ') : [];
-        var command = new BotCommand();
-        command.message = cmdMessage;
-        command.command = matchObj[1].toLowerCase();
-        command.arguments = cmdArgs;
-        return command;
-    };
-    return BaseBot;
-}());
-export { BaseBot };
+    // Register a slash command with the API
+    // If guildId is null, command is registered as a global command
+    registerSlashCommand(command, guildId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // If guildId is set, register it as a guild command
+            // Otherwise, register it as a global command
+            let response = null;
+            if (guildId != null) {
+                response = (yield this.discordRest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command.toJSON() }));
+            }
+            else {
+                response = (yield this.discordRest.post(Routes.applicationCommands(this.discord.application.id), { body: command.toJSON() }));
+            }
+            this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
+            return response;
+        });
+    }
+}
 //# sourceMappingURL=bot.js.map

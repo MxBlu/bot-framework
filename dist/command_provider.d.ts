@@ -1,7 +1,7 @@
-import { BotCommand } from "./bot.js";
-export declare type BotCommandHandlerFunction = (command: BotCommand) => Promise<void>;
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction } from "discord.js";
 export interface CommandProvider {
-    provideAliases(): string[];
+    provideSlashCommands(): SlashCommandBuilder[];
     provideHelpMessage(): string;
-    handle(command: BotCommand): Promise<void>;
+    handle(interaction: CommandInteraction): Promise<void>;
 }

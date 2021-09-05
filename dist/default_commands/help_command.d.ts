@@ -1,11 +1,12 @@
-import { BotCommand } from "../bot.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction } from "discord.js";
 import { CommandProvider } from "../command_provider.js";
 export declare class HelpCommand implements CommandProvider {
     botName: string;
     helpMessage: string;
     constructor(botName: string, botHelpMessage: string, providers: CommandProvider[]);
-    provideAliases(): string[];
+    provideSlashCommands(): SlashCommandBuilder[];
     provideHelpMessage(): string;
-    handle(command: BotCommand): Promise<void>;
+    handle(interaction: CommandInteraction): Promise<void>;
     private generateHelpMessage;
 }

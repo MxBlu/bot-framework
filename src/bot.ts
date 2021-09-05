@@ -1,29 +1,24 @@
-import { Message, Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
+import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction } from "discord.js";
+import { REST } from '@discordjs/rest';
+import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
 import { sendMessage } from "./bot_utils.js";
 import { CommandProvider } from "./command_provider.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-
-const commandSyntax = /^\s*!([A-Za-z]+)((?: +[^ ]+)+)?\s*$/;
+import { SlashCommandBuilder } from "@discordjs/builders";
 
 export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
-
-export class BotCommand {
-  message: Message;
-
-  command: string;
-
-  arguments: string[];
-}
 
 export class BaseBot {
   // Bot name
   name: string;
   // Discord client
   discord: DiscordClient;
+  // Discord REST client
+  discordRest: REST;
   // Logger instance
   logger: Logger;
 
@@ -50,10 +45,11 @@ export class BaseBot {
   public async init(discordToken: string, 
       intents: BitFieldResolvable<IntentsString, number> = [ "GUILDS", "GUILD_MESSAGES" ], 
       discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
-    this.discord  = new DiscordClient({
+    this.discord = new DiscordClient({
       ...discordClientOptions,
       intents
     });
+    this.discordRest = new REST({ version: '9' }).setToken(discordToken);
 
     this.initCommandHandlers();
     this.initEventHandlers();
@@ -69,21 +65,13 @@ export class BaseBot {
 
     // Add help command, passing in all currently registered providers (help is not yet registered)
     this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
-
-    // Assign aliases to handler command for each provider 
-    this.providers.forEach(provider => {
-      provider.provideAliases().forEach(alias => {
-        // Map alias to handle function, binding this to the provider
-        this.commandHandlers.set(alias.toLowerCase(), provider);
-      });
-    });
   }
 
   // Initialise all event handlers
   // Runs before initCustomEventHandlers()
   private initEventHandlers(): void {
     this.discord.once('ready', this.readyHandler);
-    this.discord.on('messageCreate', this.messageHandler);
+    this.discord.on('interactionCreate', this.interactionHandler);
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
 
     // Subscribe to ERROR logs being published
@@ -99,6 +87,34 @@ export class BaseBot {
     }
 
     this.initCustomEventHandlers();
+  }
+  
+  // Register all command providers loaded as slash commands
+  // Runs after readyhandler()
+  private registerSlashCommands(): void {
+    // Assign aliases to handler command for each provider 
+    this.providers.forEach(provider => {
+      provider.provideSlashCommands().forEach(async (command) => {
+        try {
+          // Based on the flag, either register commands globally
+          //  or on each guild currently available
+          if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+            await this.registerSlashCommand(command, null);
+          } else {
+            await Promise.all(
+              this.discord.guilds.cache.map(guild => {
+                this.registerSlashCommand(command, guild.id);
+              })
+            );
+          }
+
+          // Map command name to handler
+          this.commandHandlers.set(command.name, provider);
+        } catch (e) {
+          this.logger.error(`Failed to register command '${command.name}': ${e}`);
+        }
+      });
+    });
   }
 
   // Subscribe to any extra events outside of the base ones
@@ -120,44 +136,54 @@ export class BaseBot {
 
   // Utility functions
 
-  private parseCommand(cmdMessage: Message): BotCommand {
-    // Compare against command syntax
-    const matchObj = cmdMessage.content.match(commandSyntax);
-
-    // Check if command is valid
-    if (matchObj == null || !this.commandHandlers.has(matchObj[1].toLowerCase())) {
-      return null;
+  // Register a slash command with the API
+  // If guildId is null, command is registered as a global command
+  private async registerSlashCommand(command: SlashCommandBuilder, guildId: string): 
+      Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
+    // If guildId is set, register it as a guild command
+    // Otherwise, register it as a global command
+    let response: RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult = null;
+    if (guildId != null) {
+      response = await this.discordRest.post(
+        Routes.applicationGuildCommands(this.discord.application.id, guildId),
+        { body: command.toJSON() }
+      ) as RESTPostAPIApplicationGuildCommandsResult;
+    } else {
+      response = await this.discordRest.post(
+        Routes.applicationCommands(this.discord.application.id),
+        { body: command.toJSON() }
+      ) as RESTPostAPIApplicationCommandsResult;
     }
 
-    // Remove double spaces from arg string, then split it into an array
-    // If no args exist (matchObj[2] == null), create empty array
-    const cmdArgs = matchObj[2] ? matchObj[2].replace(/  +/g, ' ').trim().split(' ') : [];
-
-    const command = new BotCommand();
-    command.message = cmdMessage;
-    command.command = matchObj[1].toLowerCase();
-    command.arguments = cmdArgs;
-
-    return command;
+    this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
+    return response;
   }
 
   // Discord event handlers
 
   private readyHandler = (): void => {
     this.logger.info("Discord connected");
+
+    // Register commands with API and map handlers
+    this.registerSlashCommands();
   }
 
-  private messageHandler = async (message: Message): Promise<void> => {
-    // Ignore bot messages to avoid messy situations
-    if (message.author.bot) {
+  private interactionHandler = async (interaction: Interaction): Promise<void> => {
+    // Ignore bot interactiosn to avoid messy situations
+    if (interaction.user.bot) {
       return;
     }
 
-    const command = this.parseCommand(message);
-    if (command != null) {
-      this.logger.debug(`Command received from '${message.author.username}' in '${message.guild.name}': ` +
-          `!${command.command} - '${command.arguments.join(' ')}'`);
-      this.commandHandlers.get(command.command).handle(command);
+    // Handle command interactions
+    if (interaction.isCommand()) {
+      const commandInteraction = interaction as CommandInteraction;
+
+      const handler = this.commandHandlers.get(commandInteraction.commandName);
+      if (handler != null) {
+        this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+          `!${interaction.commandName} - '${interaction.options}'`); //TODO: Will that actually work?
+        handler.handle(interaction);
+      }
     }
   }
 

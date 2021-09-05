@@ -1,5 +1,6 @@
-import { BotCommand } from "../bot.js";
-import { sendMessage } from "../bot_utils.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction } from "discord.js";
+
 import { CommandProvider } from "../command_provider.js";
 
 // Command to return a help message for the current bot
@@ -16,8 +17,12 @@ export class HelpCommand implements CommandProvider {
     this.generateHelpMessage(botHelpMessage, providers);
   }
 
-  public provideAliases(): string[] {
-    return [ "h", "help" ];
+  public provideSlashCommands(): SlashCommandBuilder[] {
+    return [
+      new SlashCommandBuilder()
+        .setName('help')
+        .setDescription(`Shows available commands for ${this.botName}`)
+    ];
   }
 
   // Help shouldn't have it's own help message...
@@ -25,14 +30,8 @@ export class HelpCommand implements CommandProvider {
     throw new Error("Help does not have a help message");
   }
 
-  public handle(command: BotCommand): Promise<void> {
-    if (command.arguments == null ||
-          command.arguments[0].toLowerCase() !== this.botName.toLowerCase()) {
-      // Only send help for !help <bot name>
-      return;
-    }
-  
-    sendMessage(command.message.channel, this.helpMessage);
+  public async handle(interaction: CommandInteraction): Promise<void> {    
+    return interaction.reply({ content: this.helpMessage });
   }
 
   // Generate help message from bot help string and all registered command providers

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { CommandProvider } from "../command_provider.js";
+import { CommandProvider, GeneralSlashCommandBuilder } from "../command_provider.js";
 
 // Command to return a help message for the current bot
 export class HelpCommand implements CommandProvider {
@@ -17,7 +17,7 @@ export class HelpCommand implements CommandProvider {
     this.generateHelpMessage(botHelpMessage, providers);
   }
 
-  public provideSlashCommands(): SlashCommandBuilder[] {
+  public provideSlashCommands(): GeneralSlashCommandBuilder[] {
     return [
       new SlashCommandBuilder()
         .setName('help')

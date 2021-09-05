@@ -3,7 +3,7 @@ import { REST } from '@discordjs/rest';
 import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
 import { sendMessage } from "./bot_utils.js";
-import { CommandProvider } from "./command_provider.js";
+import { CommandProvider, GeneralSlashCommandBuilder } from "./command_provider.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
@@ -138,11 +138,12 @@ export class BaseBot {
 
   // Register a slash command with the API
   // If guildId is null, command is registered as a global command
-  private async registerSlashCommand(command: SlashCommandBuilder, guildId: string): 
+  private async registerSlashCommand(command: GeneralSlashCommandBuilder, guildId: string): 
       Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
     // If guildId is set, register it as a guild command
     // Otherwise, register it as a global command
     let response: RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult = null;
+
     if (guildId != null) {
       response = await this.discordRest.post(
         Routes.applicationGuildCommands(this.discord.application.id, guildId),

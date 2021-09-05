@@ -27,5 +27,6 @@ export declare class BaseBot {
     private registerSlashCommand;
     private readyHandler;
     private interactionHandler;
+    private guildCreateHandler;
     private logHandler;
 }

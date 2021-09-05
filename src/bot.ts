@@ -1,4 +1,4 @@
-import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction } from "discord.js";
+import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction, Guild } from "discord.js";
 import { REST } from '@discordjs/rest';
 import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
@@ -72,6 +72,11 @@ export class BaseBot {
     this.discord.once('ready', this.readyHandler);
     this.discord.on('interactionCreate', this.interactionHandler);
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
+    
+    // If we're registering commands under a guild, register every command on guild join
+    if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+      this.discord.on('guildCreate', this.guildCreateHandler);
+    }
 
     // Subscribe to ERROR logs being published
     if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {
@@ -185,6 +190,21 @@ export class BaseBot {
           `!${interaction.commandName}'`);
         handler.handle(interaction);
       }
+    }
+  }
+
+  private guildCreateHandler = async (guild: Guild): Promise<void> => {
+    // If we're registering commands under a guild, register every command on guild join
+    if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+      this.providers.forEach(provider => {
+        provider.provideSlashCommands().forEach(async (command) => {
+          try {
+            this.registerSlashCommand(command, guild.id);
+          } catch (e) {
+            this.logger.error(`Failed to register command '${command.name}': ${e}`);
+          }
+        });
+      });
     }
   }
 

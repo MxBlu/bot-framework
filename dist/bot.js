@@ -40,6 +40,21 @@ export class BaseBot {
                 }
             }
         });
+        this.guildCreateHandler = (guild) => __awaiter(this, void 0, void 0, function* () {
+            // If we're registering commands under a guild, register every command on guild join
+            if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+                this.providers.forEach(provider => {
+                    provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            this.registerSlashCommand(command, guild.id);
+                        }
+                        catch (e) {
+                            this.logger.error(`Failed to register command '${command.name}': ${e}`);
+                        }
+                    }));
+                });
+            }
+        });
         // Log message handler
         this.logHandler = (log) => __awaiter(this, void 0, void 0, function* () {
             if (!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "") {
@@ -99,6 +114,10 @@ export class BaseBot {
         this.discord.once('ready', this.readyHandler);
         this.discord.on('interactionCreate', this.interactionHandler);
         this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
+        // If we're registering commands under a guild, register every command on guild join
+        if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+            this.discord.on('guildCreate', this.guildCreateHandler);
+        }
         // Subscribe to ERROR logs being published
         if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {
             NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.logHandler);

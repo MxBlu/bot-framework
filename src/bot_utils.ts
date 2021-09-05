@@ -1,4 +1,4 @@
-import { Guild, GuildChannel, GuildMember, Message, Role, TextBasedChannels, ThreadChannel } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, Message, Role, TextBasedChannels, ThreadChannel } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -46,10 +46,10 @@ export const chunkString = function (str: string): string[] {
 }
 
 // Send reply to a user command, logging if appropriate
-export const sendCmdMessage = function (message: Message, msg: string, 
-    logger: Logger, level: LogLevel): void {
-  logger.log(`${message.author.username} - ${message.guild.name} - ${msg}`, level);
-  sendMessage(message.channel, msg);
+export const sendCmdReply = async function (interaction: CommandInteraction, msg: string, 
+    logger: Logger, level: LogLevel): Promise<void> {
+  logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
+  return interaction.reply({ content: msg });
 }
 
 // Send message to a given channel, chunking if necessary

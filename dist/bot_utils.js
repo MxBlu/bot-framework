@@ -47,9 +47,11 @@ export const chunkString = function (str) {
     return chunks;
 };
 // Send reply to a user command, logging if appropriate
-export const sendCmdMessage = function (message, msg, logger, level) {
-    logger.log(`${message.author.username} - ${message.guild.name} - ${msg}`, level);
-    sendMessage(message.channel, msg);
+export const sendCmdReply = function (interaction, msg, logger, level) {
+    return __awaiter(this, void 0, void 0, function* () {
+        logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
+        return interaction.reply({ content: msg });
+    });
 };
 // Send message to a given channel, chunking if necessary
 export const sendMessage = function (targetChannel, msg) {

@@ -46,7 +46,7 @@ export class BaseBot {
                 this.providers.forEach(provider => {
                     provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
                         try {
-                            this.registerSlashCommand(command, guild.id);
+                            this.registerApplicationCommand(command.toJSON(), guild.id);
                         }
                         catch (e) {
                             this.logger.error(`Failed to register command '${command.name}': ${e}`);
@@ -141,11 +141,11 @@ export class BaseBot {
                     // Based on the flag, either register commands globally
                     //  or on each guild currently available
                     if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
-                        yield this.registerSlashCommand(command, null);
+                        yield this.registerApplicationCommand(command.toJSON(), null);
                     }
                     else {
                         yield Promise.all(this.discord.guilds.cache.map(guild => {
-                            this.registerSlashCommand(command, guild.id);
+                            this.registerApplicationCommand(command.toJSON(), guild.id);
                         }));
                     }
                     // Map command name to handler
@@ -174,16 +174,16 @@ export class BaseBot {
     // Utility functions
     // Register a slash command with the API
     // If guildId is null, command is registered as a global command
-    registerSlashCommand(command, guildId) {
+    registerApplicationCommand(command, guildId) {
         return __awaiter(this, void 0, void 0, function* () {
             // If guildId is set, register it as a guild command
             // Otherwise, register it as a global command
             let response = null;
             if (guildId != null) {
-                response = (yield this.discordRest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command.toJSON() }));
+                response = (yield this.discordRest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command }));
             }
             else {
-                response = (yield this.discordRest.post(Routes.applicationCommands(this.discord.application.id), { body: command.toJSON() }));
+                response = (yield this.discordRest.post(Routes.applicationCommands(this.discord.application.id), { body: command }));
             }
             this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
             return response;

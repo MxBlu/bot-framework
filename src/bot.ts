@@ -1,15 +1,23 @@
 import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction, Guild } from "discord.js";
 import { REST } from '@discordjs/rest';
-import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
+import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
 import { sendMessage } from "./bot_utils.js";
-import { CommandProvider, GeneralSlashCommandBuilder } from "./command_provider.js";
+import { CommandProvider } from "./command_provider.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
 
 export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
+
+// Temporary types while waiting for discord-api-types to add new types in
+export const enum ApplicationCommandType {
+  CHAT_INPUT = 1,
+  USER = 2,
+  MESSAGE = 3
+}
+export type ModernApplicationCommandJSONBody = RESTPostAPIApplicationCommandsJSONBody & { type?: ApplicationCommandType };
 
 export class BaseBot {
   // Bot name
@@ -103,11 +111,11 @@ export class BaseBot {
           // Based on the flag, either register commands globally
           //  or on each guild currently available
           if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
-            await this.registerSlashCommand(command, null);
+            await this.registerApplicationCommand(command.toJSON(), null);
           } else {
             await Promise.all(
               this.discord.guilds.cache.map(guild => {
-                this.registerSlashCommand(command, guild.id);
+                this.registerApplicationCommand(command.toJSON(), guild.id);
               })
             );
           }
@@ -142,7 +150,8 @@ export class BaseBot {
 
   // Register a slash command with the API
   // If guildId is null, command is registered as a global command
-  private async registerSlashCommand(command: GeneralSlashCommandBuilder, guildId: string): 
+  private async registerApplicationCommand(
+      command: ModernApplicationCommandJSONBody, guildId: string): 
       Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
     // If guildId is set, register it as a guild command
     // Otherwise, register it as a global command
@@ -151,12 +160,12 @@ export class BaseBot {
     if (guildId != null) {
       response = await this.discordRest.post(
         Routes.applicationGuildCommands(this.discord.application.id, guildId),
-        { body: command.toJSON() }
+        { body: command }
       ) as RESTPostAPIApplicationGuildCommandsResult;
     } else {
       response = await this.discordRest.post(
         Routes.applicationCommands(this.discord.application.id),
-        { body: command.toJSON() }
+        { body: command }
       ) as RESTPostAPIApplicationCommandsResult;
     }
 
@@ -199,7 +208,7 @@ export class BaseBot {
       this.providers.forEach(provider => {
         provider.provideSlashCommands().forEach(async (command) => {
           try {
-            this.registerSlashCommand(command, guild.id);
+            this.registerApplicationCommand(command.toJSON(), guild.id);
           } catch (e) {
             this.logger.error(`Failed to register command '${command.name}': ${e}`);
           }

@@ -1,8 +1,17 @@
 import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString } from "discord.js";
 import { REST } from '@discordjs/rest';
+import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v9';
 import { CommandProvider } from "./command_provider.js";
 import { Logger } from "./logger.js";
 export declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
+export declare const enum ApplicationCommandType {
+    CHAT_INPUT = 1,
+    USER = 2,
+    MESSAGE = 3
+}
+export declare type ModernApplicationCommandJSONBody = RESTPostAPIApplicationCommandsJSONBody & {
+    type?: ApplicationCommandType;
+};
 export declare class BaseBot {
     name: string;
     discord: DiscordClient;
@@ -24,7 +33,7 @@ export declare class BaseBot {
     initCustomEventHandlers(): void;
     loadProviders(): void;
     getHelpMessage(): string;
-    private registerSlashCommand;
+    private registerApplicationCommand;
     private readyHandler;
     private interactionHandler;
     private guildCreateHandler;

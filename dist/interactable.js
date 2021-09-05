@@ -39,7 +39,7 @@ export class Interactable {
         });
     }
     // Assign a handler for a given emoji
-    registerHandler(label, handler, style = "PRIMARY", customId = null) {
+    registerHandler(label, handler, style = "SECONDARY", customId = null) {
         // If we already have a collector, it's too late to register a handler
         if (this.collector != null) {
             throw new Error("Interactable already activated");

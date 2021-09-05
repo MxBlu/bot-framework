@@ -49,7 +49,7 @@ export class Interactable<T> {
 
   // Assign a handler for a given emoji
   public registerHandler(label: string, handler: InteractableHandlerFunction<T>, 
-      style: MessageButtonStyle = "PRIMARY", customId: string = null): void {
+      style: MessageButtonStyle = "SECONDARY", customId: string = null): void {
     // If we already have a collector, it's too late to register a handler
     if (this.collector != null) {
       throw new Error("Interactable already activated");

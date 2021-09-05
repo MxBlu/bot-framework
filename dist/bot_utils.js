@@ -59,7 +59,13 @@ export const sendChunkedReply = function (interaction, msg) {
         // Split up message into max length chunks
         const msgChunks = chunkString(msg);
         // Send first message as a reply
-        yield interaction.reply({ content: msgChunks.shift() });
+        // If the interaction has been deferred, edit the reply instead of creating a new one
+        if (interaction.deferred) {
+            yield interaction.editReply({ content: msgChunks.shift() });
+        }
+        else {
+            yield interaction.reply({ content: msgChunks.shift() });
+        }
         // Send subsequent messages as follow-ups
         for (const chunk of msgChunks) {
             yield interaction.followUp({ content: chunk });

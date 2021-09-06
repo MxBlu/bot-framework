@@ -208,7 +208,7 @@ export class BaseBot {
       const contextInteraction = interaction as ContextMenuInteraction;
 
       // If a handler exists for the commandName, handle the command
-      const handler = this.slashCommandHandlers.get(contextInteraction.commandName);
+      const handler = this.contextCommandHandlers.get(contextInteraction.commandName);
       if (handler != null) {
         this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
           `!${interaction.commandName}'`);

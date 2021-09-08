@@ -16,19 +16,27 @@ export const DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 export const TRIGGER_RESOLUTION = 500; // 500ms
 
 // Env flag to determine whether to register commands or not 
-export const DISCORD_REGISTER_COMMANDS = (process.env.DISCORD_REGISTER_COMMANDS === 'true') || true;
+export const DISCORD_REGISTER_COMMANDS = envFlagOrDefault('DISCORD_REGISTER_COMMANDS', true);
 
 // Env flag to determine whether to register slash commands as global commands or as guild commands
-export const DISCORD_REGISTER_COMMANDS_AS_GLOBAL = (process.env.DISCORD_REGISTER_COMMANDS_AS_GLOBAL === 'true') || false;
+export const DISCORD_REGISTER_COMMANDS_AS_GLOBAL = envFlagOrDefault('DISCORD_REGISTER_COMMANDS_AS_GLOBAL', false);
 
 // Env flag to determine whether to send error logs to the specified error channel
-export const DISCORD_ERROR_LOGGING_ENABLED = (process.env.DISCORD_ERROR_LOGGING_ENABLED === 'true') || true;
+export const DISCORD_ERROR_LOGGING_ENABLED = envFlagOrDefault('DISCORD_ERROR_LOGGING_ENABLED', true);
 
 // Env flag to determine whether to send all logs to the specified error channel
-export const DISCORD_GENERAL_LOGGING_ENABLED = (process.env.DISCORD_GENERAL_LOGGING_ENABLED === 'true') || false;
+export const DISCORD_GENERAL_LOGGING_ENABLED = envFlagOrDefault('DISCORD_GENERAL_LOGGING_ENABLED', false);
 
 // Channel to post error logs to
 export const DISCORD_ERROR_CHANNEL = process.env.DISCORD_ERROR_CHANNEL;
 
 // Time to wait before resetting "error" status on Discord logging
 export const DISCORD_LOG_ERROR_STATUS_RESET = 60000; // 10 minutes
+
+function envFlagOrDefault(variableName: string, defaultValue: boolean) {
+  if (process.env[variableName] != null) {
+    return process.env[variableName] === 'true';
+  } else {
+    return defaultValue;
+  }
+}

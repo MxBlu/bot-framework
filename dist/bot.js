@@ -11,7 +11,7 @@ import { Client as DiscordClient } from "discord.js";
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { sendMessage } from "./bot_utils.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -21,7 +21,9 @@ export class BaseBot {
         this.readyHandler = () => {
             this.logger.info("Discord connected");
             // Register commands with API and map handlers
-            this.registerCommands();
+            if (DISCORD_REGISTER_COMMANDS) {
+                this.registerCommands();
+            }
         };
         this.interactionHandler = (interaction) => __awaiter(this, void 0, void 0, function* () {
             // Ignore bot interactiosn to avoid messy situations
@@ -131,7 +133,7 @@ export class BaseBot {
         this.discord.on('interactionCreate', this.interactionHandler);
         this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
         // If we're registering commands under a guild, register every command on guild join
-        if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+        if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL && DISCORD_REGISTER_COMMANDS) {
             this.discord.on('guildCreate', this.guildCreateHandler);
         }
         // Subscribe to ERROR logs being published

@@ -4,7 +4,7 @@ import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildComman
 
 import { sendMessage } from "./bot_utils.js";
 import { ApplicationCommandType, CommandProvider, ModernApplicationCommandJSONBody } from "./command_provider.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -77,7 +77,7 @@ export class BaseBot {
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
     
     // If we're registering commands under a guild, register every command on guild join
-    if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
+    if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL && DISCORD_REGISTER_COMMANDS) {
       this.discord.on('guildCreate', this.guildCreateHandler);
     }
 
@@ -183,7 +183,9 @@ export class BaseBot {
     this.logger.info("Discord connected");
 
     // Register commands with API and map handlers
-    this.registerCommands();
+    if (DISCORD_REGISTER_COMMANDS) {
+      this.registerCommands();
+    }
   }
 
   private interactionHandler = async (interaction: Interaction): Promise<void> => {

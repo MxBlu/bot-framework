@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, Role, TextBasedChannels, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannels, ThreadChannel, User } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -46,15 +46,15 @@ export const chunkString = function (str: string): string[] {
 }
 
 // Send reply to a user command, logging if appropriate
-export const sendCmdReply = async function (interaction: CommandInteraction, msg: string, 
-    logger: Logger, level: LogLevel): Promise<void> {
+export const sendCmdReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
+    msg: string, logger: Logger, level: LogLevel): Promise<void> {
   logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
   return sendChunkedReply(interaction, msg);
 }
 
 // Send reply to a user command which may potentially be large
-export const sendChunkedReply = async function (interaction: CommandInteraction, msg: string)
-    : Promise<void> {
+export const sendChunkedReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
+      msg: string): Promise<void> {
   // Split up message into max length chunks
   const msgChunks = chunkString(msg);
   // Send first message as a reply

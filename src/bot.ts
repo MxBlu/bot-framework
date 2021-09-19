@@ -1,4 +1,4 @@
-import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, Guild, ContextMenuInteraction } from "discord.js";
+import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, Guild, ContextMenuInteraction, BitFieldResolvable, Intents } from "discord.js";
 import { REST } from '@discordjs/rest';
 import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
@@ -45,15 +45,8 @@ export class BaseBot {
    * @param discordToken : Discord token received from the bot.
    */
   public async init(discordToken: string, 
-      intents: IntentsString[] = [], 
+      intents: BitFieldResolvable<IntentsString, number> = [ Intents.FLAGS.GUILDS ], 
       discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
-    // If we're registering commands under a guild, ensure we have the GUILDS intent
-    if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL && DISCORD_REGISTER_COMMANDS) {
-      if (!intents.includes("GUILDS")) {
-        intents.push("GUILDS");
-      }
-    }
-
     this.discord = new DiscordClient({
       ...discordClientOptions,
       intents

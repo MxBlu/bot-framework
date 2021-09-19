@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Client as DiscordClient } from "discord.js";
+import { Client as DiscordClient, Intents } from "discord.js";
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { sendMessage } from "./bot_utils.js";
@@ -109,14 +109,8 @@ export class BaseBot {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    init(discordToken, intents = [], discordClientOptions = {}) {
+    init(discordToken, intents = [Intents.FLAGS.GUILDS], discordClientOptions = {}) {
         return __awaiter(this, void 0, void 0, function* () {
-            // If we're registering commands under a guild, ensure we have the GUILDS intent
-            if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL && DISCORD_REGISTER_COMMANDS) {
-                if (!intents.includes("GUILDS")) {
-                    intents.push("GUILDS");
-                }
-            }
             this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
             this.discordRest = new REST({ version: '9' }).setToken(discordToken);
             this.initCommandHandlers();

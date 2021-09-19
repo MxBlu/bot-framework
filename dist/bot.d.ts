@@ -1,4 +1,4 @@
-import { Client as DiscordClient, ClientOptions, BitFieldResolvable, IntentsString, Interaction, CommandInteraction, ContextMenuInteraction } from "discord.js";
+import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, ContextMenuInteraction } from "discord.js";
 import { REST } from '@discordjs/rest';
 import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v9';
 import { CommandProvider, ModernApplicationCommandJSONBody } from "./command_provider.js";
@@ -19,7 +19,7 @@ export declare class BaseBot {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    init(discordToken: string, intents?: BitFieldResolvable<IntentsString, number>, discordClientOptions?: ClientOptionsWithoutIntents): Promise<void>;
+    init(discordToken: string, intents?: IntentsString[], discordClientOptions?: ClientOptionsWithoutIntents): Promise<void>;
     private initCommandHandlers;
     private initEventHandlers;
     private registerCommands;

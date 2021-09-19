@@ -109,8 +109,14 @@ export class BaseBot {
      * This should be run after addCommandHandlers() is called.
      * @param discordToken : Discord token received from the bot.
      */
-    init(discordToken, intents = ["GUILDS", "GUILD_MESSAGES"], discordClientOptions = {}) {
+    init(discordToken, intents = [], discordClientOptions = {}) {
         return __awaiter(this, void 0, void 0, function* () {
+            // If we're registering commands under a guild, ensure we have the GUILDS intent
+            if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL && DISCORD_REGISTER_COMMANDS) {
+                if (!intents.includes("GUILDS")) {
+                    intents.push("GUILDS");
+                }
+            }
             this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
             this.discordRest = new REST({ version: '9' }).setToken(discordToken);
             this.initCommandHandlers();

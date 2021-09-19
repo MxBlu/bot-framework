@@ -157,33 +157,6 @@ export class BaseBot {
     throw new Error("Method not implemented");
   }
 
-  // Utility functions
-
-  // Register a slash command with the API
-  // If guildId is null, command is registered as a global command
-  public async registerApplicationCommand(
-      command: ModernApplicationCommandJSONBody, guildId: string): 
-      Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
-    // If guildId is set, register it as a guild command
-    // Otherwise, register it as a global command
-    let response: RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult = null;
-
-    if (guildId != null) {
-      response = await this.discordRest.post(
-        Routes.applicationGuildCommands(this.discord.application.id, guildId),
-        { body: command }
-      ) as RESTPostAPIApplicationGuildCommandsResult;
-    } else {
-      response = await this.discordRest.post(
-        Routes.applicationCommands(this.discord.application.id),
-        { body: command }
-      ) as RESTPostAPIApplicationCommandsResult;
-    }
-
-    this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
-    return response;
-  }
-
   // Discord event handlers
 
   private readyHandler = (): void => {
@@ -271,6 +244,33 @@ export class BaseBot {
         }, DISCORD_LOG_ERROR_STATUS_RESET);
       }
     }
+  }
+
+  // Utility functions
+
+  // Register a slash command with the API
+  // If guildId is null, command is registered as a global command
+  public async registerApplicationCommand(
+      command: ModernApplicationCommandJSONBody, guildId: string): 
+      Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
+    // If guildId is set, register it as a guild command
+    // Otherwise, register it as a global command
+    let response: RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult = null;
+
+    if (guildId != null) {
+      response = await this.discordRest.post(
+        Routes.applicationGuildCommands(this.discord.application.id, guildId),
+        { body: command }
+      ) as RESTPostAPIApplicationGuildCommandsResult;
+    } else {
+      response = await this.discordRest.post(
+        Routes.applicationCommands(this.discord.application.id),
+        { body: command }
+      ) as RESTPostAPIApplicationCommandsResult;
+    }
+
+    this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
+    return response;
   }
 
 }

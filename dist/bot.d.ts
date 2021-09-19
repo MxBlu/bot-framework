@@ -26,9 +26,9 @@ export declare class BaseBot {
     initCustomEventHandlers(): void;
     loadProviders(): void;
     getHelpMessage(): string;
-    registerApplicationCommand(command: ModernApplicationCommandJSONBody, guildId: string): Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult>;
     private readyHandler;
     private interactionHandler;
     private guildCreateHandler;
     private logHandler;
+    registerApplicationCommand(command: ModernApplicationCommandJSONBody, guildId: string): Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult>;
 }

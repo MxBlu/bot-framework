@@ -7,7 +7,8 @@ import { LogLevel } from "./constants/log_levels.js";
 function getDateTimeString() {
     const now = new Date();
     const yr = now.getFullYear();
-    const mth = now.getMonth().toString().padStart(2, '0');
+    // getMonth() is index-0, so gotta add 1...
+    const mth = (now.getMonth() + 1).toString().padStart(2, '0');
     const day = now.getDate().toString().padStart(2, '0');
     const hrs = now.getHours().toString().padStart(2, '0');
     const min = now.getMinutes().toString().padStart(2, '0');

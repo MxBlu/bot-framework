@@ -58,10 +58,6 @@ export class BaseBot {
             if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
                 this.providers.forEach(provider => {
                     provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
-                        // Default type to CHAT_INPUT - aka a slash command
-                        if (command.type == null) {
-                            command.type = 1 /* CHAT_INPUT */;
-                        }
                         try {
                             this.registerApplicationCommand(command, guild.id);
                         }
@@ -155,10 +151,6 @@ export class BaseBot {
         // Assign aliases to handler command for each provider 
         this.providers.forEach(provider => {
             provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
-                // Default type to CHAT_INPUT - aka a slash command
-                if (command.type == null) {
-                    command.type = 1 /* CHAT_INPUT */;
-                }
                 try {
                     // Based on the flag, either register commands globally
                     //  or on each guild currently available
@@ -171,7 +163,7 @@ export class BaseBot {
                         }));
                     }
                     // Map command name to handler
-                    if (command.type == 1 /* CHAT_INPUT */) {
+                    if (command.type == 1 /* ChatInput */) {
                         this.slashCommandHandlers.set(command.name, provider);
                     }
                     else {

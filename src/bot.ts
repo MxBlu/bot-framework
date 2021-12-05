@@ -1,9 +1,9 @@
 import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, Guild, ContextMenuInteraction, BitFieldResolvable, Intents } from "discord.js";
 import { REST } from '@discordjs/rest';
-import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
+import { ApplicationCommandType, RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
 import { sendMessage } from "./bot_utils.js";
-import { ApplicationCommandType, CommandProvider, ModernApplicationCommandJSONBody } from "./command_provider.js";
+import { CommandProvider } from "./command_provider.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
@@ -102,11 +102,6 @@ export class BaseBot {
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {
       provider.provideSlashCommands().forEach(async (command) => {
-        // Default type to CHAT_INPUT - aka a slash command
-        if (command.type == null) {
-          command.type = ApplicationCommandType.CHAT_INPUT;
-        }
-
         try {
           // Based on the flag, either register commands globally
           //  or on each guild currently available
@@ -121,7 +116,7 @@ export class BaseBot {
           }
 
           // Map command name to handler
-          if (command.type == ApplicationCommandType.CHAT_INPUT) {
+          if (command.type == ApplicationCommandType.ChatInput) {
             this.slashCommandHandlers.set(command.name, provider);
           } else {
             this.contextCommandHandlers.set(command.name, provider);
@@ -197,11 +192,6 @@ export class BaseBot {
     if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
       this.providers.forEach(provider => {
         provider.provideSlashCommands().forEach(async (command) => {
-          // Default type to CHAT_INPUT - aka a slash command
-          if (command.type == null) {
-            command.type = ApplicationCommandType.CHAT_INPUT;
-          }
-
           try {
             this.registerApplicationCommand(command, guild.id);
           } catch (e) {
@@ -244,7 +234,7 @@ export class BaseBot {
   // Register a slash command with the API
   // If guildId is null, command is registered as a global command
   public async registerApplicationCommand(
-      command: ModernApplicationCommandJSONBody, guildId: string): 
+      command: RESTPostAPIApplicationCommandsJSONBody, guildId: string): 
       Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
     // If guildId is set, register it as a guild command
     // Otherwise, register it as a global command

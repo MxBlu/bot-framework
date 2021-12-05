@@ -174,11 +174,11 @@ export class BaseBot {
                         }));
                     }
                     // Map command name to handler
-                    if (command.type == 1 /* ChatInput */) {
-                        this.slashCommandHandlers.set(command.name, provider);
+                    if (command.type == 3 /* Message */ || command.type == 2 /* User */) {
+                        this.contextCommandHandlers.set(command.name, provider);
                     }
                     else {
-                        this.contextCommandHandlers.set(command.name, provider);
+                        this.slashCommandHandlers.set(command.name, provider);
                     }
                 }
                 catch (e) {

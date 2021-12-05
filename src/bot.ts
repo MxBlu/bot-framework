@@ -8,6 +8,7 @@ import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_L
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
+import { ContextMenuCommandAssertions } from "@discordjs/builders";
 
 export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 
@@ -116,10 +117,10 @@ export class BaseBot {
           }
 
           // Map command name to handler
-          if (command.type == ApplicationCommandType.ChatInput) {
-            this.slashCommandHandlers.set(command.name, provider);
-          } else {
+          if (command.type == ApplicationCommandType.Message || command.type == ApplicationCommandType.User) {
             this.contextCommandHandlers.set(command.name, provider);
+          } else {
+            this.slashCommandHandlers.set(command.name, provider);
           }
         } catch (e) {
           this.logger.error(`Failed to register command '${command.name}': ${e}`);

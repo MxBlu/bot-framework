@@ -1,4 +1,4 @@
-import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, Guild, ContextMenuInteraction, BitFieldResolvable, Intents } from "discord.js";
+import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, Guild, ContextMenuInteraction, BitFieldResolvable, Intents, AutocompleteInteraction } from "discord.js";
 import { REST } from '@discordjs/rest';
 import { ApplicationCommandType, RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v9';
 
@@ -183,6 +183,17 @@ export class BaseBot {
         this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
           `!${interaction.commandName}'`);
         handler.handle(contextInteraction);
+      } 
+    } else if (interaction.isAutocomplete()) {
+      // Handle autocomplete interactions
+      const commandInteraction = interaction as AutocompleteInteraction;
+
+      // If a handler exists for the commandName and has an autocomplete definition, process
+      const handler = this.slashCommandHandlers.get(interaction.commandName);
+      if (handler != null && handler.autocomplete != null) {
+        this.logger.trace(`Autcomplete request received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+          `!${interaction.commandName}'`);
+        handler.autocomplete(commandInteraction);
       }
     }
   }

@@ -52,6 +52,17 @@ export class BaseBot {
                     handler.handle(contextInteraction);
                 }
             }
+            else if (interaction.isAutocomplete()) {
+                // Handle autocomplete interactions
+                const commandInteraction = interaction;
+                // If a handler exists for the commandName and has an autocomplete definition, process
+                const handler = this.slashCommandHandlers.get(interaction.commandName);
+                if (handler != null && handler.autocomplete != null) {
+                    this.logger.trace(`Autcomplete request received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+                        `!${interaction.commandName}'`);
+                    handler.autocomplete(commandInteraction);
+                }
+            }
         });
         this.guildCreateHandler = (guild) => __awaiter(this, void 0, void 0, function* () {
             // If we're registering commands under a guild, register every command on guild join

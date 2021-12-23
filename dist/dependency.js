@@ -12,6 +12,7 @@ export class Dependency {
     constructor(name) {
         this.name = name;
         this.readyPromise = new Promise((resolve) => this.resolve = resolve);
+        this.resolved = false;
         this.logger = new Logger(`Dependency.${name}`);
     }
     static awaitMultiple(...dependencies) {
@@ -23,12 +24,16 @@ export class Dependency {
         return __awaiter(this, void 0, void 0, function* () {
             this.logger.trace(`Ready state triggered`);
             this.resolve();
+            this.resolved = true;
         });
     }
     await() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.readyPromise;
         });
+    }
+    isReady() {
+        return this.resolved;
     }
 }
 //# sourceMappingURL=dependency.js.map

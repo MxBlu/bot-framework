@@ -14,21 +14,29 @@ export class Dependency {
   readyPromise: Promise<void>;
   // Functions waiting on the ready state
   resolve: ResolveFunction;
+  // Keeps track of current state
+  resolved: boolean;
   
   logger: Logger;
 
   constructor(name: string) {
     this.name = name;
     this.readyPromise = new Promise<void>((resolve) => this.resolve = resolve);
+    this.resolved = false;
     this.logger = new Logger(`Dependency.${name}`);
   }
 
   public async ready(): Promise<void> {
     this.logger.trace(`Ready state triggered`);
     this.resolve();
+    this.resolved = true;
   }
 
   public async await(): Promise<void> {
     return this.readyPromise;
+  }
+
+  public isReady(): boolean {
+    return this.resolved;
   }
 }

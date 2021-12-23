@@ -5,9 +5,11 @@ export declare class Dependency {
     name: string;
     readyPromise: Promise<void>;
     resolve: ResolveFunction;
+    resolved: boolean;
     logger: Logger;
     constructor(name: string);
     ready(): Promise<void>;
     await(): Promise<void>;
+    isReady(): boolean;
 }
 export {};

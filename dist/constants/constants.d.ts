@@ -8,3 +8,4 @@ export declare const DISCORD_ERROR_LOGGING_ENABLED: boolean;
 export declare const DISCORD_GENERAL_LOGGING_ENABLED: boolean;
 export declare const DISCORD_ERROR_CHANNEL: string;
 export declare const DISCORD_LOG_ERROR_STATUS_RESET = 60000;
+export declare function envFlagOrDefault(variableName: string, defaultValue: boolean): boolean;

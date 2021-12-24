@@ -21,7 +21,7 @@ export const DISCORD_GENERAL_LOGGING_ENABLED = envFlagOrDefault('DISCORD_GENERAL
 export const DISCORD_ERROR_CHANNEL = process.env.DISCORD_ERROR_CHANNEL;
 // Time to wait before resetting "error" status on Discord logging
 export const DISCORD_LOG_ERROR_STATUS_RESET = 60000; // 10 minutes
-function envFlagOrDefault(variableName, defaultValue) {
+export function envFlagOrDefault(variableName, defaultValue) {
     if (process.env[variableName] != null) {
         return process.env[variableName] === 'true';
     }

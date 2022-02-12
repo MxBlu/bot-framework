@@ -1,7 +1,7 @@
 import { Client as DiscordClient, ClientOptions, IntentsString, Interaction, CommandInteraction, ContextMenuInteraction, BitFieldResolvable } from "discord.js";
 import { REST } from '@discordjs/rest';
-import { RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v9';
-import { CommandProvider, ModernApplicationCommandJSONBody } from "./command_provider.js";
+import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v9';
+import { CommandProvider } from "./command_provider.js";
 import { Logger } from "./logger.js";
 export declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 export declare class BaseBot {
@@ -30,5 +30,5 @@ export declare class BaseBot {
     private interactionHandler;
     private guildCreateHandler;
     private logHandler;
-    registerApplicationCommand(command: ModernApplicationCommandJSONBody, guildId: string): Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult>;
+    registerApplicationCommand(command: RESTPostAPIApplicationCommandsJSONBody, guildId: string): Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult>;
 }

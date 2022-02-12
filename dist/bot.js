@@ -52,16 +52,23 @@ export class BaseBot {
                     handler.handle(contextInteraction);
                 }
             }
+            else if (interaction.isAutocomplete()) {
+                // Handle autocomplete interactions
+                const commandInteraction = interaction;
+                // If a handler exists for the commandName and has an autocomplete definition, process
+                const handler = this.slashCommandHandlers.get(interaction.commandName);
+                if (handler != null && handler.autocomplete != null) {
+                    this.logger.trace(`Autcomplete request received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+                        `!${interaction.commandName}'`);
+                    handler.autocomplete(commandInteraction);
+                }
+            }
         });
         this.guildCreateHandler = (guild) => __awaiter(this, void 0, void 0, function* () {
             // If we're registering commands under a guild, register every command on guild join
             if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
                 this.providers.forEach(provider => {
                     provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
-                        // Default type to CHAT_INPUT - aka a slash command
-                        if (command.type == null) {
-                            command.type = 1 /* CHAT_INPUT */;
-                        }
                         try {
                             this.registerApplicationCommand(command, guild.id);
                         }
@@ -155,10 +162,6 @@ export class BaseBot {
         // Assign aliases to handler command for each provider 
         this.providers.forEach(provider => {
             provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
-                // Default type to CHAT_INPUT - aka a slash command
-                if (command.type == null) {
-                    command.type = 1 /* CHAT_INPUT */;
-                }
                 try {
                     // Based on the flag, either register commands globally
                     //  or on each guild currently available
@@ -171,11 +174,11 @@ export class BaseBot {
                         }));
                     }
                     // Map command name to handler
-                    if (command.type == 1 /* CHAT_INPUT */) {
-                        this.slashCommandHandlers.set(command.name, provider);
+                    if (command.type == 3 /* Message */ || command.type == 2 /* User */) {
+                        this.contextCommandHandlers.set(command.name, provider);
                     }
                     else {
-                        this.contextCommandHandlers.set(command.name, provider);
+                        this.slashCommandHandlers.set(command.name, provider);
                     }
                 }
                 catch (e) {

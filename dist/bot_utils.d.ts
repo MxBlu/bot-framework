@@ -1,10 +1,10 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannels, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannel, ThreadChannel, User } from "discord.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
 export declare const chunkString: (str: string) => string[];
 export declare const sendCmdReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string, logger: Logger, level: LogLevel) => Promise<void>;
 export declare const sendChunkedReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string) => Promise<void>;
-export declare const sendMessage: (targetChannel: TextBasedChannels, msg: string) => void;
+export declare const sendMessage: (targetChannel: TextBasedChannel, msg: string) => void;
 export declare const stringEquivalence: (str1: string, str2: string) => boolean;
 export declare const stringSearch: (str1: string, str2: string) => boolean;
 export declare const isAdmin: (guild: Guild, user: User) => Promise<boolean>;

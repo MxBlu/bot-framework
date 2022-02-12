@@ -14,7 +14,7 @@ There are example implementations of these frameworks found in weeb_bot and quot
 
 ## Requirements
 
-Min version of Node supported is v16.6.0 (thanks Discord.js)
+Min version of Node supported is v16.9.0 (thanks @discordjs/rest)
 
 ## Usage
 

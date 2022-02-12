@@ -89,8 +89,11 @@ export class Interactable {
         this.collector.on("collect", (interaction) => __awaiter(this, void 0, void 0, function* () {
             // Due to above filter, this handler should always exist
             const handler = this.interactionHandlers.get(interaction.customId);
-            // Call handler function
-            handler(this, interaction);
+            // We only handle BUTTON interactions, other ones are undefined behaviour
+            if (interaction.componentType == "BUTTON") {
+                // Call handler function
+                handler(this, interaction);
+            }
         }));
         // On "end", call deactivate
         this.collector.on("end", () => this.deactivate());

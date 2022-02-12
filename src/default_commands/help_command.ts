@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v9";
 import { CommandInteraction, Interaction } from "discord.js";
 
-import { CommandProvider, ModernApplicationCommandJSONBody } from "../command_provider.js";
+import { CommandProvider } from "../command_provider.js";
 
 // Command to return a help message for the current bot
 export class HelpCommand implements CommandProvider<CommandInteraction> {
@@ -17,7 +18,7 @@ export class HelpCommand implements CommandProvider<CommandInteraction> {
     this.generateHelpMessage(botHelpMessage, providers);
   }
 
-  public provideSlashCommands(): ModernApplicationCommandJSONBody[] {
+  public provideSlashCommands(): RESTPostAPIApplicationCommandsJSONBody[] {
     return [
       new SlashCommandBuilder()
         .setName('help')

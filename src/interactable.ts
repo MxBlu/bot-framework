@@ -1,4 +1,4 @@
-import { ButtonInteraction, CollectorFilter, InteractionCollector, Message, MessageActionRow, MessageButton, MessageButtonStyle } from "discord.js";
+import { ButtonInteraction, CollectorFilter, InteractionCollector, Message, MessageActionRow, MessageButton, MessageButtonStyle, MessageComponentInteraction } from "discord.js";
 
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 
@@ -17,7 +17,7 @@ export class Interactable<T> {
   // Message that contains the modal
   message: Message;
   // Interaction collector to provide events
-  collector: InteractionCollector<ButtonInteraction>;
+  collector: InteractionCollector<MessageComponentInteraction>;
   // Message action row holding buttons
   actionRow: MessageActionRow;
   // Arbitrary stateful data
@@ -114,8 +114,11 @@ export class Interactable<T> {
       // Due to above filter, this handler should always exist
       const handler = this.interactionHandlers.get(interaction.customId);
 
-      // Call handler function
-      handler(this, interaction);
+      // We only handle BUTTON interactions, other ones are undefined behaviour
+      if (interaction.componentType == "BUTTON") {
+        // Call handler function
+        handler(this, interaction as ButtonInteraction);
+      }
     });
     // On "end", call deactivate
     this.collector.on("end", () => this.deactivate());

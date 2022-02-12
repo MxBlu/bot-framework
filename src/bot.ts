@@ -8,7 +8,6 @@ import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_L
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-import { ContextMenuCommandAssertions } from "@discordjs/builders";
 
 export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 

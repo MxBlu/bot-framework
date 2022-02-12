@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannels, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannel, ThreadChannel, User } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
@@ -71,7 +71,7 @@ export const sendChunkedReply = async function (interaction: CommandInteraction 
 };
 
 // Send message to a given channel, chunking if necessary
-export const sendMessage = function (targetChannel: TextBasedChannels, 
+export const sendMessage = function (targetChannel: TextBasedChannel, 
     msg: string): void {
   const msgChunks = chunkString(msg);
   msgChunks.forEach(

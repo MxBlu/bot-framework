@@ -48,8 +48,11 @@ export class Interactable<T> {
       return;
     }
 
+    // If the collection hadn't ended due to message deletion
     // Delete all components on the message
-    this.message.edit({ components: [] });
+    if (this.collector.endReason != "messageDelete"){
+      this.message.edit({ components: [] });
+    }
     // Null reference to the collector
     this.collector = null;
   }

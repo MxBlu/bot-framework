@@ -1,12 +1,25 @@
-import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v9";
-import { CommandInteraction, Interaction } from "discord.js";
-import { CommandProvider } from "../command_provider.js";
-export declare class HelpCommand implements CommandProvider<CommandInteraction> {
+import { CommandInteraction } from "discord.js";
+import { CommandBuilder, CommandProvider } from "../command_provider.js";
+/** Command to return a help message for the current bot */
+export declare class HelpCommand implements CommandProvider {
+    /** Bot name, used to ensure the command is only run for a given bot */
     botName: string;
+    /** Help message to send on call */
     helpMessage: string;
-    constructor(botName: string, botHelpMessage: string, providers: CommandProvider<Interaction>[]);
-    provideSlashCommands(): RESTPostAPIApplicationCommandsJSONBody[];
+    /**
+     * Create a new HelpCommand instance with a list of {@link CommandProvider}
+     * @param botName Name of the current bot
+     * @param botHelpMessage Top level help message
+     * @param providers List of {@link CommandProvider} to generate help messages from
+     */
+    constructor(botName: string, botHelpMessage: string, providers: CommandProvider[]);
+    provideCommands(): CommandBuilder[];
     provideHelpMessage(): string;
     handle(interaction: CommandInteraction): Promise<void>;
+    /**
+     * Generate help message from bot help string and all registered command providers
+     * @param botHelpMessage Top level help message
+     * @param providers List of {@link CommandProvider} to generate help messages from
+     */
     private generateHelpMessage;
 }

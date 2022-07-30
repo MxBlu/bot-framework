@@ -7,17 +7,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Client as DiscordClient, Intents } from "discord.js";
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
+import { Client as DiscordClient, GatewayIntentBits } from "discord.js";
+import { Routes } from 'discord-api-types/v10';
 import { sendMessage } from "./bot_utils.js";
 import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
-export class BaseBot {
+/**
+ * Base implementation of a Discord bot using the Discord.js framework
+ */
+export class DiscordBot {
+    /**
+     * Create an instance of a {@link DiscordBot}
+     * @param name Bot name
+     */
     constructor(name) {
         // Discord event handlers
+        /**
+         * Handle the `ready` Discord event
+         */
         this.readyHandler = () => {
             this.logger.info("Discord connected");
             // Register commands with API and map handlers
@@ -25,6 +34,10 @@ export class BaseBot {
                 this.registerCommands();
             }
         };
+        /**
+         * Handle the `interactionCreate` Discord event
+         * @param interaction Discord interaction
+         */
         this.interactionHandler = (interaction) => __awaiter(this, void 0, void 0, function* () {
             // Ignore bot interactiosn to avoid messy situations
             if (interaction.user.bot) {
@@ -34,29 +47,18 @@ export class BaseBot {
                 // Handle command interactions
                 const commandInteraction = interaction;
                 // If a handler exists for the commandName, handle the command
-                const handler = this.slashCommandHandlers.get(commandInteraction.commandName);
+                const handler = this.commandHandlers.get(commandInteraction.commandName);
                 if (handler != null) {
                     this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
                         `!${interaction.commandName}'`);
                     handler.handle(commandInteraction);
                 }
             }
-            else if (interaction.isContextMenu()) {
-                // Handle context menu interactions
-                const contextInteraction = interaction;
-                // If a handler exists for the commandName, handle the command
-                const handler = this.contextCommandHandlers.get(contextInteraction.commandName);
-                if (handler != null) {
-                    this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
-                        `!${interaction.commandName}'`);
-                    handler.handle(contextInteraction);
-                }
-            }
             else if (interaction.isAutocomplete()) {
                 // Handle autocomplete interactions
                 const commandInteraction = interaction;
                 // If a handler exists for the commandName and has an autocomplete definition, process
-                const handler = this.slashCommandHandlers.get(interaction.commandName);
+                const handler = this.commandHandlers.get(interaction.commandName);
                 if (handler != null && handler.autocomplete != null) {
                     this.logger.trace(`Autcomplete request received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
                         `!${interaction.commandName}'`);
@@ -64,13 +66,18 @@ export class BaseBot {
                 }
             }
         });
+        /**
+         * Handle the `guildCreate` Discord event
+         * @param guild New Discord Guild
+         */
         this.guildCreateHandler = (guild) => __awaiter(this, void 0, void 0, function* () {
             // If we're registering commands under a guild, register every command on guild join
             if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
                 this.providers.forEach(provider => {
-                    provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+                    provider.provideCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+                        const commandJson = command.toJSON();
                         try {
-                            this.registerApplicationCommand(command, guild.id);
+                            this.registerApplicationCommand(commandJson, guild.id);
                         }
                         catch (e) {
                             this.logger.error(`Failed to register command '${command.name}': ${e}`);
@@ -79,8 +86,12 @@ export class BaseBot {
                 });
             }
         });
-        // Log message handler
+        /**
+         * Handle a new log message event on {@link NewLogEmitter}
+         * @param log Log message
+         */
         this.logHandler = (log) => __awaiter(this, void 0, void 0, function* () {
+            // Ensure that logging isn't currently disabled and that a error channel is present
             if (!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "") {
                 try {
                     // Remove any consequtive spaces to make logs more legible
@@ -88,7 +99,7 @@ export class BaseBot {
                     // Should ensure that it works for DM channels too
                     const targetChannel = yield this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
                     // Only send if we can access the error channel
-                    if (targetChannel != null && targetChannel.isText()) {
+                    if (targetChannel != null && targetChannel.isTextBased()) {
                         sendMessage(targetChannel, log);
                     }
                 }
@@ -108,33 +119,43 @@ export class BaseBot {
         this.logger = new Logger(name);
         this.discordLogDisabled = false;
         this.providers = [];
-        this.slashCommandHandlers = new Map();
-        this.contextCommandHandlers = new Map();
+        this.commandHandlers = new Map();
     }
     /**
-     * Primary function in charge of launching the bot.
-     * This should be run after addCommandHandlers() is called.
-     * @param discordToken : Discord token received from the bot.
+     * Initialise the bot, and start listening and handling events
+     *
+     * Defaults to only the GUILDS intent, add more intents based on required events
+     * @param discordToken Discord API token
+     * @param intents Gateway intents, defaulting to {@link GatewayIntentBits.Guilds}
+     * @param discordClientOptions Discord.js client options, excluding intents
      */
-    init(discordToken, intents = [Intents.FLAGS.GUILDS], discordClientOptions = {}) {
+    init(discordToken, intents = [GatewayIntentBits.Guilds], discordClientOptions = {}) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Create the Discord client
             this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
-            this.discordRest = new REST({ version: '9' }).setToken(discordToken);
+            // Initialise command handlers, then event handlers
             this.initCommandHandlers();
             this.initEventHandlers();
+            // Login to Discord and start listening for events
             this.discord.login(discordToken);
         });
     }
-    // Initialise and map all command handlers
-    // Runs after loadProviders()
+    /**
+     * Initialise and map all command handlers
+     *
+     * Runs after {@link loadProviders}
+     */
     initCommandHandlers() {
         // Load in any subclass interfaces
         this.loadProviders();
-        // Add help command, passing in all currently registered providers (help is not yet registered)
+        // Add help command, passing in all currently registered providers
         this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
     }
-    // Initialise all event handlers
-    // Runs before initCustomEventHandlers()
+    /**
+     * Initialise all Discord event handlers
+     *
+     * Runs before {@link initCustomEventHandlers}
+     */
     initEventHandlers() {
         this.discord.once('ready', this.readyHandler);
         this.discord.on('interactionCreate', this.interactionHandler);
@@ -154,32 +175,30 @@ export class BaseBot {
             NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler);
             NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
         }
+        // Initialise any custom event handlers (on subclasses)
         this.initCustomEventHandlers();
     }
-    // Register all command providers loaded as slash commands
-    // Runs after readyhandler()
+    /**
+     * Register all command providers loaded as application commands
+     */
     registerCommands() {
         // Assign aliases to handler command for each provider 
         this.providers.forEach(provider => {
-            provider.provideSlashCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+            provider.provideCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+                const commandJson = command.toJSON();
                 try {
                     // Based on the flag, either register commands globally
                     //  or on each guild currently available
                     if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
-                        yield this.registerApplicationCommand(command, null);
+                        yield this.registerApplicationCommand(commandJson, null);
                     }
                     else {
                         yield Promise.all(this.discord.guilds.cache.map(guild => {
-                            this.registerApplicationCommand(command, guild.id);
+                            this.registerApplicationCommand(commandJson, guild.id);
                         }));
                     }
                     // Map command name to handler
-                    if (command.type == 3 /* Message */ || command.type == 2 /* User */) {
-                        this.contextCommandHandlers.set(command.name, provider);
-                    }
-                    else {
-                        this.slashCommandHandlers.set(command.name, provider);
-                    }
+                    this.commandHandlers.set(command.name, provider);
                 }
                 catch (e) {
                     this.logger.error(`Failed to register command '${command.name}': ${e}`);
@@ -187,33 +206,51 @@ export class BaseBot {
             }));
         });
     }
-    // Subscribe to any extra events outside of the base ones
+    /**
+     * Subscribe to any extra events outside of the base ones
+     *
+     * For a subclass to override
+     */
     initCustomEventHandlers() {
         // Stub function, subclass to override
         return;
     }
-    // Add all providers to the providers array
+    /**
+     * Add all providers to the providers array
+     *
+     * For a subclass to override
+     */
     loadProviders() {
         // Stub function, subclass to override
         return;
     }
-    // Return a string for the bot-level help message
+    /**
+     * Return a string for the bot-level help message
+     *
+     * For a subclass to override
+     */
     getHelpMessage() {
         throw new Error("Method not implemented");
     }
     // Utility functions
-    // Register a slash command with the API
-    // If guildId is null, command is registered as a global command
+    /**
+     * Register an application command with the API
+     *
+     * Provide a Guild ID to register it to a Guild, or none to register it globally
+     * @param command Application command definition
+     * @param guildId Discord Guild ID, or null to register globally
+     * @returns
+     */
     registerApplicationCommand(command, guildId) {
         return __awaiter(this, void 0, void 0, function* () {
             // If guildId is set, register it as a guild command
             // Otherwise, register it as a global command
             let response = null;
             if (guildId != null) {
-                response = (yield this.discordRest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command }));
+                response = (yield this.discord.rest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command }));
             }
             else {
-                response = (yield this.discordRest.post(Routes.applicationCommands(this.discord.application.id), { body: command }));
+                response = (yield this.discord.rest.post(Routes.applicationCommands(this.discord.application.id), { body: command }));
             }
             this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
             return response;

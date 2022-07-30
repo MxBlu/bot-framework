@@ -1,8 +1,18 @@
-import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v9";
-import { AutocompleteInteraction, Interaction } from "discord.js";
-export interface CommandProvider<T extends Interaction> {
-    provideSlashCommands(): RESTPostAPIApplicationCommandsJSONBody[];
+import { AutocompleteInteraction, CommandInteraction, ContextMenuCommandBuilder, SlashCommandBuilder } from "discord.js";
+/**
+ * Common type for builders that build handlable commands
+ */
+export declare type CommandBuilder = SlashCommandBuilder | ContextMenuCommandBuilder;
+/**
+ * Common interface for classes handling commands
+ */
+export interface CommandProvider {
+    /** Return an array of ApplicationCommand schemas to register */
+    provideCommands(): CommandBuilder[];
+    /** Return a help message for these commands */
     provideHelpMessage(): string;
-    handle(interaction: T): Promise<void>;
+    /** Handle command call */
+    handle(interaction: CommandInteraction): Promise<void>;
+    /** Handle autocomplete request */
     autocomplete?(interaction: AutocompleteInteraction): Promise<void>;
 }

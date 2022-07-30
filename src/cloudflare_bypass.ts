@@ -7,41 +7,57 @@ import { Logger } from './logger.js';
 // Stealth plugin to hopefully avoid triggering CloudFlare
 puppeteer.use(StealthPlugin());
 
-// Fetch URIs using a Puppeteer instance to get around CloudFlare
+/** Implementation of CloudflareBypass */
 class CloudflareBypassImpl {
-  // Puppeteer browser instance
+  /** Puppeteer browser instance */
   browser: Browser;
-
+  /** Logger instance */
   logger: Logger;
 
+  /** 
+   * Create a new CloudflareBypass instance
+   * 
+   * NOTE: Should not be constructed manually
+   */
   constructor() {
     this.browser = null; // Instance starts unloaded
     this.logger = new Logger("CloudflareBypass");
   }
 
-  // Ensure the browser instance is loaded and available for use
+  /**
+   * Ensure the browser instance is loaded and available for use
+   */
   public async ensureLoaded(): Promise<void> {
+    // If a browser instance is not loaded, launch one
     if (this.browser == null) {
       this.browser = await puppeteer.launch();
+      this.logger.info("Launched a browser instance");
     }
   }
 
-  // Ensure the browser instance is unloaded (to save memory)
+  /**
+   * Ensure the browser instance is unloaded (to save memory)
+   */
   public async ensureUnloaded(): Promise<void> {
     if (this.browser != null) {
       await this.browser.close();
       this.browser = null;
+      this.logger.info("Unloaded a browser instance");
     }
   }
 
-  // Fetch a URL using a Puppeteer instance (loading it if necessary)
-  public async fetch(uri: string): Promise<string> {
+  /**
+   * Fetch a URL using a Puppeteer instance (loading one if necessary)
+   * @param url URL to fetch
+   * @returns Requested page body
+   */
+  public async fetch(url: string): Promise<string> {
     // Ensure we have a browser instance loaded for use
     await this.ensureLoaded();
 
     // Create a page and navigate to the URL, waiting for the content to be loaded
     const page = await this.browser.newPage();
-    await page.goto(uri, {
+    await page.goto(url, {
       timeout: 45000,
       waitUntil: 'domcontentloaded'
     });
@@ -51,19 +67,24 @@ class CloudflareBypassImpl {
     
     // Close the page async, logging an error if we run into one
     page.close().catch(reason => 
-        this.logger.error(`Page failed to unload after request to ${uri}: ${reason}`));
+        this.logger.error(`Page failed to unload after request to ${url}: ${reason}`));
 
     return content;
   }
 
-  // Fetch strings from a page via CSS selector using a Puppeteer instance (loading it if necessary)
-  public async fetchElementTextMatches(uri: string, cssSelector: string): Promise<string[]> {
+  /**
+   * Fetch strings from a page via CSS selector using a Puppeteer instance (loading it if necessary)
+   * @param url URL to fetch
+   * @param cssSelector CSS selector on the target page to get
+   * @returns List of text contents of selected elements
+   */
+  public async fetchElementTextMatches(url: string, cssSelector: string): Promise<string[]> {
     // Ensure we have a browser instance loaded for use
     await this.ensureLoaded();
 
     // Create a page and navigate to the URL, waiting for the content to be loaded
     const page = await this.browser.newPage();
-    await page.goto(uri, {
+    await page.goto(url, {
       timeout: 45000,
       waitUntil: 'domcontentloaded'
     });
@@ -73,10 +94,13 @@ class CloudflareBypassImpl {
     
     // Close the page async, logging an error if we run into one
     page.close().catch(reason => 
-        this.logger.error(`Page failed to unload after request to ${uri}: ${reason}`));
+        this.logger.error(`Page failed to unload after request to ${url}: ${reason}`));
 
     return matchTexts;
   }
 }
 
+/**
+ * Fetch URIs using a Puppeteer instance to get around CloudFlare
+ */
 export const CloudflareBypass = new CloudflareBypassImpl();

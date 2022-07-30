@@ -1,12 +1,16 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannel, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, PermissionFlagsBits, Role, TextBasedChannel, ThreadChannel, User } from "discord.js";
 
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
 
+/** Max length a string can be in a Discord message */
 const DISCORD_MAX_LEN = 1900;
 
-// Split up a string into ideally endline terminated strings
-// at most length DISCORD_MAX_LEN
+/**
+ * Split up a string into ideally endline terminated strings at most length DISCORD_MAX_LEN
+ * @param str String to split
+ * @returns List of strings at most DISCORD_MAX_LENGTH long
+ */
 export const chunkString = function (str: string): string[] {
   const chunks: string[] = [];
   let strBuffer = '';
@@ -45,15 +49,25 @@ export const chunkString = function (str: string): string[] {
   return chunks;
 }
 
-// Send reply to a user command, logging if appropriate
-export const sendCmdReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
+/**
+ * Send reply to a user command, logging if appropriate
+ * @param interaction {@link CommandInteraction} to reply to
+ * @param msg Reply message
+ * @param logger Command handler {@link Logger}
+ * @param level {@link LogLevel} for the reply
+ */
+export const sendCmdReply = async function (interaction: CommandInteraction, 
     msg: string, logger: Logger, level: LogLevel): Promise<void> {
   logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
   return sendChunkedReply(interaction, msg);
 }
 
-// Send reply to a user command which may potentially be large
-export const sendChunkedReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
+/**
+ * Send reply to a user command which may potentially be large
+ * @param interaction {@link CommandInteraction} to reply to
+ * @param msg Reply message
+ */
+export const sendChunkedReply = async function (interaction: CommandInteraction, 
       msg: string): Promise<void> {
   // Split up message into max length chunks
   const msgChunks = chunkString(msg);
@@ -70,7 +84,11 @@ export const sendChunkedReply = async function (interaction: CommandInteraction 
   }
 };
 
-// Send message to a given channel, chunking if necessary
+/**
+ * Send message to a given channel, chunking if necessary
+ * @param targetChannel Channel to send message in
+ * @param msg Message to send
+ */
 export const sendMessage = function (targetChannel: TextBasedChannel, 
     msg: string): void {
   const msgChunks = chunkString(msg);
@@ -78,37 +96,62 @@ export const sendMessage = function (targetChannel: TextBasedChannel,
     (chunk) => targetChannel.send(chunk));
 }
 
-// Compare 2 strings ignoring case 
-// Return true if they're equivalent
-// Returns true if both strings are null, otherwise 
-// return false if either are null
+/**
+ * Compare 2 strings ignoring case 
+ * 
+ * Will compare null strings to each other as well
+ * @param str1 First string
+ * @param str2 Second string
+ * @returns Equivalence of the two strings
+ */
 export const stringEquivalence = function (str1: string, str2: string): boolean {
-  if (str1 === null || str2 == null) {
-    return str1 == str2;
+  // If either string is null, return whether both strings are null
+  if (str1 === null || str2 === null) {
+    return str1 === str2;
   }
 
+  // Compare the lower-case strings
   return str1.toLowerCase() === str2.toLowerCase();
 }
 
-// Search for str2 in str1 ignoring case
-// Returns true if both strings are null, otherwise 
-// return false if either are null
-export const stringSearch = function(str1: string, str2: string): boolean {
-  if (str1 === null || str2 == null) {
-    return str1 == str2;
+/**
+ * Search for str2 in str1 ignoring case
+ * 
+ * If either string is null, will return whether both strings are null
+ * @param str String to search
+ * @param searchString String to search for within `str`
+ * @returns 
+ */
+export const stringSearch = function(str: string, searchString: string): boolean {
+  // If either string is null, return whether both strings are null
+  if (str === null || searchString === null) {
+    return str === searchString;
   }
 
-  return str1.toLowerCase().includes(str2.toLowerCase());
+  // Lower case both strings, and search whether `searchString` is within `str`
+  return str.toLowerCase().includes(searchString.toLowerCase());
 }
 
-// Test if the author of a given message is admin
+/**
+ * Test if a given user is an admin in a given guild
+ * @param guild Discord.js Guild
+ * @param user Discord.js User
+ * @returns Given user is an admin in a given guild
+ */
 export const isAdmin = async function(guild: Guild, user: User): Promise<boolean> {
-  const author = await guild.members.fetch(user.id);
-  return author.permissions.has("ADMINISTRATOR");
+  // Fetch the GuildMember object for this user
+  const member = await guild.members.fetch(user.id);
+  // Return whether the GuildMember object exists, and whether the member has the Administrator permission
+  return member != null && member.permissions.has(PermissionFlagsBits.Administrator);
 }
 
-// Given a mention or name, provide a GuildMember if any exist matching
-export const findGuildMember = async (userString: string, guild: Guild): Promise<GuildMember> => {
+/**
+ * Given a mention or name, provide a {@link GuildMember} if any matching exist 
+ * @param userString Part of a username or nickname, or a complete user mention
+ * @param guild Discord.js Guild
+ * @returns A {@link GuildMember} if one existing matching query, otherwise null
+ */
+export const findGuildMember = async (userString: string, guild: Guild): Promise<GuildMember | null> => {
   // Try checking for a mention
   const userRx = userString.match(/^<@!(\d+)>$/);
   if (userRx != null) {
@@ -123,8 +166,13 @@ export const findGuildMember = async (userString: string, guild: Guild): Promise
   }
 }
 
-// Given a mention or name, provide a GuildMember if any exist matching
-export const findGuildChannel = async (channelString: string, guild: Guild): Promise<ThreadChannel | GuildChannel> => {
+/**
+ * Given a mention or name, provide a {@link GuildChannel} or {@link ThreadChannel} if any matching exist 
+ * @param channelString Part of a channel/thread name, or a complete channel/thread mention
+ * @param guild Discord.js Guild
+ * @returns A {@link GuildChannel} or {@link ThreadChannel}  if one existing matching query, otherwise null
+ */
+export const findGuildChannel = async (channelString: string, guild: Guild): Promise<ThreadChannel | GuildChannel | null> => {
   // Try checking for a channel mention
   const channelRx = channelString.match(/^<#(\d+)>$/);
   if (channelRx != null) {
@@ -135,6 +183,12 @@ export const findGuildChannel = async (channelString: string, guild: Guild): Pro
   }
 }
 
+/**
+ * Given a mention or name, provide a {@link Role} if any matching exist 
+ * @param channelString Part of a role name, or a complete role mention
+ * @param guild Discord.js Guild
+ * @returns A {@link Role} if one existing matching query, otherwise null
+ */
 export const findGuildRole = async (roleString: string, guild: Guild): Promise<Role> => {
   // Try checking for a role mention
   const roleRx = roleString.match(/^<@&(\d+)>$/);

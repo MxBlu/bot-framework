@@ -8,19 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { SlashCommandBuilder } from "@discordjs/builders";
-// Command to return a help message for the current bot
+/** Command to return a help message for the current bot */
 export class HelpCommand {
+    /**
+     * Create a new HelpCommand instance with a list of {@link CommandProvider}
+     * @param botName Name of the current bot
+     * @param botHelpMessage Top level help message
+     * @param providers List of {@link CommandProvider} to generate help messages from
+     */
     constructor(botName, botHelpMessage, providers) {
         this.botName = botName;
         // Generate the help message to use 
         this.generateHelpMessage(botHelpMessage, providers);
     }
-    provideSlashCommands() {
+    provideCommands() {
         return [
             new SlashCommandBuilder()
                 .setName('help')
                 .setDescription(`Shows available commands for ${this.botName}`)
-                .toJSON()
         ];
     }
     // Help shouldn't have it's own help message...
@@ -29,10 +34,15 @@ export class HelpCommand {
     }
     handle(interaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            return interaction.reply({ content: this.helpMessage });
+            // Send the stored help message 
+            interaction.reply({ content: this.helpMessage });
         });
     }
-    // Generate help message from bot help string and all registered command providers
+    /**
+     * Generate help message from bot help string and all registered command providers
+     * @param botHelpMessage Top level help message
+     * @param providers List of {@link CommandProvider} to generate help messages from
+     */
     generateHelpMessage(botHelpMessage, providers) {
         // Add bot help message first
         this.helpMessage = botHelpMessage + "\n";

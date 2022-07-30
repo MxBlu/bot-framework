@@ -4,6 +4,10 @@ import EventEmitter from "events";
 import { DEFAULT_LOG_LEVEL, LOGGER_NAME_PAD_LENGTH } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 // Get a date-time string of the current date-time
+/**
+ * Generate a date-time string of the current date-time
+ * @returns Date-time string
+ */
 function getDateTimeString() {
     const now = new Date();
     const yr = now.getFullYear();
@@ -16,22 +20,38 @@ function getDateTimeString() {
     return `${yr}-${mth}-${day} ${hrs}:${min}:${sec}`;
 }
 // Collapse down longer strings by trimming namespace substrings
+/**
+ * Collapse a logger name down to by collapsing all but the most qualified name to a single character
+ * @param name Logger name
+ * @returns Collapsed logger name
+ */
 function collapseNamespaces(name) {
     const namespaces = name.split('.');
     const mostQualifiedName = namespaces.pop();
     return namespaces.map(n => n.substr(0, 1)).concat(mostQualifiedName).join('.');
 }
-/*
-  Simple logging assistant
-  Mostly for the job of appending timestamps
-  Also logs errors to Discord if available
-*/
+/**
+ * Simple logging helper
+ *
+ * Logger verbosity is acquired from the environment in the format of `${loggerName}.LOG_LEVEL`
+ * where the value is a {@link LogLevel} value
+ *
+ * If not verbosity is set in the environment, it defaults to {@link DEFAULT_LOG_LEVEL}
+ */
 export class Logger {
+    /**
+     * Construct a new Logger
+     * @param name Logger name
+     */
     constructor(name) {
         this.name = name;
         this.loggerVerbosity = LogLevel[process.env[`${name}.LOG_LEVEL`]] || DEFAULT_LOG_LEVEL;
     }
-    // Log to console, and publish to NewLog emitter
+    /**
+     * Log to console, and publish to NewLog emitter
+     * @param message Log message
+     * @param severity Serverity of log message
+     */
     log(message, severity) {
         // Only log events above our specified verbosity
         if (this.loggerVerbosity >= severity) {
@@ -50,27 +70,44 @@ export class Logger {
             NewLogEmitter.emit(severityStr, logStr);
         }
     }
-    // Log event as ERROR
+    /**
+     * Log a message with severity {@link LogLevel.ERROR}
+     * @param message Log message
+     */
     error(message) {
         this.log(message, LogLevel.ERROR);
     }
-    // Log event as WARN
+    /**
+     * Log a message with severity {@link LogLevel.ERROR}
+     * @param message Log message
+     */
     warn(message) {
         this.log(message, LogLevel.WARN);
     }
-    // Log event as INFO
+    /**
+     * Log a message with severity {@link LogLevel.WARN}
+     * @param message Log message
+     */
     info(message) {
         this.log(message, LogLevel.INFO);
     }
-    // Log event as DEBUG
+    /**
+     * Log a message with severity {@link LogLevel.DEBUG}
+     * @param message Log message
+     */
     debug(message) {
         this.log(message, LogLevel.DEBUG);
     }
-    // Log event as TRACE
+    /**
+     * Log a message with severity {@link LogLevel.TRACE}
+     * @param message Log message
+     */
     trace(message) {
         this.log(message, LogLevel.TRACE);
     }
-    // Set this logger to handle all fall-through logging events from Node.JS
+    /**
+     * Register this {@link Logger} as the global uncaught exception logger
+     */
     registerAsGlobal() {
         process
             .on('unhandledRejection', (reason) => {
@@ -89,7 +126,10 @@ export class Logger {
         });
     }
 }
-// Message topic for logging events
-// Events emitted are the different levels of severity
+/**
+ * Message topic for logging events
+ *
+ * Events emitted are the different levels of severity
+ */
 export const NewLogEmitter = new EventEmitter();
 //# sourceMappingURL=logger.js.map

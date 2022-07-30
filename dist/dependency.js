@@ -8,18 +8,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Logger } from "./logger.js";
+/**
+ * Utility to help synchronise the order of initiation of various services
+ */
 export class Dependency {
+    /**
+     * Construct a new {@link Dependency}
+     * @param name Dependency name
+     */
     constructor(name) {
         this.name = name;
+        // Create a new Promise and pull out the resolve function into a class variable
         this.readyPromise = new Promise((resolve) => this.resolve = resolve);
         this.resolved = false;
         this.logger = new Logger(`Dependency.${name}`);
     }
+    /**
+     * Returns a promise representing multiple {@link Dependency}
+     * @param dependencies
+     */
     static awaitMultiple(...dependencies) {
         return __awaiter(this, void 0, void 0, function* () {
             yield Promise.all(dependencies.map(d => d.await()));
         });
     }
+    /**
+     * Mark the ${@link Dependency} as ready, notifying any waiting services
+     */
     ready() {
         return __awaiter(this, void 0, void 0, function* () {
             this.logger.trace(`Ready state triggered`);
@@ -27,13 +42,13 @@ export class Dependency {
             this.resolved = true;
         });
     }
+    /**
+     * Returns a promise waiting on the ${Dependency} to be ready
+     */
     await() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.readyPromise;
         });
-    }
-    isReady() {
-        return this.resolved;
     }
 }
 //# sourceMappingURL=dependency.js.map

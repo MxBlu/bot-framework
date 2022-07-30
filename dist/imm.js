@@ -8,16 +8,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Logger } from "./logger.js";
+/**
+ * Utility for passing around messages in a similar fashion to a Node.JS Emitter, but with more typing
+ */
 export class MessengerTopic {
+    /**
+     * Construct a new MessengerTopic
+     * @param name Topic name
+     */
     constructor(name) {
         this.name = name;
         this.logger = new Logger(`MessengerTopic.${name}`);
         this.subscribers = new Map();
         this.logger.trace('Topic generated');
     }
-    // Add function as listener to this topic
-    // Must be defined as a standard function, not an arrow function. Otherwise, func.name is null
-    // Assumes topic does exist
+    /**
+     * Add function as listener on this topic
+     * @param funcName Function name
+     * @param func Callback function to be called on event
+     */
     subscribe(funcName, func) {
         if (this.subscribers.has(funcName)) {
             this.logger.error(`Function ${funcName} is already subscribed`);
@@ -26,8 +35,10 @@ export class MessengerTopic {
         this.subscribers.set(funcName, func);
         this.logger.debug(`Function ${funcName} subscribed`);
     }
-    // Remove function from listeners
-    // Assumes topic does exist
+    /**
+     * Remove function from listeners on this topic
+     * @param funcName Function name
+     */
     unsubscribe(funcName) {
         if (!this.subscribers.has(funcName)) {
             this.logger.error(`Function ${funcName} was not subscribed`);
@@ -36,19 +47,18 @@ export class MessengerTopic {
         this.subscribers.delete(funcName);
         this.logger.debug(`Function ${funcName} unsubscribed`);
     }
-    // Call all subscribed functions for a topic with provided data asynchronously
-    // Assumes topic does exist
+    /**
+     * Notify this topic with provided data, and pass to all listening functions
+     *
+     * Listeners are called asynchronously
+     * @param data Notification data
+     */
     notify(data) {
         this.logger.trace('Notifying topic');
         this.lastData = data;
         this.subscribers.forEach((f) => __awaiter(this, void 0, void 0, function* () {
             f(data, this);
         }));
-    }
-    // Get the last data that was added to the topic
-    // Assumes topic does exist
-    getLastData() {
-        return this.lastData;
     }
 }
 //# sourceMappingURL=imm.js.map

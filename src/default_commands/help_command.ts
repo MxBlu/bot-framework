@@ -1,29 +1,33 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v9";
-import { CommandInteraction, Interaction } from "discord.js";
+import { CommandInteraction } from "discord.js";
 
-import { CommandProvider } from "../command_provider.js";
+import { CommandBuilder, CommandProvider } from "../command_provider.js";
 
-// Command to return a help message for the current bot
-export class HelpCommand implements CommandProvider<CommandInteraction> {
-  // Bot name, used to ensure the command is only run for a given bot
+/** Command to return a help message for the current bot */
+export class HelpCommand implements CommandProvider {
+  /** Bot name, used to ensure the command is only run for a given bot */
   botName: string;
-  // Help message to send on call
+  /** Help message to send on call */
   helpMessage: string;
 
-  constructor(botName: string, botHelpMessage: string, providers: CommandProvider<Interaction>[]) {
+  /**
+   * Create a new HelpCommand instance with a list of {@link CommandProvider}
+   * @param botName Name of the current bot
+   * @param botHelpMessage Top level help message
+   * @param providers List of {@link CommandProvider} to generate help messages from
+   */
+  constructor(botName: string, botHelpMessage: string, providers: CommandProvider[]) {
     this.botName = botName;
 
     // Generate the help message to use 
     this.generateHelpMessage(botHelpMessage, providers);
   }
 
-  public provideSlashCommands(): RESTPostAPIApplicationCommandsJSONBody[] {
+  public provideCommands(): CommandBuilder[] {
     return [
       new SlashCommandBuilder()
         .setName('help')
         .setDescription(`Shows available commands for ${this.botName}`)
-        .toJSON()
     ];
   }
 
@@ -32,12 +36,17 @@ export class HelpCommand implements CommandProvider<CommandInteraction> {
     throw new Error("Help does not have a help message");
   }
 
-  public async handle(interaction: CommandInteraction): Promise<void> {    
-    return interaction.reply({ content: this.helpMessage });
+  public async handle(interaction: CommandInteraction): Promise<void> {   
+    // Send the stored help message 
+    interaction.reply({ content: this.helpMessage });
   }
 
-  // Generate help message from bot help string and all registered command providers
-  private generateHelpMessage(botHelpMessage: string, providers: CommandProvider<Interaction>[]) {
+  /**
+   * Generate help message from bot help string and all registered command providers
+   * @param botHelpMessage Top level help message
+   * @param providers List of {@link CommandProvider} to generate help messages from
+   */
+  private generateHelpMessage(botHelpMessage: string, providers: CommandProvider[]) {
     // Add bot help message first
     this.helpMessage = botHelpMessage + "\n";
     this.helpMessage += "\n";

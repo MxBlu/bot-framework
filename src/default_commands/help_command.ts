@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 
 import { CommandBuilder, CommandProvider } from "../command_provider.js";
 
 /** Command to return a help message for the current bot */
-export class HelpCommand implements CommandProvider {
+export class HelpCommand implements CommandProvider<ChatInputCommandInteraction> {
   /** Bot name, used to ensure the command is only run for a given bot */
   botName: string;
   /** Help message to send on call */
@@ -16,7 +16,7 @@ export class HelpCommand implements CommandProvider {
    * @param botHelpMessage Top level help message
    * @param providers List of {@link CommandProvider} to generate help messages from
    */
-  constructor(botName: string, botHelpMessage: string, providers: CommandProvider[]) {
+  constructor(botName: string, botHelpMessage: string, providers: CommandProvider<never>[]) {
     this.botName = botName;
 
     // Generate the help message to use 
@@ -36,7 +36,7 @@ export class HelpCommand implements CommandProvider {
     throw new Error("Help does not have a help message");
   }
 
-  public async handle(interaction: CommandInteraction): Promise<void> {   
+  public async handle(interaction: ChatInputCommandInteraction): Promise<void> {   
     // Send the stored help message 
     interaction.reply({ content: this.helpMessage });
   }
@@ -46,7 +46,7 @@ export class HelpCommand implements CommandProvider {
    * @param botHelpMessage Top level help message
    * @param providers List of {@link CommandProvider} to generate help messages from
    */
-  private generateHelpMessage(botHelpMessage: string, providers: CommandProvider[]) {
+  private generateHelpMessage(botHelpMessage: string, providers: CommandProvider<never>[]) {
     // Add bot help message first
     this.helpMessage = botHelpMessage + "\n";
     this.helpMessage += "\n";

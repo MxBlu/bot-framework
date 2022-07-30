@@ -1,4 +1,4 @@
-import { Client as DiscordClient, ClientOptions, BitFieldResolvable, GatewayIntentsString } from "discord.js";
+import { Client as DiscordClient, ClientOptions, CommandInteraction, BitFieldResolvable, GatewayIntentsString, ChatInputCommandInteraction, ContextMenuCommandInteraction } from "discord.js";
 import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v10';
 import { CommandProvider } from "./command_provider.js";
 import { Logger } from "./logger.js";
@@ -25,9 +25,10 @@ export declare class DiscordBot {
      */
     discordLogDisabled: boolean;
     /** Command interfaces that provide handlers */
-    providers: CommandProvider[];
-    /** Map of command names to handlers */
-    commandHandlers: Map<string, CommandProvider>;
+    providers: CommandProvider<CommandInteraction>[];
+    /** Maps of command names to handlers */
+    chatCommandHandlers: Map<string, CommandProvider<ChatInputCommandInteraction>>;
+    contextCommandHandlers: Map<string, CommandProvider<ContextMenuCommandInteraction>>;
     /**
      * Create an instance of a {@link DiscordBot}
      * @param name Bot name

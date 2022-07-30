@@ -1,5 +1,5 @@
-import { Client as DiscordClient, ClientOptions, Interaction, CommandInteraction, Guild, BitFieldResolvable, AutocompleteInteraction, GatewayIntentsString, GatewayIntentBits } from "discord.js";
-import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes } from 'discord-api-types/v10';
+import { Client as DiscordClient, ClientOptions, Interaction, CommandInteraction, Guild, BitFieldResolvable, AutocompleteInteraction, GatewayIntentsString, GatewayIntentBits, ChatInputCommandInteraction, ContextMenuCommandInteraction } from "discord.js";
+import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes, ApplicationCommandType } from 'discord-api-types/v10';
 
 import { sendMessage } from "./bot_utils.js";
 import { CommandBuilder, CommandProvider } from "./command_provider.js";
@@ -33,9 +33,10 @@ export class DiscordBot {
    */
   discordLogDisabled: boolean;
   /** Command interfaces that provide handlers */
-  providers: CommandProvider[];
-  /** Map of command names to handlers */
-  commandHandlers: Map<string, CommandProvider>;
+  providers: CommandProvider<CommandInteraction>[];
+  /** Maps of command names to handlers */
+  chatCommandHandlers: Map<string, CommandProvider<ChatInputCommandInteraction>>;
+  contextCommandHandlers: Map<string, CommandProvider<ContextMenuCommandInteraction>>;
 
   /**
    * Create an instance of a {@link DiscordBot}
@@ -46,7 +47,8 @@ export class DiscordBot {
     this.logger = new Logger(name);
     this.discordLogDisabled = false;
     this.providers = [];
-    this.commandHandlers = new Map();
+    this.chatCommandHandlers = new Map();
+    this.contextCommandHandlers = new Map();
   }
 
   /**
@@ -140,8 +142,12 @@ export class DiscordBot {
             );
           }
 
-          // Map command name to handler
-          this.commandHandlers.set(command.name, provider);
+          // Map command name to handler in a map based on its type
+          if (commandJson.type == ApplicationCommandType.ChatInput) {
+            this.chatCommandHandlers.set(command.name, provider);
+          } else {
+            this.contextCommandHandlers.set(command.name, provider);
+          }
         } catch (e) {
           this.logger.error(`Failed to register command '${command.name}': ${e}`);
         }
@@ -202,12 +208,23 @@ export class DiscordBot {
       return;
     }
 
-    if (interaction.isCommand()) {
+    if (interaction.isChatInputCommand()) {
       // Handle command interactions
-      const commandInteraction = interaction as CommandInteraction;
+      const commandInteraction = <ChatInputCommandInteraction> interaction;
 
       // If a handler exists for the commandName, handle the command
-      const handler = this.commandHandlers.get(commandInteraction.commandName);
+      const handler = this.chatCommandHandlers.get(commandInteraction.commandName);
+      if (handler != null) {
+        this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
+          `!${interaction.commandName}'`);
+        handler.handle(commandInteraction);
+      }
+    } else if (interaction.isContextMenuCommand()) {
+      // Handle command interactions
+      const commandInteraction = <ContextMenuCommandInteraction> interaction;
+
+      // If a handler exists for the commandName, handle the command
+      const handler = this.contextCommandHandlers.get(commandInteraction.commandName);
       if (handler != null) {
         this.logger.debug(`Command received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
           `!${interaction.commandName}'`);
@@ -215,10 +232,10 @@ export class DiscordBot {
       }
     } else if (interaction.isAutocomplete()) {
       // Handle autocomplete interactions
-      const commandInteraction = interaction as AutocompleteInteraction;
+      const commandInteraction = <AutocompleteInteraction> interaction;
 
       // If a handler exists for the commandName and has an autocomplete definition, process
-      const handler = this.commandHandlers.get(interaction.commandName);
+      const handler = this.chatCommandHandlers.get(interaction.commandName);
       if (handler != null && handler.autocomplete != null) {
         this.logger.trace(`Autcomplete request received from '${interaction.user.username}' in '${interaction.guild.name}': ` +
           `!${interaction.commandName}'`);

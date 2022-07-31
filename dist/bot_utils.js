@@ -138,9 +138,17 @@ export const isAdmin = function (guild, user) {
     return __awaiter(this, void 0, void 0, function* () {
         // Fetch the GuildMember object for this user
         const member = yield guild.members.fetch(user.id);
-        // Return whether the GuildMember object exists, and whether the member has the Administrator permission
-        return member != null && member.permissions.has(PermissionFlagsBits.Administrator);
+        return isGuildMemberAdmin(member);
     });
+};
+/**
+ * Test if a given {@link GuildMember} is an admin
+ * @param guildMember Discord.js GuildMember
+ * @returns Given guild member is admin
+ */
+export const isGuildMemberAdmin = function (guildMember) {
+    // Return whether the GuildMember object exists, and whether the member has the Administrator permission
+    return guildMember != null && guildMember.permissions.has(PermissionFlagsBits.Administrator);
 };
 /**
  * Given a mention or name, provide a {@link GuildMember} if any matching exist

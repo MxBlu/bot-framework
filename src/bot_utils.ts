@@ -141,8 +141,17 @@ export const stringSearch = function(str: string, searchString: string): boolean
 export const isAdmin = async function(guild: Guild, user: User): Promise<boolean> {
   // Fetch the GuildMember object for this user
   const member = await guild.members.fetch(user.id);
+  return isGuildMemberAdmin(member);
+}
+
+/**
+ * Test if a given {@link GuildMember} is an admin
+ * @param guildMember Discord.js GuildMember
+ * @returns Given guild member is admin
+ */
+ export const isGuildMemberAdmin = function(guildMember: GuildMember): boolean {
   // Return whether the GuildMember object exists, and whether the member has the Administrator permission
-  return member != null && member.permissions.has(PermissionFlagsBits.Administrator);
+  return guildMember != null && guildMember.permissions.has(PermissionFlagsBits.Administrator);
 }
 
 /**

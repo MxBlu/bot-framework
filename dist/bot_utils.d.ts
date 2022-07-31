@@ -53,6 +53,12 @@ export declare const stringSearch: (str: string, searchString: string) => boolea
  */
 export declare const isAdmin: (guild: Guild, user: User) => Promise<boolean>;
 /**
+ * Test if a given {@link GuildMember} is an admin
+ * @param guildMember Discord.js GuildMember
+ * @returns Given guild member is admin
+ */
+export declare const isGuildMemberAdmin: (guildMember: GuildMember) => boolean;
+/**
  * Given a mention or name, provide a {@link GuildMember} if any matching exist
  * @param userString Part of a username or nickname, or a complete user mention
  * @param guild Discord.js Guild

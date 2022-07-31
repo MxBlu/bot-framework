@@ -1,6 +1,6 @@
 {
   "name": "bot-framework",
-  "version": "6.0.0-dev7",
+  "version": "6.0.0",
   "description": "Central framework used to drive mxblue's weaboo bots.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

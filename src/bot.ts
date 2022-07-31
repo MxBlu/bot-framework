@@ -143,10 +143,10 @@ export class DiscordBot {
           }
 
           // Map command name to handler in a map based on its type
-          if (commandJson.type == ApplicationCommandType.ChatInput) {
-            this.chatCommandHandlers.set(command.name, provider);
-          } else {
+          if (commandJson.type in [ ApplicationCommandType.Message, ApplicationCommandType.User ]) {
             this.contextCommandHandlers.set(command.name, provider);
+          } else {
+            this.chatCommandHandlers.set(command.name, provider);
           }
         } catch (e) {
           this.logger.error(`Failed to register command '${command.name}': ${e}`);

@@ -143,7 +143,7 @@ export class DiscordBot {
           }
 
           // Map command name to handler in a map based on its type
-          if (commandJson.type in [ ApplicationCommandType.Message, ApplicationCommandType.User ]) {
+          if (commandJson.type == ApplicationCommandType.Message || commandJson.type == ApplicationCommandType.User) {
             this.contextCommandHandlers.set(command.name, provider);
           } else {
             this.chatCommandHandlers.set(command.name, provider);

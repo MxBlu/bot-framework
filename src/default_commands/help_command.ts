@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 import { CommandBuilder, CommandProvider } from "../command_provider.js";
 
@@ -27,7 +26,7 @@ export class HelpCommand implements CommandProvider<ChatInputCommandInteraction>
     return [
       new SlashCommandBuilder()
         .setName('help')
-        .setDescription(`Shows available commands for ${this.botName}`)
+        .setDescription(`Shows available commands for ${this.botName}`),
     ];
   }
 

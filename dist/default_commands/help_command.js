@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder } from "discord.js";
 /** Command to return a help message for the current bot */
 export class HelpCommand {
     /**
@@ -25,7 +25,7 @@ export class HelpCommand {
         return [
             new SlashCommandBuilder()
                 .setName('help')
-                .setDescription(`Shows available commands for ${this.botName}`)
+                .setDescription(`Shows available commands for ${this.botName}`),
         ];
     }
     // Help shouldn't have it's own help message...

@@ -13,10 +13,14 @@ import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
  * Helper class to generate and handle events from an interaction.
  *
  * Designed around Discord.js' InteractionCollector, but with a simplified API
+ *
+ * @param T Prop data type, to persist stateful data between interactions
  */
 export class Interactable {
     /**
      * Create a new Interactable
+     *
+     * @param T Prop data type, to persist stateful data between interactions
      */
     constructor() {
         this.collector = null;

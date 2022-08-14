@@ -21,6 +21,8 @@ export interface InteractableHandlerButtonOption {
  * Helper class to generate and handle events from an interaction.
  * 
  * Designed around Discord.js' InteractionCollector, but with a simplified API
+ * 
+ * @param T Prop data type, to persist stateful data between interactions
  */
 export class Interactable<T> {
   /** Message that contains the modal */
@@ -38,6 +40,8 @@ export class Interactable<T> {
 
   /**
    * Create a new Interactable
+   * 
+   * @param T Prop data type, to persist stateful data between interactions
    */
   constructor() {
     this.collector = null;

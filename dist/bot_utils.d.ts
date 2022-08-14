@@ -9,7 +9,7 @@ import { Logger } from "./logger.js";
 export declare const chunkString: (str: string) => string[];
 /**
  * Send reply to a user command, logging if appropriate
- * @param interaction {@link CommandInteraction} to reply to
+ * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  * @param logger Command handler {@link Logger}
  * @param level {@link LogLevel} for the reply
@@ -17,7 +17,7 @@ export declare const chunkString: (str: string) => string[];
 export declare const sendCmdReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string, logger: Logger, level: LogLevel) => Promise<void>;
 /**
  * Send reply to a user command which may potentially be large
- * @param interaction {@link CommandInteraction} to reply to
+ * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  */
 export declare const sendChunkedReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string) => Promise<void>;
@@ -53,29 +53,29 @@ export declare const stringSearch: (str: string, searchString: string) => boolea
  */
 export declare const isAdmin: (guild: Guild, user: User) => Promise<boolean>;
 /**
- * Test if a given {@link GuildMember} is an admin
+ * Test if a given GuildMember is an admin
  * @param guildMember Discord.js GuildMember
  * @returns Given guild member is admin
  */
 export declare const isGuildMemberAdmin: (guildMember: GuildMember) => boolean;
 /**
- * Given a mention or name, provide a {@link GuildMember} if any matching exist
+ * Given a mention or name, provide a GuildMember if any matching exist
  * @param userString Part of a username or nickname, or a complete user mention
  * @param guild Discord.js Guild
- * @returns A {@link GuildMember} if one existing matching query, otherwise null
+ * @returns GuildMember if one existing matching query, otherwise null
  */
 export declare const findGuildMember: (userString: string, guild: Guild) => Promise<GuildMember | null>;
 /**
- * Given a mention or name, provide a {@link GuildChannel} or {@link ThreadChannel} if any matching exist
+ * Given a mention or name, provide a GuildChannel or ThreadChannel if any matching exist
  * @param channelString Part of a channel/thread name, or a complete channel/thread mention
  * @param guild Discord.js Guild
- * @returns A {@link GuildChannel} or {@link ThreadChannel}  if one existing matching query, otherwise null
+ * @returns GuildChannel or ThreadChannel if one existing matching query, otherwise null
  */
 export declare const findGuildChannel: (channelString: string, guild: Guild) => Promise<ThreadChannel | GuildChannel | null>;
 /**
- * Given a mention or name, provide a {@link Role} if any matching exist
+ * Given a mention or name, provide a Role if any matching exist
  * @param channelString Part of a role name, or a complete role mention
  * @param guild Discord.js Guild
- * @returns A {@link Role} if one existing matching query, otherwise null
+ * @returns A Role if one existing matching query, otherwise null
  */
 export declare const findGuildRole: (roleString: string, guild: Guild) => Promise<Role>;

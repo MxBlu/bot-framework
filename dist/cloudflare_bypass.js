@@ -13,7 +13,7 @@ import { Logger } from './logger.js';
 // Stealth plugin to hopefully avoid triggering CloudFlare
 puppeteer.use(StealthPlugin());
 /** Implementation of CloudflareBypass */
-class CloudflareBypassImpl {
+export class CloudflareBypassImpl {
     /**
      * Create a new CloudflareBypass instance
      *

@@ -33,7 +33,7 @@ export class Dependency {
         });
     }
     /**
-     * Mark the ${@link Dependency} as ready, notifying any waiting services
+     * Mark the {@link Dependency} as ready, notifying any waiting services
      */
     ready() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -43,7 +43,7 @@ export class Dependency {
         });
     }
     /**
-     * Returns a promise waiting on the ${Dependency} to be ready
+     * Returns a promise waiting on the {@link Dependency} to be ready
      */
     await() {
         return __awaiter(this, void 0, void 0, function* () {

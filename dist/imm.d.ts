@@ -2,7 +2,7 @@ import { Logger } from "./logger.js";
 /**
  * Function type for the callback function called on a new event
  */
-declare type EventCallbackFunction<T> = (data: T, topic: MessengerTopic<T>) => Promise<void>;
+export declare type EventCallbackFunction<T> = (data: T, topic: MessengerTopic<T>) => Promise<void>;
 /**
  * Utility for passing around messages in a similar fashion to a Node.JS Emitter, but with more typing
  */
@@ -39,4 +39,3 @@ export declare class MessengerTopic<T> {
      */
     notify(data: T): void;
 }
-export {};

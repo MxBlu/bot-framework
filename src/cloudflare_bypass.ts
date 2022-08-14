@@ -8,7 +8,7 @@ import { Logger } from './logger.js';
 puppeteer.use(StealthPlugin());
 
 /** Implementation of CloudflareBypass */
-class CloudflareBypassImpl {
+export class CloudflareBypassImpl {
   /** Puppeteer browser instance */
   browser: Browser;
   /** Logger instance */

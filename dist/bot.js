@@ -138,7 +138,7 @@ export class DiscordBot {
      *
      * Defaults to only the GUILDS intent, add more intents based on required events
      * @param discordToken Discord API token
-     * @param intents Gateway intents, defaulting to {@link GatewayIntentBits.Guilds}
+     * @param intents Gateway intents, defaulting to GatewayIntentBits.Guilds
      * @param discordClientOptions Discord.js client options, excluding intents
      */
     init(discordToken, intents = [GatewayIntentBits.Guilds], discordClientOptions = {}) {

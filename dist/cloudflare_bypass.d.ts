@@ -1,7 +1,7 @@
 import { Browser } from 'puppeteer';
 import { Logger } from './logger.js';
 /** Implementation of CloudflareBypass */
-declare class CloudflareBypassImpl {
+export declare class CloudflareBypassImpl {
     /** Puppeteer browser instance */
     browser: Browser;
     /** Logger instance */
@@ -38,4 +38,3 @@ declare class CloudflareBypassImpl {
  * Fetch URIs using a Puppeteer instance to get around CloudFlare
  */
 export declare const CloudflareBypass: CloudflareBypassImpl;
-export {};

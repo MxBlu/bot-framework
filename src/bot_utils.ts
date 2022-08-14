@@ -51,7 +51,7 @@ export const chunkString = function (str: string): string[] {
 
 /**
  * Send reply to a user command, logging if appropriate
- * @param interaction {@link CommandInteraction} to reply to
+ * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  * @param logger Command handler {@link Logger}
  * @param level {@link LogLevel} for the reply
@@ -64,7 +64,7 @@ export const sendCmdReply = async function (interaction: CommandInteraction | Me
 
 /**
  * Send reply to a user command which may potentially be large
- * @param interaction {@link CommandInteraction} to reply to
+ * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  */
 export const sendChunkedReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
@@ -145,7 +145,7 @@ export const isAdmin = async function(guild: Guild, user: User): Promise<boolean
 }
 
 /**
- * Test if a given {@link GuildMember} is an admin
+ * Test if a given GuildMember is an admin
  * @param guildMember Discord.js GuildMember
  * @returns Given guild member is admin
  */
@@ -155,10 +155,10 @@ export const isAdmin = async function(guild: Guild, user: User): Promise<boolean
 }
 
 /**
- * Given a mention or name, provide a {@link GuildMember} if any matching exist 
+ * Given a mention or name, provide a GuildMember if any matching exist 
  * @param userString Part of a username or nickname, or a complete user mention
  * @param guild Discord.js Guild
- * @returns A {@link GuildMember} if one existing matching query, otherwise null
+ * @returns GuildMember if one existing matching query, otherwise null
  */
 export const findGuildMember = async (userString: string, guild: Guild): Promise<GuildMember | null> => {
   // Try checking for a mention
@@ -176,10 +176,10 @@ export const findGuildMember = async (userString: string, guild: Guild): Promise
 }
 
 /**
- * Given a mention or name, provide a {@link GuildChannel} or {@link ThreadChannel} if any matching exist 
+ * Given a mention or name, provide a GuildChannel or ThreadChannel if any matching exist 
  * @param channelString Part of a channel/thread name, or a complete channel/thread mention
  * @param guild Discord.js Guild
- * @returns A {@link GuildChannel} or {@link ThreadChannel}  if one existing matching query, otherwise null
+ * @returns GuildChannel or ThreadChannel if one existing matching query, otherwise null
  */
 export const findGuildChannel = async (channelString: string, guild: Guild): Promise<ThreadChannel | GuildChannel | null> => {
   // Try checking for a channel mention
@@ -193,10 +193,10 @@ export const findGuildChannel = async (channelString: string, guild: Guild): Pro
 }
 
 /**
- * Given a mention or name, provide a {@link Role} if any matching exist 
+ * Given a mention or name, provide a Role if any matching exist 
  * @param channelString Part of a role name, or a complete role mention
  * @param guild Discord.js Guild
- * @returns A {@link Role} if one existing matching query, otherwise null
+ * @returns A Role if one existing matching query, otherwise null
  */
 export const findGuildRole = async (roleString: string, guild: Guild): Promise<Role> => {
   // Try checking for a role mention

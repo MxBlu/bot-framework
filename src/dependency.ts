@@ -1,9 +1,9 @@
 import { Logger } from "./logger.js";
 
 /**
- * Function type for `resolve` parameter provided by a {@link Promise}
+ * Function type for `resolve` parameter provided by a Promise
  */
-type ResolveFunction = (value: void | PromiseLike<void>) => void;
+export type ResolveFunction = (value: void | PromiseLike<void>) => void;
 
 /**
  * Utility to help synchronise the order of initiation of various services
@@ -42,7 +42,7 @@ export class Dependency {
   }
 
   /**
-   * Mark the ${@link Dependency} as ready, notifying any waiting services
+   * Mark the {@link Dependency} as ready, notifying any waiting services
    */
   public async ready(): Promise<void> {
     this.logger.trace(`Ready state triggered`);
@@ -51,7 +51,7 @@ export class Dependency {
   }
 
   /**
-   * Returns a promise waiting on the ${Dependency} to be ready
+   * Returns a promise waiting on the {@link Dependency} to be ready
    */
   public async await(): Promise<void> {
     return this.readyPromise;

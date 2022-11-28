@@ -30,7 +30,9 @@ export class CloudflareBypassImpl {
         return __awaiter(this, void 0, void 0, function* () {
             // If a browser instance is not loaded, launch one
             if (this.browser == null) {
-                this.browser = yield puppeteer.launch();
+                this.browser = yield puppeteer.launch({
+                    channel: 'chrome'
+                });
                 this.logger.info("Launched a browser instance");
             }
         });

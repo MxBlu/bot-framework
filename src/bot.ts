@@ -68,9 +68,14 @@ export class DiscordBot {
       intents
     });
 
-    // Initialise command handlers, then event handlers
-    this.initCommandHandlers();
+    // Initialise command handlers
+    this.loadProviders();
+    // Initialise default command handlers
+    this.initDefaultCommandHandlers();
+    // Initialise default event handlers
     this.initEventHandlers();
+    // Initialise any custom event handlers (on subclasses)
+    this.initCustomEventHandlers();
 
     // Login to Discord and start listening for events
     this.discord.login(discordToken);
@@ -81,10 +86,7 @@ export class DiscordBot {
    * 
    * Runs after {@link loadProviders} 
    */
-  private initCommandHandlers(): void {
-    // Load in any subclass interfaces
-    this.loadProviders();
-
+  private initDefaultCommandHandlers(): void {
     // Add help command, passing in all currently registered providers
     this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
   }
@@ -115,9 +117,6 @@ export class DiscordBot {
       NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler);
       NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
     }
-
-    // Initialise any custom event handlers (on subclasses)
-    this.initCustomEventHandlers();
   }
   
 
@@ -184,6 +183,15 @@ export class DiscordBot {
     throw new Error("Method not implemented");
   }
 
+  /**
+   * Perform actions before processing a command interaction
+   * 
+   * For a subclass to override
+   */
+  public async prepareCommandInteraction(): Promise<void> {
+    return;
+  }
+
   // Discord event handlers
 
   /**
@@ -203,10 +211,13 @@ export class DiscordBot {
    * @param interaction Discord interaction
    */
   private interactionHandler = async (interaction: Interaction): Promise<void> => {
-    // Ignore bot interactiosn to avoid messy situations
+    // Ignore bot interactions to avoid messy situations
     if (interaction.user.bot) {
       return;
     }
+
+    // Run any prep needed before handling the command interaction
+    await this.prepareCommandInteraction();
 
     if (interaction.isChatInputCommand()) {
       // Handle command interactions

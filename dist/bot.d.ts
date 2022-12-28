@@ -48,7 +48,7 @@ export declare class DiscordBot {
      *
      * Runs after {@link loadProviders}
      */
-    private initCommandHandlers;
+    private initDefaultCommandHandlers;
     /**
      * Initialise all Discord event handlers
      *
@@ -77,6 +77,12 @@ export declare class DiscordBot {
      * For a subclass to override
      */
     getHelpMessage(): string;
+    /**
+     * Perform actions before processing a command interaction
+     *
+     * For a subclass to override
+     */
+    prepareCommandInteraction(): Promise<void>;
     /**
      * Handle the `ready` Discord event
      */

@@ -39,10 +39,12 @@ export class DiscordBot {
          * @param interaction Discord interaction
          */
         this.interactionHandler = (interaction) => __awaiter(this, void 0, void 0, function* () {
-            // Ignore bot interactiosn to avoid messy situations
+            // Ignore bot interactions to avoid messy situations
             if (interaction.user.bot) {
                 return;
             }
+            // Run any prep needed before handling the command interaction
+            yield this.prepareCommandInteraction();
             if (interaction.isChatInputCommand()) {
                 // Handle command interactions
                 const commandInteraction = interaction;
@@ -145,9 +147,14 @@ export class DiscordBot {
         return __awaiter(this, void 0, void 0, function* () {
             // Create the Discord client
             this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
-            // Initialise command handlers, then event handlers
-            this.initCommandHandlers();
+            // Initialise command handlers
+            this.loadProviders();
+            // Initialise default command handlers
+            this.initDefaultCommandHandlers();
+            // Initialise default event handlers
             this.initEventHandlers();
+            // Initialise any custom event handlers (on subclasses)
+            this.initCustomEventHandlers();
             // Login to Discord and start listening for events
             this.discord.login(discordToken);
         });
@@ -157,9 +164,7 @@ export class DiscordBot {
      *
      * Runs after {@link loadProviders}
      */
-    initCommandHandlers() {
-        // Load in any subclass interfaces
-        this.loadProviders();
+    initDefaultCommandHandlers() {
         // Add help command, passing in all currently registered providers
         this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
     }
@@ -187,8 +192,6 @@ export class DiscordBot {
             NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler);
             NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
         }
-        // Initialise any custom event handlers (on subclasses)
-        this.initCustomEventHandlers();
     }
     /**
      * Register all command providers loaded as application commands
@@ -248,6 +251,16 @@ export class DiscordBot {
      */
     getHelpMessage() {
         throw new Error("Method not implemented");
+    }
+    /**
+     * Perform actions before processing a command interaction
+     *
+     * For a subclass to override
+     */
+    prepareCommandInteraction() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return;
+        });
     }
     // Utility functions
     /**

@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message, SelectMenuBuilder } from "discord.js";
 /** Function type for a handler function on an interaction event */
 export declare type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
 /** Function type for a handler function on an interaction being removed */
@@ -11,6 +11,15 @@ export interface InteractableHandlerButtonOption {
     label?: string;
     emoji?: string;
     style?: ButtonStyle;
+}
+export interface InteractableHandlerStringOptionItem {
+    label: string;
+    value: string;
+}
+export interface InteractableHandlerStringOption {
+    items: Array<InteractableHandlerStringOptionItem>;
+    customId?: string;
+    placeholder: string;
 }
 /**
  * Helper class to generate and handle events from an interaction.
@@ -25,7 +34,7 @@ export declare class Interactable<T> {
     /** Interaction collector to provide events */
     collector: InteractionCollector<ButtonInteraction>;
     /** Message action row builder holding buttons */
-    actionRowBuilder: ActionRowBuilder<ButtonBuilder>;
+    actionRowBuilder: ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
     /** Arbitrary stateful data */
     props: T;
     /** Handler function to call on removal */
@@ -49,11 +58,26 @@ export declare class Interactable<T> {
      */
     deactivate(): Promise<void>;
     /**
+     * Assign a handler for a given list of strings
+     * @param customId custom id used for unique identification of button
+     * @param options Options that are used to generate button
+     * @returns ButtonBuilder
+     */
+    generateButtonBuilder(customId: string, options: InteractableHandlerButtonOption): ButtonBuilder;
+    /**
+     * Assigns a handler given emojis
+     * @param customId custom id used for unique identification of object
+     * @param options Options that are used to generate dropdown menu
+     * @returns SelectMenuBuilder, which is deprecated but we're on 14.1.1 at time of writing
+     * // tl;dr get fucked, migrate this to StringSelectMenuBuilder when you need to
+     */
+    generateStringBuilder(customId: string, options: InteractableHandlerStringOption): SelectMenuBuilder;
+    /**
      * Assign a handler for a given emoji
      * @param handler Handler function to be called on interaction
      * @param options Button options
      */
-    registerHandler(handler: InteractableHandlerFunction<T>, options: InteractableHandlerButtonOption): void;
+    registerHandler(handler: InteractableHandlerFunction<T>, options: InteractableHandlerButtonOption | InteractableHandlerStringOption, type?: "button" | "string"): void;
     /**
      * Assign a handler on the Interactable deactivating
      * @param handler Handler function to be called on interaction deactivation
@@ -63,7 +87,7 @@ export declare class Interactable<T> {
      * Fetch the currently generated action row.
      * @returns Action row
      */
-    getActionRow(): ActionRowBuilder<ButtonBuilder>;
+    getActionRow(): ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
     /**
      * Create a interaction collector with appropriate filters and event handlers
      * @param duration Duration to keep the collect interactions for

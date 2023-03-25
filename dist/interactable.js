@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SelectMenuBuilder, SelectMenuOptionBuilder } from "discord.js";
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 /**
  * Helper class to generate and handle events from an interaction.
@@ -59,23 +59,13 @@ export class Interactable {
         });
     }
     /**
-     * Assign a handler for a given emoji
-     * @param handler Handler function to be called on interaction
-     * @param options Button options
+     * Assign a handler for a given list of strings
+     * @param customId custom id used for unique identification of button
+     * @param options Options that are used to generate button
+     * @returns ButtonBuilder
      */
-    registerHandler(handler, options) {
+    generateButtonBuilder(customId, options) {
         var _a;
-        // If we already have a collector, it's too late to register a handler
-        if (this.collector != null) {
-            throw new Error("Interactable already activated");
-        }
-        // Ensure either a label or an emoji is defined
-        if (options.label == null && options.emoji == null) {
-            throw new Error("Interactable handler does not have either a label or an emoji");
-        }
-        // Generate a random ID if one isn't specified
-        // Random 10 character string
-        const customId = options.customId || Math.random().toString(36).substring(2, 12);
         // Generate MessageButton from the button options
         const buttonBuilder = new ButtonBuilder();
         if (options.label != null) {
@@ -86,8 +76,59 @@ export class Interactable {
         }
         buttonBuilder.setStyle((_a = options.style) !== null && _a !== void 0 ? _a : ButtonStyle.Secondary);
         buttonBuilder.setCustomId(customId);
+        return buttonBuilder;
+    }
+    /**
+     * Assigns a handler given emojis
+     * @param customId custom id used for unique identification of object
+     * @param options Options that are used to generate dropdown menu
+     * @returns SelectMenuBuilder, which is deprecated but we're on 14.1.1 at time of writing
+     * // tl;dr get fucked, migrate this to StringSelectMenuBuilder when you need to
+     */
+    generateStringBuilder(customId, options) {
+        return new SelectMenuBuilder()
+            .setCustomId(customId)
+            .setPlaceholder(options.placeholder)
+            .addOptions(options.items.map((item) => {
+            return new SelectMenuOptionBuilder()
+                .setLabel(item.label)
+                .setValue(item.value);
+        }));
+    }
+    /**
+     * Assign a handler for a given emoji
+     * @param handler Handler function to be called on interaction
+     * @param options Button options
+     */
+    registerHandler(handler, options, type) {
+        // If we already have a collector, it's too late to register a handler
+        if (this.collector != null) {
+            throw new Error("Interactable already activated");
+        }
+        // Generate a random ID if one isn't specified
+        // Random 10 character string
+        const customId = options.customId || Math.random().toString(36).substring(2, 12);
+        let component;
+        // Generate a corresponding builder, which honestly can be of its own class but so much
+        // boilerplate so get chatGPT to write it for you
+        switch (type) {
+            case "string": {
+                component = this.generateStringBuilder(customId, options);
+                break;
+            }
+            // Defaults to emoji for now. 
+            // This is to decrease amount of code change required throughout existing dependencies.
+            default: {
+                // Ensure either a label or an emoji is defined
+                if (options.label == null && options.emoji == null) {
+                    throw new Error("Interactable handler does not have either a label or an emoji");
+                }
+                component = this.generateButtonBuilder(customId, options);
+                break;
+            }
+        }
         // Add the button to the action row
-        this.actionRowBuilder.addComponents(buttonBuilder);
+        this.actionRowBuilder.addComponents(component);
         // Register the handler
         this.interactionHandlers.set(customId, handler);
     }

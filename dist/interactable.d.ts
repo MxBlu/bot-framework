@@ -1,8 +1,18 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message, SelectMenuBuilder } from "discord.js";
-/** Function type for a handler function on an interaction event */
-export declare type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message, SelectMenuBuilder, SelectMenuInteraction } from "discord.js";
+/** Function type for a handler function on an button interaction event */
+export declare type ButtonInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
+/** Function type for a handler function on a select menu interaction event */
+export declare type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: SelectMenuInteraction) => Promise<void>;
 /** Function type for a handler function on an interaction being removed */
 export declare type InteractableRemovalFunction<T> = (interactable: Interactable<T>) => Promise<void>;
+/** Type of component to handle */
+export declare type InteractableType = "button" | "menu";
+/** Function type for a handler function covering both component interaction types */
+declare type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | SelectMenuInteraction) => Promise<void>;
+interface InteractableDefinition<T> {
+    handler: InteractableHandlerFunction<T>;
+    type: InteractableType;
+}
 /**
  * Parameters for an interaction handler button
  */
@@ -12,12 +22,12 @@ export interface InteractableHandlerButtonOption {
     emoji?: string;
     style?: ButtonStyle;
 }
-export interface InteractableHandlerStringOptionItem {
+export interface InteractableHandlerSelectMenuOptionItem {
     label: string;
     value: string;
 }
-export interface InteractableHandlerStringOption {
-    items: Array<InteractableHandlerStringOptionItem>;
+export interface InteractableHandlerSelectMenuOption {
+    items: InteractableHandlerSelectMenuOptionItem[];
     customId?: string;
     placeholder: string;
 }
@@ -32,15 +42,15 @@ export declare class Interactable<T> {
     /** Message that contains the modal */
     message: Message;
     /** Interaction collector to provide events */
-    collector: InteractionCollector<ButtonInteraction>;
-    /** Message action row builder holding buttons */
+    collector: InteractionCollector<ButtonInteraction | SelectMenuInteraction>;
+    /** Message action row builder holding components */
     actionRowBuilder: ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
     /** Arbitrary stateful data */
     props: T;
     /** Handler function to call on removal */
     removalHandler: InteractableRemovalFunction<T>;
-    /** Map of all button IDs to their handler function */
-    interactionHandlers: Map<string, InteractableHandlerFunction<T>>;
+    /** Map of all componentIDs to definitions */
+    interactionDefs: Map<string, InteractableDefinition<T>>;
     /**
      * Create a new Interactable
      *
@@ -58,26 +68,17 @@ export declare class Interactable<T> {
      */
     deactivate(): Promise<void>;
     /**
-     * Assign a handler for a given list of strings
-     * @param customId custom id used for unique identification of button
-     * @param options Options that are used to generate button
-     * @returns ButtonBuilder
-     */
-    generateButtonBuilder(customId: string, options: InteractableHandlerButtonOption): ButtonBuilder;
-    /**
-     * Assigns a handler given emojis
-     * @param customId custom id used for unique identification of object
-     * @param options Options that are used to generate dropdown menu
-     * @returns SelectMenuBuilder, which is deprecated but we're on 14.1.1 at time of writing
-     * // tl;dr get fucked, migrate this to StringSelectMenuBuilder when you need to
-     */
-    generateStringBuilder(customId: string, options: InteractableHandlerStringOption): SelectMenuBuilder;
-    /**
-     * Assign a handler for a given emoji
+     * Assign a handler for a button component
      * @param handler Handler function to be called on interaction
-     * @param options Button options
+     * @param options Interactable options
      */
-    registerHandler(handler: InteractableHandlerFunction<T>, options: InteractableHandlerButtonOption | InteractableHandlerStringOption, type?: "button" | "string"): void;
+    registerButtonHandler(handler: ButtonInteractableHandlerFunction<T>, options: InteractableHandlerButtonOption): void;
+    /**
+     * Assign a handler for a select menu component
+     * @param handler Handler function to be called on interaction
+     * @param options Interactable options
+     */
+    registerSelectMenuHandler(handler: SelectMenuInteractableHandlerFunction<T>, options: InteractableHandlerSelectMenuOption): void;
     /**
      * Assign a handler on the Interactable deactivating
      * @param handler Handler function to be called on interaction deactivation
@@ -89,8 +90,25 @@ export declare class Interactable<T> {
      */
     getActionRow(): ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
     /**
+   * Create a button builder
+   * @param customId custom id used for unique identification of button
+   * @param options Options that are used to generate button
+   * @returns ButtonBuilder
+   */
+    private addButtonBuilder;
+    /**
+     * Create a SelectMenu builder
+     *
+     * NOTE: SelectMenuBuilder will be deprecated in future versions
+     * @param customId custom id used for unique identification of object
+     * @param options Options that are used to generate dropdown menu
+     * @returns SelectMenuBuilder
+     */
+    private addSelectMenuBuilder;
+    /**
      * Create a interaction collector with appropriate filters and event handlers
      * @param duration Duration to keep the collect interactions for
      */
     private createCollector;
 }
+export {};

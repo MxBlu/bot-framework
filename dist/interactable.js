@@ -24,7 +24,7 @@ export class Interactable {
      */
     constructor() {
         this.collector = null;
-        this.interactionHandlers = new Map();
+        this.interactionDefs = new Map();
         this.actionRowBuilder = new ActionRowBuilder();
     }
     /**
@@ -59,48 +59,11 @@ export class Interactable {
         });
     }
     /**
-     * Assign a handler for a given list of strings
-     * @param customId custom id used for unique identification of button
-     * @param options Options that are used to generate button
-     * @returns ButtonBuilder
-     */
-    generateButtonBuilder(customId, options) {
-        var _a;
-        // Generate MessageButton from the button options
-        const buttonBuilder = new ButtonBuilder();
-        if (options.label != null) {
-            buttonBuilder.setLabel(options.label);
-        }
-        else {
-            buttonBuilder.setEmoji(options.emoji);
-        }
-        buttonBuilder.setStyle((_a = options.style) !== null && _a !== void 0 ? _a : ButtonStyle.Secondary);
-        buttonBuilder.setCustomId(customId);
-        return buttonBuilder;
-    }
-    /**
-     * Assigns a handler given emojis
-     * @param customId custom id used for unique identification of object
-     * @param options Options that are used to generate dropdown menu
-     * @returns SelectMenuBuilder, which is deprecated but we're on 14.1.1 at time of writing
-     * // tl;dr get fucked, migrate this to StringSelectMenuBuilder when you need to
-     */
-    generateStringBuilder(customId, options) {
-        return new SelectMenuBuilder()
-            .setCustomId(customId)
-            .setPlaceholder(options.placeholder)
-            .addOptions(options.items.map((item) => {
-            return new SelectMenuOptionBuilder()
-                .setLabel(item.label)
-                .setValue(item.value);
-        }));
-    }
-    /**
-     * Assign a handler for a given emoji
+     * Assign a handler for a button component
      * @param handler Handler function to be called on interaction
-     * @param options Button options
+     * @param options Interactable options
      */
-    registerHandler(handler, options, type) {
+    registerButtonHandler(handler, options) {
         // If we already have a collector, it's too late to register a handler
         if (this.collector != null) {
             throw new Error("Interactable already activated");
@@ -108,29 +71,39 @@ export class Interactable {
         // Generate a random ID if one isn't specified
         // Random 10 character string
         const customId = options.customId || Math.random().toString(36).substring(2, 12);
-        let component;
-        // Generate a corresponding builder, which honestly can be of its own class but so much
-        // boilerplate so get chatGPT to write it for you
-        switch (type) {
-            case "string": {
-                component = this.generateStringBuilder(customId, options);
-                break;
-            }
-            // Defaults to emoji for now. 
-            // This is to decrease amount of code change required throughout existing dependencies.
-            default: {
-                // Ensure either a label or an emoji is defined
-                if (options.label == null && options.emoji == null) {
-                    throw new Error("Interactable handler does not have either a label or an emoji");
-                }
-                component = this.generateButtonBuilder(customId, options);
-                break;
-            }
+        if (options.label == null && options.emoji == null) {
+            throw new Error("Interactable handler does not have either a label or an emoji");
         }
+        const component = this.addButtonBuilder(customId, options);
         // Add the button to the action row
         this.actionRowBuilder.addComponents(component);
         // Register the handler
-        this.interactionHandlers.set(customId, handler);
+        this.interactionDefs.set(customId, {
+            handler: handler,
+            type: "button"
+        });
+    }
+    /**
+     * Assign a handler for a select menu component
+     * @param handler Handler function to be called on interaction
+     * @param options Interactable options
+     */
+    registerSelectMenuHandler(handler, options) {
+        // If we already have a collector, it's too late to register a handler
+        if (this.collector != null) {
+            throw new Error("Interactable already activated");
+        }
+        // Generate a random ID if one isn't specified
+        // Random 10 character string
+        const customId = options.customId || Math.random().toString(36).substring(2, 12);
+        const component = this.addSelectMenuBuilder(customId, options);
+        // Add the button to the action row
+        this.actionRowBuilder.addComponents(component);
+        // Register the handler
+        this.interactionDefs.set(customId, {
+            handler: handler,
+            type: "menu"
+        });
     }
     /**
      * Assign a handler on the Interactable deactivating
@@ -147,12 +120,50 @@ export class Interactable {
         return this.actionRowBuilder;
     }
     /**
+   * Create a button builder
+   * @param customId custom id used for unique identification of button
+   * @param options Options that are used to generate button
+   * @returns ButtonBuilder
+   */
+    addButtonBuilder(customId, options) {
+        var _a;
+        // Generate MessageButton from the button options
+        const buttonBuilder = new ButtonBuilder();
+        if (options.label != null) {
+            buttonBuilder.setLabel(options.label);
+        }
+        else {
+            buttonBuilder.setEmoji(options.emoji);
+        }
+        buttonBuilder.setStyle((_a = options.style) !== null && _a !== void 0 ? _a : ButtonStyle.Secondary);
+        buttonBuilder.setCustomId(customId);
+        return buttonBuilder;
+    }
+    /**
+     * Create a SelectMenu builder
+     *
+     * NOTE: SelectMenuBuilder will be deprecated in future versions
+     * @param customId custom id used for unique identification of object
+     * @param options Options that are used to generate dropdown menu
+     * @returns SelectMenuBuilder
+     */
+    addSelectMenuBuilder(customId, options) {
+        return new SelectMenuBuilder()
+            .setCustomId(customId)
+            .setPlaceholder(options.placeholder)
+            .addOptions(options.items.map((item) => {
+            return new SelectMenuOptionBuilder()
+                .setLabel(item.label)
+                .setValue(item.value);
+        }));
+    }
+    /**
      * Create a interaction collector with appropriate filters and event handlers
      * @param duration Duration to keep the collect interactions for
      */
     createCollector(duration) {
         // Get all the IDs that have handler functions assigned to em
-        const handledIds = Array.from(this.interactionHandlers.keys());
+        const handledIds = Array.from(this.interactionDefs.keys());
         // Create a filter for interactions
         // We only want interactions from non-bot users and for interactions we have handlers for
         const filter = (interaction) => {
@@ -163,9 +174,18 @@ export class Interactable {
         // On "collect" (aka a interaction), call relevant handler function
         this.collector.on("collect", (interaction) => __awaiter(this, void 0, void 0, function* () {
             // Due to above filter, this handler should always exist
-            const handler = this.interactionHandlers.get(interaction.customId);
+            const def = this.interactionDefs.get(interaction.customId);
             // Call handler function
-            handler(this, interaction);
+            switch (def.type) {
+                case "button": {
+                    def.handler(this, interaction);
+                    break;
+                }
+                case "menu": {
+                    def.handler(this, interaction);
+                    break;
+                }
+            }
         }));
         // On "end", call deactivate
         this.collector.on("end", () => this.deactivate());

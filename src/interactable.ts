@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CollectorFilter, ComponentType, InteractionCollector, Message, RestOrArray, SelectMenuBuilder, SelectMenuInteraction, SelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CollectorFilter, InteractionCollector, Message, SelectMenuBuilder, SelectMenuInteraction, SelectMenuOptionBuilder } from "discord.js";
 
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 
@@ -109,8 +109,8 @@ export class Interactable<T> {
    * @param handler Handler function to be called on interaction
    * @param options Interactable options
    */
-  public registerButtonHandler(handler: ButtonInteractableHandlerFunction<T>,
-      options: InteractableHandlerButtonOption) {
+  publicregisterButtonHandler(handler: ButtonInteractableHandlerFunction<T>,
+      options: InteractableHandlerButtonOption): void {
     // If we already have a collector, it's too late to register a handler
     if (this.collector != null) {
       throw new Error("Interactable already activated");

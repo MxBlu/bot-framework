@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SelectMenuBuilder, SelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 /**
  * Helper class to generate and handle events from an interaction.
@@ -148,11 +148,11 @@ export class Interactable {
      * @returns SelectMenuBuilder
      */
     addSelectMenuBuilder(customId, options) {
-        return new SelectMenuBuilder()
+        return new StringSelectMenuBuilder()
             .setCustomId(customId)
             .setPlaceholder(options.placeholder)
             .addOptions(options.items.map((item) => {
-            return new SelectMenuOptionBuilder()
+            return new StringSelectMenuOptionBuilder()
                 .setLabel(item.label)
                 .setValue(item.value);
         }));

@@ -1,14 +1,14 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message, SelectMenuBuilder, SelectMenuInteraction } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 /** Function type for a handler function on an button interaction event */
 export declare type ButtonInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
 /** Function type for a handler function on a select menu interaction event */
-export declare type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: SelectMenuInteraction) => Promise<void>;
+export declare type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: StringSelectMenuInteraction) => Promise<void>;
 /** Function type for a handler function on an interaction being removed */
 export declare type InteractableRemovalFunction<T> = (interactable: Interactable<T>) => Promise<void>;
 /** Type of component to handle */
 export declare type InteractableType = "button" | "menu";
 /** Function type for a handler function covering both component interaction types */
-declare type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | SelectMenuInteraction) => Promise<void>;
+declare type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | StringSelectMenuInteraction) => Promise<void>;
 interface InteractableDefinition<T> {
     handler: InteractableHandlerFunction<T>;
     type: InteractableType;
@@ -42,9 +42,9 @@ export declare class Interactable<T> {
     /** Message that contains the modal */
     message: Message;
     /** Interaction collector to provide events */
-    collector: InteractionCollector<ButtonInteraction | SelectMenuInteraction>;
+    collector: InteractionCollector<ButtonInteraction | StringSelectMenuInteraction>;
     /** Message action row builder holding components */
-    actionRowBuilder: ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
+    actionRowBuilder: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>;
     /** Arbitrary stateful data */
     props: T;
     /** Handler function to call on removal */
@@ -88,7 +88,7 @@ export declare class Interactable<T> {
      * Fetch the currently generated action row.
      * @returns Action row
      */
-    getActionRow(): ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
+    getActionRow(): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>;
     /**
    * Create a button builder
    * @param customId custom id used for unique identification of button

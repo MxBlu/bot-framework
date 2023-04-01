@@ -1,18 +1,18 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CollectorFilter, InteractionCollector, Message, SelectMenuBuilder, SelectMenuInteraction, SelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CollectorFilter, InteractionCollector, Message, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, StringSelectMenuInteraction, ComponentType } from "discord.js";
 
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 
 /** Function type for a handler function on an button interaction event */
 export type ButtonInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
 /** Function type for a handler function on a select menu interaction event */
-export type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: SelectMenuInteraction) => Promise<void>;
+export type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: StringSelectMenuInteraction) => Promise<void>;
 /** Function type for a handler function on an interaction being removed */
 export type InteractableRemovalFunction<T> = (interactable: Interactable<T>) => Promise<void>;
 /** Type of component to handle */
 export type InteractableType = "button" | "menu";
 
 /** Function type for a handler function covering both component interaction types */
-type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | SelectMenuInteraction) => Promise<void>;
+type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | StringSelectMenuInteraction) => Promise<void>;
 
 interface InteractableDefinition<T> {
   handler: InteractableHandlerFunction<T>;
@@ -51,9 +51,9 @@ export class Interactable<T> {
   /** Message that contains the modal */
   message: Message;
   /** Interaction collector to provide events */
-  collector: InteractionCollector<ButtonInteraction | SelectMenuInteraction>;
+  collector: InteractionCollector<ButtonInteraction | StringSelectMenuInteraction>;
   /** Message action row builder holding components */
-  actionRowBuilder: ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>;
+  actionRowBuilder: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>;
   /** Arbitrary stateful data */
   props: T;
   /** Handler function to call on removal */
@@ -110,7 +110,7 @@ export class Interactable<T> {
    * @param options Interactable options
    */
   publicregisterButtonHandler(handler: ButtonInteractableHandlerFunction<T>,
-      options: InteractableHandlerButtonOption): void {
+    options: InteractableHandlerButtonOption): void {
     // If we already have a collector, it's too late to register a handler
     if (this.collector != null) {
       throw new Error("Interactable already activated");
@@ -172,7 +172,7 @@ export class Interactable<T> {
    * Fetch the currently generated action row.
    * @returns Action row
    */
-  public getActionRow(): ActionRowBuilder<ButtonBuilder | SelectMenuBuilder> {
+  public getActionRow(): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder> {
     return this.actionRowBuilder;
   }
 
@@ -205,12 +205,12 @@ export class Interactable<T> {
    * @param options Options that are used to generate dropdown menu
    * @returns SelectMenuBuilder
    */
-  private addSelectMenuBuilder(customId: string, options: InteractableHandlerSelectMenuOption): SelectMenuBuilder {
-    return new SelectMenuBuilder()
+  private addSelectMenuBuilder(customId: string, options: InteractableHandlerSelectMenuOption): StringSelectMenuBuilder {
+    return new StringSelectMenuBuilder()
       .setCustomId(customId)
       .setPlaceholder(options.placeholder)
       .addOptions(options.items.map((item) => {
-        return new SelectMenuOptionBuilder()
+        return new StringSelectMenuOptionBuilder()
           .setLabel(item.label)
           .setValue(item.value)
       }));
@@ -225,13 +225,13 @@ export class Interactable<T> {
     const handledIds = Array.from(this.interactionDefs.keys());
     // Create a filter for interactions
     // We only want interactions from non-bot users and for interactions we have handlers for
-    const filter: CollectorFilter<[ButtonInteraction | SelectMenuInteraction]> =
-      (interaction: ButtonInteraction | SelectMenuInteraction) => {
+    const filter: CollectorFilter<[ButtonInteraction | StringSelectMenuInteraction]> =
+      (interaction: ButtonInteraction | StringSelectMenuInteraction) => {
         return !interaction.user.bot && handledIds.includes(interaction.customId);
       };
 
     // Generate interaction collector
-    this.collector = this.message.createMessageComponentCollector({ filter: filter, time: duration });
+    this.collector = this.message.createMessageComponentCollector<ComponentType.Button | ComponentType.StringSelect>({ filter: filter, time: duration });
     // On "collect" (aka a interaction), call relevant handler function
     this.collector.on("collect", async (interaction) => {
       // Due to above filter, this handler should always exist
@@ -239,11 +239,11 @@ export class Interactable<T> {
       // Call handler function
       switch (def.type) {
         case "button": {
-          def.handler(this, <ButtonInteraction> interaction);
+          def.handler(this, <ButtonInteraction>interaction);
           break;
         }
         case "menu": {
-          def.handler(this, <SelectMenuInteraction> interaction);
+          def.handler(this, <StringSelectMenuInteraction>interaction);
           break;
         }
       }

@@ -109,7 +109,7 @@ export class Interactable<T> {
    * @param handler Handler function to be called on interaction
    * @param options Interactable options
    */
-  publicregisterButtonHandler(handler: ButtonInteractableHandlerFunction<T>,
+  public registerButtonHandler(handler: ButtonInteractableHandlerFunction<T>,
     options: InteractableHandlerButtonOption): void {
     // If we already have a collector, it's too late to register a handler
     if (this.collector != null) {

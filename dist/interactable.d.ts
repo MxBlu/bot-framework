@@ -72,7 +72,7 @@ export declare class Interactable<T> {
      * @param handler Handler function to be called on interaction
      * @param options Interactable options
      */
-    publicregisterButtonHandler(handler: ButtonInteractableHandlerFunction<T>, options: InteractableHandlerButtonOption): void;
+    registerButtonHandler(handler: ButtonInteractableHandlerFunction<T>, options: InteractableHandlerButtonOption): void;
     /**
      * Assign a handler for a select menu component
      * @param handler Handler function to be called on interaction

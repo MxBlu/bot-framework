@@ -63,7 +63,7 @@ export class Interactable {
      * @param handler Handler function to be called on interaction
      * @param options Interactable options
      */
-    publicregisterButtonHandler(handler, options) {
+    registerButtonHandler(handler, options) {
         // If we already have a collector, it's too late to register a handler
         if (this.collector != null) {
             throw new Error("Interactable already activated");

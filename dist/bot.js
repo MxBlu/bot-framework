@@ -14,6 +14,7 @@ import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_L
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
+import { Cluster, ClusterDependency } from "./cluster.js";
 /**
  * Base implementation of a Discord bot using the Discord.js framework
  */
@@ -39,6 +40,10 @@ export class DiscordBot {
          * @param interaction Discord interaction
          */
         this.interactionHandler = (interaction) => __awaiter(this, void 0, void 0, function* () {
+            // Only the cluster leader should handle commands
+            if (!Cluster.isLeader()) {
+                return;
+            }
             // Ignore bot interactions to avoid messy situations
             if (interaction.user.bot) {
                 return;
@@ -84,6 +89,10 @@ export class DiscordBot {
          * @param guild New Discord Guild
          */
         this.guildCreateHandler = (guild) => __awaiter(this, void 0, void 0, function* () {
+            // Only the cluster leader should potentially register commands
+            if (!Cluster.isLeader()) {
+                return;
+            }
             // If we're registering commands under a guild, register every command on guild join
             if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
                 this.providers.forEach(provider => {
@@ -145,6 +154,7 @@ export class DiscordBot {
      */
     init(discordToken, intents = [GatewayIntentBits.Guilds], discordClientOptions = {}) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield ClusterDependency.await();
             // Create the Discord client
             this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
             // Initialise command handlers
@@ -197,6 +207,10 @@ export class DiscordBot {
      * Register all command providers loaded as application commands
      */
     registerCommands() {
+        // Only the cluster leader should register commands
+        if (!Cluster.isLeader()) {
+            return;
+        }
         // Assign aliases to handler command for each provider 
         this.providers.forEach(provider => {
             provider.provideCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {

@@ -73,6 +73,12 @@ class ClusterImpl {
    * @param pathPrefix Prefix for all Zookeeper nodes for this application
    */
   public init(config: ZKConfig, pathPrefix: string): void {
+    // If Cluster is not enabled, just mark the dependency as ready and return
+    if (!CLUSTER_ENABLED) {
+      ClusterDependency.ready();
+      return;
+    }
+
     this.config = config;
     this.pathPrefix = pathPrefix;
     // Initialise client
@@ -190,9 +196,6 @@ class ClusterImpl {
     await this.initZkDirs();
     // Join the member pool
     await this.joinMembers();
-
-    // Mark dependency as ready
-    ClusterDependency.ready();
   };
 
   /** Zookeeper connect timeout handler */
@@ -242,6 +245,10 @@ class ClusterImpl {
       this.logger.info(
         `Cluster status updated: membershipIndex=${this.membershipIndex}, memberCount=${this.memberCount}`);
     }
+    
+    // Mark Cluster dependency as ready
+    // The cluster is only ready after the initial membership update
+    ClusterDependency.ready();
   }
 
 }
@@ -250,5 +257,10 @@ class ClusterImpl {
  * Zookeeper-based cluster management tools
  */
 export const Cluster = new ClusterImpl();
-/** Dependency for Cluster */
+
+/** 
+ * Dependency for Cluster.
+ * 
+ * Cluster is only ready after the initial membership update.
+ */
 export const ClusterDependency = new Dependency('Cluster');

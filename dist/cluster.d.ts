@@ -107,6 +107,10 @@ declare class ClusterImpl {
  * Zookeeper-based cluster management tools
  */
 export declare const Cluster: ClusterImpl;
-/** Dependency for Cluster */
+/**
+ * Dependency for Cluster.
+ *
+ * Cluster is only ready after the initial membership update.
+ */
 export declare const ClusterDependency: Dependency;
 export {};

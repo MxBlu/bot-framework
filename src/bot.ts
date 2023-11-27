@@ -7,6 +7,7 @@ import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_L
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
+import { Cluster, ClusterDependency } from "./cluster.js";
 
 /**
  * Discord.js ClientOptions type, but without the `intents` property
@@ -62,6 +63,7 @@ export class DiscordBot {
   public async init(discordToken: string, 
       intents: BitFieldResolvable<GatewayIntentsString, number> = [ GatewayIntentBits.Guilds ], 
       discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
+    await ClusterDependency.await();
     // Create the Discord client
     this.discord = new DiscordClient({
       ...discordClientOptions,
@@ -124,6 +126,11 @@ export class DiscordBot {
    * Register all command providers loaded as application commands
    */
   private registerCommands(): void {
+    // Only the cluster leader should register commands
+    if (!Cluster.isLeader()) {
+      return;
+    }
+
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {
       provider.provideCommands().forEach(async (command: CommandBuilder): Promise<void> => {
@@ -211,6 +218,11 @@ export class DiscordBot {
    * @param interaction Discord interaction
    */
   private interactionHandler = async (interaction: Interaction): Promise<void> => {
+    // Only the cluster leader should handle commands
+    if (!Cluster.isLeader()) {
+      return;
+    }
+
     // Ignore bot interactions to avoid messy situations
     if (interaction.user.bot) {
       return;
@@ -260,6 +272,11 @@ export class DiscordBot {
    * @param guild New Discord Guild
    */
   private guildCreateHandler = async (guild: Guild): Promise<void> => {
+    // Only the cluster leader should potentially register commands
+    if (!Cluster.isLeader()) {
+      return;
+    }
+
     // If we're registering commands under a guild, register every command on guild join
     if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
       this.providers.forEach(provider => {

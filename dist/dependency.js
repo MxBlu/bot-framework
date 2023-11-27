@@ -33,13 +33,17 @@ export class Dependency {
         });
     }
     /**
-     * Mark the {@link Dependency} as ready, notifying any waiting services
+     * Mark the {@link Dependency} as ready, notifying any waiting services.
+     *
+     * If the Dependency is already resolved, this action does nothing.
      */
     ready() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.logger.trace(`Ready state triggered`);
-            this.resolve();
-            this.resolved = true;
+            if (!this.resolved) {
+                this.logger.trace(`Ready state triggered`);
+                this.resolve();
+                this.resolved = true;
+            }
         });
     }
     /**

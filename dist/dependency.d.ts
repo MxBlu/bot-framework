@@ -28,7 +28,9 @@ export declare class Dependency {
      */
     constructor(name: string);
     /**
-     * Mark the {@link Dependency} as ready, notifying any waiting services
+     * Mark the {@link Dependency} as ready, notifying any waiting services.
+     *
+     * If the Dependency is already resolved, this action does nothing.
      */
     ready(): Promise<void>;
     /**

@@ -6,6 +6,10 @@ export declare const LOGGER_NAME_PAD_LENGTH = 20;
 export declare const DEFAULT_MODAL_DURATION = 120000;
 /** Min time delta to trigger a timer event */
 export declare const TRIGGER_RESOLUTION = 500;
+/** Whether Cluster support is enabled or not */
+export declare const CLUSTER_ENABLED: boolean;
+/** Time before trying to reconnect to Zookeeper */
+export declare const CLUSTER_RECONNECT_TIMEOUT = 15000;
 /** Env flag to determine whether to register commands or not  */
 export declare const DISCORD_REGISTER_COMMANDS: boolean;
 /** Env flag to determine whether to register slash commands as global commands or as guild commands */

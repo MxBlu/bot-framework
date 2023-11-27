@@ -1,6 +1,6 @@
 {
   "name": "bot-framework",
-  "version": "7.0.1",
+  "version": "7.1.0-dev1",
   "description": "Central framework used to drive mxblue's weaboo bots.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,8 @@
     "dotenv": "16.0.1",
     "puppeteer": "19.3.0",
     "puppeteer-extra": "3.3.4",
-    "puppeteer-extra-plugin-stealth": "2.11.1"
+    "puppeteer-extra-plugin-stealth": "2.11.1",
+    "zookeeper": "6.0.0"
   },
   "devDependencies": {
     "@types/node": "18.6.2",

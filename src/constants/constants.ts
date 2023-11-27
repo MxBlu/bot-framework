@@ -15,6 +15,12 @@ export const DEFAULT_MODAL_DURATION = 120000; // 2 minutes
 /** Min time delta to trigger a timer event */
 export const TRIGGER_RESOLUTION = 500; // 500ms
 
+/** Whether Cluster support is enabled or not */
+export const CLUSTER_ENABLED = envFlagOrDefault('CLUSTER_ENABLED', false);
+
+/** Time before trying to reconnect to Zookeeper */
+export const CLUSTER_RECONNECT_TIMEOUT = 15000;
+
 /** Env flag to determine whether to register commands or not  */
 export const DISCORD_REGISTER_COMMANDS = envFlagOrDefault('DISCORD_REGISTER_COMMANDS', true);
 

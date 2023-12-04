@@ -56,7 +56,7 @@ class ClusterImpl {
             const oldMembershipIndex = this.membershipIndex;
             const oldMemberCount = this.memberCount;
             // Update our membership status if we have registered on the cluster
-            if (this.membershipNode != null && children.length > 0) {
+            if (this.membershipNode != null && children != null && children.length > 0) {
                 // The oldest member is the last element, so reverse the order for simplicity
                 this.membershipIndex = children.reverse().indexOf(this.membershipNode);
                 this.memberCount = children.length;

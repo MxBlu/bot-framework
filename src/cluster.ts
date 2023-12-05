@@ -153,6 +153,19 @@ class ClusterImpl {
   private async joinMembers(): Promise<void> {
     // Create watcher first
     this.createMembersWatch();
+    
+    // We already have a membership node, maybe we're reconnecting
+    // Make sure the node no longer exists before we make another one
+    if (this.membershipNode != null) {
+      if (await this.client.pathExists(
+          `${this.pathPrefix}/members/${this.membershipNode}`, false)) {
+        this.logger.warn('Reconnecting to cluster, removing old membership node');
+        await this.client.delete_(`${this.pathPrefix}/members/${this.membershipNode}`, null);
+      } else {
+        this.logger.warn('Reconnecting to cluster, no old node to clean up');
+      }
+    }
+    
     // Create the membership node
     const path = await this.client.create(`${this.pathPrefix}/members/m_`, '', 
       ZooKeeperPromise.constants.ZOO_EPHEMERAL_SEQUENTIAL);
@@ -195,8 +208,12 @@ class ClusterImpl {
   private onConnect = async (): Promise<void> => {
     this.logger.info('Zookeeper connected');
     this.logger.debug(`Received client id: ${this.client.client_id}`);
-    // Stop the timeout timer
-    clearTimeout(this.connectTimeoutHandle);
+
+    // Stop the timeout timer if one is present
+    if (this.connectTimeoutHandle != null) {
+      clearTimeout(this.connectTimeoutHandle);
+      this.connectTimeoutHandle = null;
+    }
 
     // Setup folder structure
     await this.initZkDirs();

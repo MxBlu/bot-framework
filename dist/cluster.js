@@ -19,8 +19,11 @@ class ClusterImpl {
         this.onConnect = () => __awaiter(this, void 0, void 0, function* () {
             this.logger.info('Zookeeper connected');
             this.logger.debug(`Received client id: ${this.client.client_id}`);
-            // Stop the timeout timer
-            clearTimeout(this.connectTimeoutHandle);
+            // Stop the timeout timer if one is present
+            if (this.connectTimeoutHandle != null) {
+                clearTimeout(this.connectTimeoutHandle);
+                this.connectTimeoutHandle = null;
+            }
             // Setup folder structure
             yield this.initZkDirs();
             // Join the member pool
@@ -158,6 +161,17 @@ class ClusterImpl {
         return __awaiter(this, void 0, void 0, function* () {
             // Create watcher first
             this.createMembersWatch();
+            // We already have a membership node, maybe we're reconnecting
+            // Make sure the node no longer exists before we make another one
+            if (this.membershipNode != null) {
+                if (yield this.client.pathExists(`${this.pathPrefix}/members/${this.membershipNode}`, false)) {
+                    this.logger.warn('Reconnecting to cluster, removing old membership node');
+                    yield this.client.delete_(`${this.pathPrefix}/members/${this.membershipNode}`, null);
+                }
+                else {
+                    this.logger.warn('Reconnecting to cluster, no old node to clean up');
+                }
+            }
             // Create the membership node
             const path = yield this.client.create(`${this.pathPrefix}/members/m_`, '', ZooKeeperPromise.constants.ZOO_EPHEMERAL_SEQUENTIAL);
             // Store the node name for checking membership status

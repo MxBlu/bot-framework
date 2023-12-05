@@ -91,8 +91,12 @@ declare class ClusterImpl {
     /** Connection state event handlers */
     /** Zookeeper connect success handler */
     private onConnect;
-    /** Zookeeper connect timeout handler */
-    private onConnectTimeout;
+    /**
+     * Zookeeper connect timeout handler
+     *
+     * This just warns that a connection has yet to be successful.
+     */
+    private onConnectPending;
     /** Zookeeper connection close handler */
     private onClose;
     /** Cluster leadership watcher */

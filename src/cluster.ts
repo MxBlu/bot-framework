@@ -118,6 +118,12 @@ class ClusterImpl {
    * Create the Zookeeper client, with a connection timeout of config.timeout.
    */
   private createClient() {
+    // Make sure we don't initialise twice
+    if (this.client != null) {
+      this.logger.warn('Attempted double-initialisation of Zookeeper client');
+      return;
+    }
+
     // Create client instance
     this.client = new ZooKeeperPromise(this.config);
     
@@ -127,8 +133,8 @@ class ClusterImpl {
 
     // Begin connection and timer for connecting timeout
     this.client.init({});
-    this.connectTimeoutHandle = setTimeout(this.onConnectTimeout, 
-      this.config.timeout ?? CLUSTER_RECONNECT_TIMEOUT);
+    this.connectTimeoutHandle = setTimeout(this.onConnectPending, 
+      this.config.timeout * 2 ?? CLUSTER_RECONNECT_TIMEOUT);
   }
 
   /** Init routines */
@@ -198,14 +204,13 @@ class ClusterImpl {
     await this.joinMembers();
   };
 
-  /** Zookeeper connect timeout handler */
-  private onConnectTimeout = async (): Promise<void> => {
-    this.logger.error('Zookeeper connection attempt timed out');
-    // Remove the existing client to avoid crashes
-    this.client = null;
-
-    // Wait for a timeout, then reconnect
-    setTimeout(() => this.createClient(), CLUSTER_RECONNECT_TIMEOUT);
+  /** 
+   * Zookeeper connect timeout handler
+   * 
+   * This just warns that a connection has yet to be successful.
+   */
+  private onConnectPending = async (): Promise<void> => {
+    this.logger.warn('Zookeeper connection taking longer than anticipated');
   }
 
   /** Zookeeper connection close handler */

@@ -60,7 +60,7 @@ class ClusterImpl {
             const oldMemberCount = this.memberCount;
             // Update our membership status if we have registered on the cluster
             if (this.membershipNode != null && children != null && children.length > 0) {
-                this.membershipIndex = children.indexOf(this.membershipNode);
+                this.membershipIndex = children.sort().indexOf(this.membershipNode);
                 this.memberCount = children.length;
             }
             // Log if cluster status has changed

@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/MxBlu/bot-framework#readme",
   "dependencies": {
-    "discord-api-types": "0.37.37",
-    "discord.js": "14.8.0",
+    "discord-api-types": "0.37.103",
+    "discord.js": "14.16.3",
     "dotenv": "16.0.1",
     "puppeteer": "19.3.0",
     "puppeteer-extra": "3.3.4",

@@ -31,7 +31,9 @@
     "dotenv": "16.0.1",
     "puppeteer": "19.3.0",
     "puppeteer-extra": "3.3.4",
-    "puppeteer-extra-plugin-stealth": "2.11.1",
+    "puppeteer-extra-plugin-stealth": "2.11.1"
+  },
+  "optionalDependencies": {
     "zookeeper": "6.0.0"
   },
   "devDependencies": {

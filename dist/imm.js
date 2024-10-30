@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { Logger } from "./logger.js";
 /**
  * Utility for passing around messages in a similar fashion to a Node.JS Emitter, but with more typing
@@ -56,9 +47,9 @@ export class MessengerTopic {
     notify(data) {
         this.logger.trace('Notifying topic');
         this.lastData = data;
-        this.subscribers.forEach((f) => __awaiter(this, void 0, void 0, function* () {
+        this.subscribers.forEach(async (f) => {
             f(data, this);
-        }));
+        });
     }
 }
 //# sourceMappingURL=imm.js.map

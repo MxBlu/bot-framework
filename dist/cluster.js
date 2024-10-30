@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { posix } from "path";
 import ZooKeeperPromise from "zookeeper";
 import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "./constants/constants.js";
@@ -16,7 +7,7 @@ class ClusterImpl {
     constructor() {
         /** Connection state event handlers */
         /** Zookeeper connect success handler */
-        this.onConnect = () => __awaiter(this, void 0, void 0, function* () {
+        this.onConnect = async () => {
             this.logger.info('Zookeeper connected');
             this.logger.debug(`Received client id: ${this.client.client_id}`);
             // Stop the timeout timer if one is present
@@ -25,37 +16,37 @@ class ClusterImpl {
                 this.connectTimeoutHandle = null;
             }
             // Setup folder structure
-            yield this.initZkDirs();
+            await this.initZkDirs();
             // Join the member pool
-            yield this.joinMembers();
-        });
+            await this.joinMembers();
+        };
         /**
          * Zookeeper connect timeout handler
          *
          * This just warns that a connection has yet to be successful.
          */
-        this.onConnectPending = () => __awaiter(this, void 0, void 0, function* () {
+        this.onConnectPending = async () => {
             this.logger.warn('Zookeeper connection taking longer than anticipated');
-        });
+        };
         /** Zookeeper connection close handler */
-        this.onClose = () => __awaiter(this, void 0, void 0, function* () {
+        this.onClose = async () => {
             this.logger.error('Zookeeper connection closed');
             // Remove the existing client to avoid crashes
             this.client = null;
             // Wait for a timeout, then reconnect
             setTimeout(() => this.createClient(), CLUSTER_RECONNECT_TIMEOUT);
-        });
+        };
         /** Cluster leadership watcher */
         /**
          * Create a watcher for the cluster members
          */
-        this.createMembersWatch = () => __awaiter(this, void 0, void 0, function* () {
+        this.createMembersWatch = async () => {
             // Call onMembersChange when the children change, and call 
             // createMembersWatch (this function) to recreate the watch
             this.client.aw_get_children(`${this.pathPrefix}/members`, this.createMembersWatch, this.onMembersChange);
-        });
+        };
         /** Cluster membership change handler */
-        this.onMembersChange = (rc, error, children) => __awaiter(this, void 0, void 0, function* () {
+        this.onMembersChange = async (rc, error, children) => {
             const oldMembershipIndex = this.membershipIndex;
             const oldMemberCount = this.memberCount;
             // Update our membership status if we have registered on the cluster
@@ -71,7 +62,7 @@ class ClusterImpl {
             // Mark Cluster dependency as ready
             // The cluster is only ready after the initial membership update
             ClusterDependency.ready();
-        });
+        };
         this.logger = new Logger("Cluster");
         // If cluster is enabled, init member related values to invalid values
         // Otherwise, init as if this instance is the sole member and always leader
@@ -129,7 +120,6 @@ class ClusterImpl {
      * Create the Zookeeper client, with a connection timeout of config.timeout.
      */
     createClient() {
-        var _a;
         // Make sure we don't initialise twice
         if (this.client != null) {
             this.logger.warn('Attempted double-initialisation of Zookeeper client');
@@ -142,41 +132,38 @@ class ClusterImpl {
         this.client.on('close', this.onClose);
         // Begin connection and timer for connecting timeout
         this.client.init({});
-        this.connectTimeoutHandle = setTimeout(this.onConnectPending, (_a = this.config.timeout * 2) !== null && _a !== void 0 ? _a : CLUSTER_RECONNECT_TIMEOUT);
+        this.connectTimeoutHandle = setTimeout(this.onConnectPending, this.config.timeout ? this.config.timeout * 2
+            : CLUSTER_RECONNECT_TIMEOUT);
     }
     /** Init routines */
     /**
      * Setup initial Zookeeper dirs
      */
-    initZkDirs() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Active members
-            yield this.ensure_path(`${this.pathPrefix}/members`, ZooKeeperPromise.constants.ZOO_PERSISTENT);
-        });
+    async initZkDirs() {
+        // Active members
+        await this.ensure_path(`${this.pathPrefix}/members`, ZooKeeperPromise.constants.ZOO_PERSISTENT);
     }
     /**
      * Create a cluster membership node and setup watch for membership status
      */
-    joinMembers() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Create watcher first
-            this.createMembersWatch();
-            // We already have a membership node, maybe we're reconnecting
-            // Make sure the node no longer exists before we make another one
-            if (this.membershipNode != null) {
-                if (yield this.client.pathExists(`${this.pathPrefix}/members/${this.membershipNode}`, false)) {
-                    this.logger.warn('Reconnecting to cluster, removing old membership node');
-                    yield this.client.delete_(`${this.pathPrefix}/members/${this.membershipNode}`, null);
-                }
-                else {
-                    this.logger.warn('Reconnecting to cluster, no old node to clean up');
-                }
+    async joinMembers() {
+        // Create watcher first
+        this.createMembersWatch();
+        // We already have a membership node, maybe we're reconnecting
+        // Make sure the node no longer exists before we make another one
+        if (this.membershipNode != null) {
+            if (await this.client.pathExists(`${this.pathPrefix}/members/${this.membershipNode}`, false)) {
+                this.logger.warn('Reconnecting to cluster, removing old membership node');
+                await this.client.delete_(`${this.pathPrefix}/members/${this.membershipNode}`, null);
             }
-            // Create the membership node
-            const path = yield this.client.create(`${this.pathPrefix}/members/m_`, '', ZooKeeperPromise.constants.ZOO_EPHEMERAL_SEQUENTIAL);
-            // Store the node name for checking membership status
-            this.membershipNode = path.split('/').pop();
-        });
+            else {
+                this.logger.warn('Reconnecting to cluster, no old node to clean up');
+            }
+        }
+        // Create the membership node
+        const path = await this.client.create(`${this.pathPrefix}/members/m_`, '', ZooKeeperPromise.constants.ZOO_EPHEMERAL_SEQUENTIAL);
+        // Store the node name for checking membership status
+        this.membershipNode = path.split('/').pop();
     }
     /** Utilities */
     /**
@@ -185,24 +172,22 @@ class ClusterImpl {
      * @param flags Flags to set on any nodes to be created
      * @returns Final path created
      */
-    ensure_path(path, flags) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Split the path up to segments
-            const dirs = posix.normalize(path).split(posix.sep).slice(1);
-            // Call client.create() for each path segment (with its preceeding path) 
-            let res = null;
-            for (let i = 0; i < dirs.length; i++) {
-                // Create the path to check
-                let subpath = `/${dirs.slice(0, i + 1).join('/')}`;
-                subpath = posix.normalize(subpath);
-                // Create paths if they don't exist
-                if (!(yield this.client.pathExists(subpath, false))) {
-                    res = yield this.client.create(subpath, '', flags);
-                }
+    async ensure_path(path, flags) {
+        // Split the path up to segments
+        const dirs = posix.normalize(path).split(posix.sep).slice(1);
+        // Call client.create() for each path segment (with its preceeding path) 
+        let res = null;
+        for (let i = 0; i < dirs.length; i++) {
+            // Create the path to check
+            let subpath = `/${dirs.slice(0, i + 1).join('/')}`;
+            subpath = posix.normalize(subpath);
+            // Create paths if they don't exist
+            if (!await this.client.pathExists(subpath, false)) {
+                res = await this.client.create(subpath, '', flags);
             }
-            // Return the last res
-            return res;
-        });
+        }
+        // Return the last res
+        return res;
     }
 }
 /**

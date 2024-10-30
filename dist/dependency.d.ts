@@ -2,7 +2,7 @@ import { Logger } from "./logger.js";
 /**
  * Function type for `resolve` parameter provided by a Promise
  */
-export declare type ResolveFunction = (value: void | PromiseLike<void>) => void;
+export type ResolveFunction = (value: void | PromiseLike<void>) => void;
 /**
  * Utility to help synchronise the order of initiation of various services
  */

@@ -1,14 +1,14 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, InteractionCollector, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 /** Function type for a handler function on an button interaction event */
-export declare type ButtonInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
+export type ButtonInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;
 /** Function type for a handler function on a select menu interaction event */
-export declare type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: StringSelectMenuInteraction) => Promise<void>;
+export type SelectMenuInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: StringSelectMenuInteraction) => Promise<void>;
 /** Function type for a handler function on an interaction being removed */
-export declare type InteractableRemovalFunction<T> = (interactable: Interactable<T>) => Promise<void>;
+export type InteractableRemovalFunction<T> = (interactable: Interactable<T>) => Promise<void>;
 /** Type of component to handle */
-export declare type InteractableType = "button" | "menu";
+export type InteractableType = "button" | "menu";
 /** Function type for a handler function covering both component interaction types */
-declare type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | StringSelectMenuInteraction) => Promise<void>;
+type InteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction | StringSelectMenuInteraction) => Promise<void>;
 interface InteractableDefinition<T> {
     handler: InteractableHandlerFunction<T>;
     type: InteractableType;

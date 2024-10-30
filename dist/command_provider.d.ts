@@ -4,7 +4,7 @@ import { AutocompleteInteraction, CommandInteraction, ContextMenuCommandBuilder,
  *
  * Omissions are to handle the resulting builder object in certain cases.
  */
-export declare type CommandBuilder = Omit<SlashCommandBuilder | ContextMenuCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+export type CommandBuilder = Omit<SlashCommandBuilder | ContextMenuCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 /**
  * Common interface for classes handling commands
  */

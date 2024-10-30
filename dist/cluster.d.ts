@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import ZooKeeperPromise from "zookeeper";
 import { Dependency } from "./dependency.js";
 import { Logger } from "./logger.js";

@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 /**
@@ -41,22 +32,20 @@ export class Interactable {
     /**
      * Deactivate the interactable handler and remove the components if the message is available
      */
-    deactivate() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // If the collector hasn't been stopped, stop it
-            if (!this.collector.ended) {
-                this.collector.stop();
-                // This will trigger end and recursively call this function, so just return for now
-                return;
-            }
-            // If the collector wasn't ended due to the underlying message being deleted,
-            // delete all components on the message
-            if (this.collector.endReason != "messageDelete") {
-                yield this.message.edit({ components: [] });
-            }
-            // Null reference to the collector
-            this.collector = null;
-        });
+    async deactivate() {
+        // If the collector hasn't been stopped, stop it
+        if (!this.collector.ended) {
+            this.collector.stop();
+            // This will trigger end and recursively call this function, so just return for now
+            return;
+        }
+        // If the collector wasn't ended due to the underlying message being deleted,
+        // delete all components on the message
+        if (this.collector.endReason != "messageDelete") {
+            await this.message.edit({ components: [] });
+        }
+        // Null reference to the collector
+        this.collector = null;
     }
     /**
      * Assign a handler for a button component
@@ -126,7 +115,6 @@ export class Interactable {
    * @returns ButtonBuilder
    */
     addButtonBuilder(customId, options) {
-        var _a;
         // Generate MessageButton from the button options
         const buttonBuilder = new ButtonBuilder();
         if (options.label != null) {
@@ -135,7 +123,7 @@ export class Interactable {
         else {
             buttonBuilder.setEmoji(options.emoji);
         }
-        buttonBuilder.setStyle((_a = options.style) !== null && _a !== void 0 ? _a : ButtonStyle.Secondary);
+        buttonBuilder.setStyle(options.style ?? ButtonStyle.Secondary);
         buttonBuilder.setCustomId(customId);
         return buttonBuilder;
     }
@@ -172,7 +160,7 @@ export class Interactable {
         // Generate interaction collector
         this.collector = this.message.createMessageComponentCollector({ filter: filter, time: duration });
         // On "collect" (aka a interaction), call relevant handler function
-        this.collector.on("collect", (interaction) => __awaiter(this, void 0, void 0, function* () {
+        this.collector.on("collect", async (interaction) => {
             // Due to above filter, this handler should always exist
             const def = this.interactionDefs.get(interaction.customId);
             // Call handler function
@@ -186,7 +174,7 @@ export class Interactable {
                     break;
                 }
             }
-        }));
+        });
         // On "end", call deactivate
         this.collector.on("end", () => this.deactivate());
     }

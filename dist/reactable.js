@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
 // Big fancy wrapper around ReactionCollectors that works out cleaner
 export class Reactable {
@@ -16,46 +7,42 @@ export class Reactable {
         this.reactionHandlers = new Map();
     }
     // Activate the Reactable for given duration, 
-    activate(addTemplateReactions, duration = DEFAULT_MODAL_DURATION) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Generate the ReactionCollector to subscribe events
-            this.createCollector(duration);
-            // If addTemplateReactions is set, add each reactable emoji to the message
-            if (addTemplateReactions) {
-                for (const emoji of this.reactionHandlers.keys()) {
-                    try {
-                        yield this.message.react(emoji);
+    async activate(addTemplateReactions, duration = DEFAULT_MODAL_DURATION) {
+        // Generate the ReactionCollector to subscribe events
+        this.createCollector(duration);
+        // If addTemplateReactions is set, add each reactable emoji to the message
+        if (addTemplateReactions) {
+            for (const emoji of this.reactionHandlers.keys()) {
+                try {
+                    await this.message.react(emoji);
+                }
+                catch (e) {
+                    if (e instanceof TypeError && e.message.includes("EMOJI_TYPE")) {
+                        // If an error regarding EMOJI_TYPE is thrown, throw a more specific Error
+                        throw new Error(`Reaction ${emoji} is unknown to Discord`);
                     }
-                    catch (e) {
-                        if (e instanceof TypeError && e.message.includes("EMOJI_TYPE")) {
-                            // If an error regarding EMOJI_TYPE is thrown, throw a more specific Error
-                            throw new Error(`Reaction ${emoji} is unknown to Discord`);
-                        }
-                        else {
-                            // Otherwise, re-throw the exception
-                            throw e;
-                        }
+                    else {
+                        // Otherwise, re-throw the exception
+                        throw e;
                     }
                 }
             }
-        });
+        }
     }
-    deactivate() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.collector.ended) {
-                this.collector.stop();
-                // This will trigger end and recursively call this function, so just return for now
-                return;
-            }
-            // Remove all reactions
-            this.message.reactions.removeAll();
-            // If we have a function to call on removal, call it
-            if (this.removalHandler != null) {
-                this.removalHandler(this);
-            }
-            // Null reference to the collector
-            this.collector = null;
-        });
+    async deactivate() {
+        if (!this.collector.ended) {
+            this.collector.stop();
+            // This will trigger end and recursively call this function, so just return for now
+            return;
+        }
+        // Remove all reactions
+        this.message.reactions.removeAll();
+        // If we have a function to call on removal, call it
+        if (this.removalHandler != null) {
+            this.removalHandler(this);
+        }
+        // Null reference to the collector
+        this.collector = null;
     }
     // Assign a handler for a given emoji
     registerHandler(emojiName, handler) {
@@ -81,15 +68,15 @@ export class Reactable {
         // Generate reaction collector
         this.collector = this.message.createReactionCollector({ filter: filter, time: duration });
         // On "collect" (aka a reaction), call relevant handler function
-        this.collector.on("collect", (reaction, user) => __awaiter(this, void 0, void 0, function* () {
+        this.collector.on("collect", async (reaction, user) => {
             // Convert User to GuildMember - much more useful
-            const guildUser = yield reaction.message.guild.members.fetch(user.id);
+            const guildUser = await reaction.message.guild.members.fetch(user.id);
             // Due to above filter, this handler should always exist
             const handler = this.reactionHandlers.get(reaction.emoji.name);
             handler(this, reaction, guildUser);
             // Remove the emoji from the message
             reaction.users.remove(user);
-        }));
+        });
         // On "end", call deactivate
         this.collector.on("end", () => this.deactivate());
     }

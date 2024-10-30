@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Logger } from "./logger.js";
 export declare class TimerTask {
     id: string;

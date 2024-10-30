@@ -1,19 +1,10 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { TRIGGER_RESOLUTION } from "./constants/constants.js";
 import { Logger } from "./logger.js";
 export class TimerTask {
 }
 export class HighResolutionTimer {
     constructor() {
-        this.timerTask = () => __awaiter(this, void 0, void 0, function* () {
+        this.timerTask = async () => {
             const now = Date.now();
             this.logger.trace(`Running timer task, interval: ${this.lastRun == null ? 'never' : now - this.lastRun}`);
             this.lastRun = now;
@@ -41,7 +32,7 @@ export class HighResolutionTimer {
                 // If nothing to run, mark timer as inactive
                 this.handle = null;
             }
-        });
+        };
         this.timerTasks = new Map();
         this.handle = null;
         this.logger = new Logger("HighResolutionTimer");

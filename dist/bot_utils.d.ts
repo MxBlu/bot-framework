@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, TextBasedChannel, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, SendableChannels, ThreadChannel, User } from "discord.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { Logger } from "./logger.js";
 /**
@@ -26,7 +26,7 @@ export declare const sendChunkedReply: (interaction: CommandInteraction | Messag
  * @param targetChannel Channel to send message in
  * @param msg Message to send
  */
-export declare const sendMessage: (targetChannel: TextBasedChannel, msg: string) => void;
+export declare const sendMessage: (targetChannel: SendableChannels, msg: string) => void;
 /**
  * Compare 2 strings ignoring case
  *

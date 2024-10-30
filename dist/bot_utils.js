@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { PermissionFlagsBits } from "discord.js";
 /** Max length a string can be in a Discord message */
 const DISCORD_MAX_LEN = 1900;
@@ -58,34 +49,30 @@ export const chunkString = function (str) {
  * @param logger Command handler {@link Logger}
  * @param level {@link LogLevel} for the reply
  */
-export const sendCmdReply = function (interaction, msg, logger, level) {
-    return __awaiter(this, void 0, void 0, function* () {
-        logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
-        return sendChunkedReply(interaction, msg);
-    });
+export const sendCmdReply = async function (interaction, msg, logger, level) {
+    logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
+    return sendChunkedReply(interaction, msg);
 };
 /**
  * Send reply to a user command which may potentially be large
  * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  */
-export const sendChunkedReply = function (interaction, msg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Split up message into max length chunks
-        const msgChunks = chunkString(msg);
-        // Send first message as a reply
-        // If the interaction has been deferred, edit the reply instead of creating a new one
-        if (interaction.deferred) {
-            yield interaction.editReply({ content: msgChunks.shift() });
-        }
-        else {
-            yield interaction.reply({ content: msgChunks.shift() });
-        }
-        // Send subsequent messages as follow-ups
-        for (const chunk of msgChunks) {
-            yield interaction.followUp({ content: chunk });
-        }
-    });
+export const sendChunkedReply = async function (interaction, msg) {
+    // Split up message into max length chunks
+    const msgChunks = chunkString(msg);
+    // Send first message as a reply
+    // If the interaction has been deferred, edit the reply instead of creating a new one
+    if (interaction.deferred) {
+        await interaction.editReply({ content: msgChunks.shift() });
+    }
+    else {
+        await interaction.reply({ content: msgChunks.shift() });
+    }
+    // Send subsequent messages as follow-ups
+    for (const chunk of msgChunks) {
+        await interaction.followUp({ content: chunk });
+    }
 };
 /**
  * Send message to a given channel, chunking if necessary
@@ -134,12 +121,10 @@ export const stringSearch = function (str, searchString) {
  * @param user Discord.js User
  * @returns Given user is an admin in a given guild
  */
-export const isAdmin = function (guild, user) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Fetch the GuildMember object for this user
-        const member = yield guild.members.fetch(user.id);
-        return isGuildMemberAdmin(member);
-    });
+export const isAdmin = async function (guild, user) {
+    // Fetch the GuildMember object for this user
+    const member = await guild.members.fetch(user.id);
+    return isGuildMemberAdmin(member);
 };
 /**
  * Test if a given GuildMember is an admin
@@ -156,7 +141,7 @@ export const isGuildMemberAdmin = function (guildMember) {
  * @param guild Discord.js Guild
  * @returns GuildMember if one existing matching query, otherwise null
  */
-export const findGuildMember = (userString, guild) => __awaiter(void 0, void 0, void 0, function* () {
+export const findGuildMember = async (userString, guild) => {
     // Try checking for a mention
     const userRx = userString.match(/^<@!(\d+)>$/);
     if (userRx != null) {
@@ -165,18 +150,18 @@ export const findGuildMember = (userString, guild) => __awaiter(void 0, void 0, 
     else {
         // Otherwise, try checking if it's a substring of nickname/username
         // Ensure the member cache is populated
-        yield guild.members.fetch();
+        await guild.members.fetch();
         return guild.members.cache.find(m => stringSearch(m.nickname, userString) ||
             stringSearch(m.user.username, userString));
     }
-});
+};
 /**
  * Given a mention or name, provide a GuildChannel or ThreadChannel if any matching exist
  * @param channelString Part of a channel/thread name, or a complete channel/thread mention
  * @param guild Discord.js Guild
  * @returns GuildChannel or ThreadChannel if one existing matching query, otherwise null
  */
-export const findGuildChannel = (channelString, guild) => __awaiter(void 0, void 0, void 0, function* () {
+export const findGuildChannel = async (channelString, guild) => {
     // Try checking for a channel mention
     const channelRx = channelString.match(/^<#(\d+)>$/);
     if (channelRx != null) {
@@ -186,14 +171,14 @@ export const findGuildChannel = (channelString, guild) => __awaiter(void 0, void
         // Otherwise, try checking if it's a substring of channel name
         return guild.channels.cache.find(c => stringEquivalence(c.name, channelString));
     }
-});
+};
 /**
  * Given a mention or name, provide a Role if any matching exist
  * @param channelString Part of a role name, or a complete role mention
  * @param guild Discord.js Guild
  * @returns A Role if one existing matching query, otherwise null
  */
-export const findGuildRole = (roleString, guild) => __awaiter(void 0, void 0, void 0, function* () {
+export const findGuildRole = async (roleString, guild) => {
     // Try checking for a role mention
     const roleRx = roleString.match(/^<@&(\d+)>$/);
     if (roleRx != null) {
@@ -203,5 +188,5 @@ export const findGuildRole = (roleString, guild) => __awaiter(void 0, void 0, vo
         // Otherwise, try checking if it's a substring of role name
         return guild.roles.cache.find(r => stringEquivalence(r.name, roleString));
     }
-});
+};
 //# sourceMappingURL=bot_utils.js.map

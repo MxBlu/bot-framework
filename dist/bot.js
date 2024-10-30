@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { Client as DiscordClient, GatewayIntentBits } from "discord.js";
 import { Routes, ApplicationCommandType } from 'discord-api-types/v10';
 import { sendMessage } from "./bot_utils.js";
@@ -39,7 +30,7 @@ export class DiscordBot {
          * Handle the `interactionCreate` Discord event
          * @param interaction Discord interaction
          */
-        this.interactionHandler = (interaction) => __awaiter(this, void 0, void 0, function* () {
+        this.interactionHandler = async (interaction) => {
             // Only the cluster leader should handle commands
             if (!Cluster.isLeader()) {
                 return;
@@ -49,7 +40,7 @@ export class DiscordBot {
                 return;
             }
             // Run any prep needed before handling the command interaction
-            yield this.prepareCommandInteraction();
+            await this.prepareCommandInteraction();
             if (interaction.isChatInputCommand()) {
                 // Handle command interactions
                 const commandInteraction = interaction;
@@ -83,12 +74,12 @@ export class DiscordBot {
                     handler.autocomplete(commandInteraction);
                 }
             }
-        });
+        };
         /**
          * Handle the `guildCreate` Discord event
          * @param guild New Discord Guild
          */
-        this.guildCreateHandler = (guild) => __awaiter(this, void 0, void 0, function* () {
+        this.guildCreateHandler = async (guild) => {
             // Only the cluster leader should potentially register commands
             if (!Cluster.isLeader()) {
                 return;
@@ -96,7 +87,7 @@ export class DiscordBot {
             // If we're registering commands under a guild, register every command on guild join
             if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
                 this.providers.forEach(provider => {
-                    provider.provideCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+                    provider.provideCommands().forEach(async (command) => {
                         const commandJson = command.toJSON();
                         try {
                             this.registerApplicationCommand(commandJson, guild.id);
@@ -104,24 +95,24 @@ export class DiscordBot {
                         catch (e) {
                             this.logger.error(`Failed to register command '${command.name}': ${e}`);
                         }
-                    }));
+                    });
                 });
             }
-        });
+        };
         /**
          * Handle a new log message event on {@link NewLogEmitter}
          * @param log Log message
          */
-        this.logHandler = (log) => __awaiter(this, void 0, void 0, function* () {
+        this.logHandler = async (log) => {
             // Ensure that logging isn't currently disabled and that a error channel is present
             if (!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "") {
                 try {
                     // Remove any consequtive spaces to make logs more legible
                     log = log.replace(/  +/, ' ');
                     // Should ensure that it works for DM channels too
-                    const targetChannel = yield this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
+                    const targetChannel = await this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
                     // Only send if we can access the error channel
-                    if (targetChannel != null && targetChannel.isTextBased()) {
+                    if (targetChannel != null && targetChannel.isSendable()) {
                         sendMessage(targetChannel, log);
                     }
                 }
@@ -136,7 +127,7 @@ export class DiscordBot {
                     }, DISCORD_LOG_ERROR_STATUS_RESET);
                 }
             }
-        });
+        };
         this.name = name;
         this.logger = new Logger(name);
         this.discordLogDisabled = false;
@@ -152,22 +143,23 @@ export class DiscordBot {
      * @param intents Gateway intents, defaulting to GatewayIntentBits.Guilds
      * @param discordClientOptions Discord.js client options, excluding intents
      */
-    init(discordToken, intents = [GatewayIntentBits.Guilds], discordClientOptions = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield ClusterDependency.await();
-            // Create the Discord client
-            this.discord = new DiscordClient(Object.assign(Object.assign({}, discordClientOptions), { intents }));
-            // Initialise command handlers
-            this.loadProviders();
-            // Initialise default command handlers
-            this.initDefaultCommandHandlers();
-            // Initialise default event handlers
-            this.initEventHandlers();
-            // Initialise any custom event handlers (on subclasses)
-            this.initCustomEventHandlers();
-            // Login to Discord and start listening for events
-            this.discord.login(discordToken);
+    async init(discordToken, intents = [GatewayIntentBits.Guilds], discordClientOptions = {}) {
+        await ClusterDependency.await();
+        // Create the Discord client
+        this.discord = new DiscordClient({
+            ...discordClientOptions,
+            intents
         });
+        // Initialise command handlers
+        this.loadProviders();
+        // Initialise default command handlers
+        this.initDefaultCommandHandlers();
+        // Initialise default event handlers
+        this.initEventHandlers();
+        // Initialise any custom event handlers (on subclasses)
+        this.initCustomEventHandlers();
+        // Login to Discord and start listening for events
+        this.discord.login(discordToken);
     }
     /**
      * Initialise and map all command handlers
@@ -213,16 +205,16 @@ export class DiscordBot {
         }
         // Assign aliases to handler command for each provider 
         this.providers.forEach(provider => {
-            provider.provideCommands().forEach((command) => __awaiter(this, void 0, void 0, function* () {
+            provider.provideCommands().forEach(async (command) => {
                 const commandJson = command.toJSON();
                 try {
                     // Based on the flag, either register commands globally
                     //  or on each guild currently available
                     if (DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
-                        yield this.registerApplicationCommand(commandJson, null);
+                        await this.registerApplicationCommand(commandJson, null);
                     }
                     else {
-                        yield Promise.all(this.discord.guilds.cache.map(guild => {
+                        await Promise.all(this.discord.guilds.cache.map(guild => {
                             this.registerApplicationCommand(commandJson, guild.id);
                         }));
                     }
@@ -237,7 +229,7 @@ export class DiscordBot {
                 catch (e) {
                     this.logger.error(`Failed to register command '${command.name}': ${e}`);
                 }
-            }));
+            });
         });
     }
     /**
@@ -271,10 +263,8 @@ export class DiscordBot {
      *
      * For a subclass to override
      */
-    prepareCommandInteraction() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return;
-        });
+    async prepareCommandInteraction() {
+        return;
     }
     // Utility functions
     /**
@@ -285,20 +275,18 @@ export class DiscordBot {
      * @param guildId Discord Guild ID, or null to register globally
      * @returns
      */
-    registerApplicationCommand(command, guildId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // If guildId is set, register it as a guild command
-            // Otherwise, register it as a global command
-            let response = null;
-            if (guildId != null) {
-                response = (yield this.discord.rest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command }));
-            }
-            else {
-                response = (yield this.discord.rest.post(Routes.applicationCommands(this.discord.application.id), { body: command }));
-            }
-            this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
-            return response;
-        });
+    async registerApplicationCommand(command, guildId) {
+        // If guildId is set, register it as a guild command
+        // Otherwise, register it as a global command
+        let response = null;
+        if (guildId != null) {
+            response = await this.discord.rest.post(Routes.applicationGuildCommands(this.discord.application.id, guildId), { body: command });
+        }
+        else {
+            response = await this.discord.rest.post(Routes.applicationCommands(this.discord.application.id), { body: command });
+        }
+        this.logger.debug(`Registered command '${command.name}' ${guildId == null ? 'globally' : `to guild '${guildId}'`}`);
+        return response;
     }
 }
 //# sourceMappingURL=bot.js.map

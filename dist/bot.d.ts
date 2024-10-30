@@ -7,7 +7,7 @@ import { Logger } from "./logger.js";
  *
  * This is to allow having "default intents".
  */
-export declare type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
+export type ClientOptionsWithoutIntents = Omit<ClientOptions, 'intents'>;
 /**
  * Base implementation of a Discord bot using the Discord.js framework
  */

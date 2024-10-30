@@ -32,7 +32,7 @@
     "puppeteer": "19.3.0",
     "puppeteer-extra": "3.3.4",
     "puppeteer-extra-plugin-stealth": "2.11.1",
-    "zookeeper": "6.0.0"
+    "zookeeper": "6.2.3"
   },
   "devDependencies": {
     "@types/node": "20.10.0",

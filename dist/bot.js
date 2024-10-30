@@ -1,7 +1,7 @@
 import { Client as DiscordClient, GatewayIntentBits } from "discord.js";
 import { Routes, ApplicationCommandType } from 'discord-api-types/v10';
 import { sendMessage } from "./bot_utils.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
+import { CLUSTER_ENABLED, DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -32,7 +32,7 @@ export class DiscordBot {
          */
         this.interactionHandler = async (interaction) => {
             // Only the cluster leader should handle commands
-            if (!Cluster.isLeader()) {
+            if (CLUSTER_ENABLED && !Cluster.isLeader()) {
                 return;
             }
             // Ignore bot interactions to avoid messy situations
@@ -81,7 +81,7 @@ export class DiscordBot {
          */
         this.guildCreateHandler = async (guild) => {
             // Only the cluster leader should potentially register commands
-            if (!Cluster.isLeader()) {
+            if (CLUSTER_ENABLED && !Cluster.isLeader()) {
                 return;
             }
             // If we're registering commands under a guild, register every command on guild join
@@ -144,7 +144,10 @@ export class DiscordBot {
      * @param discordClientOptions Discord.js client options, excluding intents
      */
     async init(discordToken, intents = [GatewayIntentBits.Guilds], discordClientOptions = {}) {
-        await ClusterDependency.await();
+        // If we're clustered, wait for the cluster connection to be set up
+        if (CLUSTER_ENABLED) {
+            await ClusterDependency.await();
+        }
         // Create the Discord client
         this.discord = new DiscordClient({
             ...discordClientOptions,
@@ -200,7 +203,7 @@ export class DiscordBot {
      */
     registerCommands() {
         // Only the cluster leader should register commands
-        if (!Cluster.isLeader()) {
+        if (CLUSTER_ENABLED && !Cluster.isLeader()) {
             return;
         }
         // Assign aliases to handler command for each provider 

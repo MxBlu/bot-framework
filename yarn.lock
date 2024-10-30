@@ -2027,10 +2027,10 @@ yauzl@^2.10.0, yauzl@^2.4.2:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
 
-zookeeper@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/zookeeper/-/zookeeper-6.0.0.tgz#f1ae9c6001757c2af79b43608518809c38ce1572"
-  integrity sha512-Z35PpQ8aKmkKaGwtMHRJecobeNXDMIQiH3wkJYe7/Zn8Cps9SFd+gc/r24YXzb5y02IDBa7tkZKnekRZgx9tGA==
+zookeeper@6.2.3:
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/zookeeper/-/zookeeper-6.2.3.tgz#6eda85749bd2ad4ca152665dee99921ba252babe"
+  integrity sha512-pN5VHAtnugf11pZ9wJwGNVZuz3PfYqn0MrwuZEIUPMXteVluEo+Ku6pzwfRfbAIY20R8P2Q9WIb51v++fkCzlA==
   dependencies:
     async "3.2.x"
     decompress "4.2.x"

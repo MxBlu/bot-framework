@@ -3,7 +3,7 @@ import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsR
 
 import { sendMessage } from "./bot_utils.js";
 import { CommandBuilder, CommandProvider } from "./command_provider.js";
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
+import { CLUSTER_ENABLED, DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
 import { LogLevel } from "./constants/log_levels.js";
 import { HelpCommand } from "./default_commands/help_command.js";
 import { Logger, NewLogEmitter } from "./logger.js";
@@ -63,7 +63,11 @@ export class DiscordBot {
   public async init(discordToken: string, 
       intents: BitFieldResolvable<GatewayIntentsString, number> = [ GatewayIntentBits.Guilds ], 
       discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
-    await ClusterDependency.await();
+    // If we're clustered, wait for the cluster connection to be set up
+    if (CLUSTER_ENABLED) {
+      await ClusterDependency.await();
+    }
+  
     // Create the Discord client
     this.discord = new DiscordClient({
       ...discordClientOptions,
@@ -127,7 +131,7 @@ export class DiscordBot {
    */
   private registerCommands(): void {
     // Only the cluster leader should register commands
-    if (!Cluster.isLeader()) {
+    if (CLUSTER_ENABLED && !Cluster.isLeader()) {
       return;
     }
 
@@ -219,7 +223,7 @@ export class DiscordBot {
    */
   private interactionHandler = async (interaction: Interaction): Promise<void> => {
     // Only the cluster leader should handle commands
-    if (!Cluster.isLeader()) {
+    if (CLUSTER_ENABLED && !Cluster.isLeader()) {
       return;
     }
 
@@ -273,7 +277,7 @@ export class DiscordBot {
    */
   private guildCreateHandler = async (guild: Guild): Promise<void> => {
     // Only the cluster leader should potentially register commands
-    if (!Cluster.isLeader()) {
+    if (CLUSTER_ENABLED && !Cluster.isLeader()) {
       return;
     }
 

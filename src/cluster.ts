@@ -134,7 +134,8 @@ class ClusterImpl {
     // Begin connection and timer for connecting timeout
     this.client.init({});
     this.connectTimeoutHandle = setTimeout(this.onConnectPending, 
-      this.config.timeout * 2 ?? CLUSTER_RECONNECT_TIMEOUT);
+      this.config.timeout ? this.config.timeout * 2 
+        : CLUSTER_RECONNECT_TIMEOUT);
   }
 
   /** Init routines */

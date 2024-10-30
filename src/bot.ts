@@ -305,7 +305,7 @@ export class DiscordBot {
         // Should ensure that it works for DM channels too
         const targetChannel = await this.discord.channels.fetch(DISCORD_ERROR_CHANNEL);
         // Only send if we can access the error channel
-        if (targetChannel != null && targetChannel.isTextBased()) {
+        if (targetChannel != null && targetChannel.isSendable()) {
           sendMessage(targetChannel, log);
         }
       } catch (e) {

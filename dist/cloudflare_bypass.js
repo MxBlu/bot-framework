@@ -12,6 +12,8 @@ export class CloudflareBypassImpl {
      * NOTE: Should not be constructed manually
      */
     constructor() {
+        /** Prevents browser being launched twicee */
+        this.lock = false;
         this.browser = null; // Instance starts unloaded
         this.logger = new Logger("CloudflareBypass");
     }
@@ -20,21 +22,25 @@ export class CloudflareBypassImpl {
      */
     async ensureLoaded() {
         // If a browser instance is not loaded, launch one
-        if (this.browser == null) {
+        if (this.browser == null && !this.lock) {
+            this.lock = true;
             this.browser = await puppeteer.launch({
                 executablePath: executablePath()
             });
             this.logger.info("Launched a browser instance");
+            this.lock = false;
         }
     }
     /**
      * Ensure the browser instance is unloaded (to save memory)
      */
     async ensureUnloaded() {
-        if (this.browser != null) {
+        if (this.browser != null && !this.lock) {
+            this.lock = true;
             await this.browser.close();
             this.browser = null;
             this.logger.info("Unloaded a browser instance");
+            this.lock = false;
         }
     }
     /**

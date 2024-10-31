@@ -30,9 +30,7 @@ export class CloudflareBypassImpl {
   public async ensureLoaded(): Promise<void> {
     // If a browser instance is not loaded, launch one
     if (this.browser == null) {
-      this.browser = await puppeteer.launch({
-        channel: 'chrome'
-      });
+      this.browser = await puppeteer.launch();
       this.logger.info("Launched a browser instance");
     }
   }

@@ -1,3 +1,4 @@
+import { executablePath } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { Logger } from './logger.js';
@@ -20,7 +21,9 @@ export class CloudflareBypassImpl {
     async ensureLoaded() {
         // If a browser instance is not loaded, launch one
         if (this.browser == null) {
-            this.browser = await puppeteer.launch();
+            this.browser = await puppeteer.launch({
+                executablePath: executablePath()
+            });
             this.logger.info("Launched a browser instance");
         }
     }

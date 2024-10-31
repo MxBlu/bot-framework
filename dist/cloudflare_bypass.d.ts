@@ -6,8 +6,8 @@ export declare class CloudflareBypassImpl {
     browser: Browser;
     /** Logger instance */
     logger: Logger;
-    /** Prevents browser being launched twicee */
-    lock: boolean;
+    /** Prevents browser being launched twice */
+    lock: Promise<void>;
     /**
      * Create a new CloudflareBypass instance
      *

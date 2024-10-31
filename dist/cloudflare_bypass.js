@@ -12,8 +12,6 @@ export class CloudflareBypassImpl {
      * NOTE: Should not be constructed manually
      */
     constructor() {
-        /** Prevents browser being launched twicee */
-        this.lock = false;
         this.browser = null; // Instance starts unloaded
         this.logger = new Logger("CloudflareBypass");
     }
@@ -21,26 +19,43 @@ export class CloudflareBypassImpl {
      * Ensure the browser instance is loaded and available for use
      */
     async ensureLoaded() {
+        // Wait on the lock if there is one
+        if (this.lock != null) {
+            await this.lock;
+        }
         // If a browser instance is not loaded, launch one
-        if (this.browser == null && !this.lock) {
-            this.lock = true;
+        if (this.browser == null) {
+            //  Lock this section
+            let resolveFn;
+            this.lock = new Promise((res) => resolveFn = res);
             this.browser = await puppeteer.launch({
                 executablePath: executablePath()
             });
             this.logger.info("Launched a browser instance");
-            this.lock = false;
+            // Clear the lock
+            resolveFn();
+            this.lock = null;
         }
     }
     /**
      * Ensure the browser instance is unloaded (to save memory)
      */
     async ensureUnloaded() {
-        if (this.browser != null && !this.lock) {
-            this.lock = true;
+        // Wait on the lock if there is one
+        if (this.lock != null) {
+            await this.lock;
+        }
+        // If a browser instance is loaded, clear close it
+        if (this.browser != null) {
+            //  Lock this section
+            let resolveFn;
+            this.lock = new Promise((res) => resolveFn = res);
             await this.browser.close();
             this.browser = null;
             this.logger.info("Unloaded a browser instance");
-            this.lock = false;
+            // Clear the lock
+            resolveFn();
+            this.lock = null;
         }
     }
     /**

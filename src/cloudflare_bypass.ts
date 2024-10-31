@@ -13,8 +13,8 @@ export class CloudflareBypassImpl {
   browser: Browser;
   /** Logger instance */
   logger: Logger;
-  /** Prevents browser being launched twicee */
-  lock = false;
+  /** Prevents browser being launched twice */
+  lock: Promise<void>;
 
   /** 
    * Create a new CloudflareBypass instance
@@ -30,14 +30,24 @@ export class CloudflareBypassImpl {
    * Ensure the browser instance is loaded and available for use
    */
   public async ensureLoaded(): Promise<void> {
+    // Wait on the lock if there is one
+    if (this.lock != null) {
+      await this.lock;
+    }
     // If a browser instance is not loaded, launch one
-    if (this.browser == null && !this.lock) {
-      this.lock = true;
+    if (this.browser == null) {
+      //  Lock this section
+      let resolveFn: (value: void | PromiseLike<void>) => void;
+      this.lock = new Promise<void>((res) => resolveFn = res);
+
       this.browser = await puppeteer.launch({
         executablePath: executablePath()
       });
       this.logger.info("Launched a browser instance");
-      this.lock = false;
+      
+      // Clear the lock
+      resolveFn();
+      this.lock = null;
     }
   }
 
@@ -45,12 +55,23 @@ export class CloudflareBypassImpl {
    * Ensure the browser instance is unloaded (to save memory)
    */
   public async ensureUnloaded(): Promise<void> {
-    if (this.browser != null && !this.lock) {
-      this.lock = true;
+    // Wait on the lock if there is one
+    if (this.lock != null) {
+      await this.lock;
+    }
+    // If a browser instance is loaded, clear close it
+    if (this.browser != null) {
+      //  Lock this section
+      let resolveFn: (value: void | PromiseLike<void>) => void;
+      this.lock = new Promise<void>((res) => resolveFn = res);
+
       await this.browser.close();
       this.browser = null;
       this.logger.info("Unloaded a browser instance");
-      this.lock = false;
+      
+      // Clear the lock
+      resolveFn();
+      this.lock = null;
     }
   }
 

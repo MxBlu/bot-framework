@@ -49,29 +49,29 @@ export const chunkString = function (str) {
  * @param logger Command handler {@link Logger}
  * @param level {@link LogLevel} for the reply
  */
-export const sendCmdReply = async function (interaction, msg, logger, level) {
+export const sendCmdReply = async function (interaction, msg, logger, level, options) {
     logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
-    return sendChunkedReply(interaction, msg);
+    return sendChunkedReply(interaction, msg, options);
 };
 /**
  * Send reply to a user command which may potentially be large
  * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  */
-export const sendChunkedReply = async function (interaction, msg) {
+export const sendChunkedReply = async function (interaction, msg, options) {
     // Split up message into max length chunks
     const msgChunks = chunkString(msg);
     // Send first message as a reply
     // If the interaction has been deferred, edit the reply instead of creating a new one
     if (interaction.deferred) {
-        await interaction.editReply({ content: msgChunks.shift() });
+        await interaction.editReply({ content: msgChunks.shift(), options: options });
     }
     else {
-        await interaction.reply({ content: msgChunks.shift() });
+        await interaction.reply({ content: msgChunks.shift(), options: options });
     }
     // Send subsequent messages as follow-ups
     for (const chunk of msgChunks) {
-        await interaction.followUp({ content: chunk });
+        await interaction.followUp({ content: chunk, options: options });
     }
 };
 /**

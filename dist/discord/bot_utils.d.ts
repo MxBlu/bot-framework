@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, SendableChannels, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, MessagePayloadOption, Role, SendableChannels, ThreadChannel, User } from "discord.js";
 import { LogLevel } from "./../constants/log_levels.js";
 import { Logger } from "./../logger.js";
 /**
@@ -14,13 +14,13 @@ export declare const chunkString: (str: string) => string[];
  * @param logger Command handler {@link Logger}
  * @param level {@link LogLevel} for the reply
  */
-export declare const sendCmdReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string, logger: Logger, level: LogLevel) => Promise<void>;
+export declare const sendCmdReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string, logger: Logger, level: LogLevel, options?: MessagePayloadOption) => Promise<void>;
 /**
  * Send reply to a user command which may potentially be large
  * @param interaction CommandInteraction to reply to
  * @param msg Reply message
  */
-export declare const sendChunkedReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string) => Promise<void>;
+export declare const sendChunkedReply: (interaction: CommandInteraction | MessageComponentInteraction, msg: string, options?: MessagePayloadOption) => Promise<void>;
 /**
  * Send message to a given channel, chunking if necessary
  * @param targetChannel Channel to send message in

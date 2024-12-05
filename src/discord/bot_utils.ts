@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, PermissionFlagsBits, Role, SendableChannels, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, MessagePayloadOption, PermissionFlagsBits, Role, SendableChannels, ThreadChannel, User } from "discord.js";
 
 import { LogLevel } from "bot-framework/constants/log_levels";
 import { Logger } from "bot-framework/logger";
@@ -57,9 +57,9 @@ export const chunkString = function (str: string): string[] {
  * @param level {@link LogLevel} for the reply
  */
 export const sendCmdReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
-    msg: string, logger: Logger, level: LogLevel): Promise<void> {
+    msg: string, logger: Logger, level: LogLevel, options?: MessagePayloadOption): Promise<void> {
   logger.log(`${interaction.user.username} - ${interaction.guild.name} - ${msg}`, level);
-  return sendChunkedReply(interaction, msg);
+  return sendChunkedReply(interaction, msg, options);
 }
 
 /**
@@ -68,19 +68,19 @@ export const sendCmdReply = async function (interaction: CommandInteraction | Me
  * @param msg Reply message
  */
 export const sendChunkedReply = async function (interaction: CommandInteraction | MessageComponentInteraction, 
-      msg: string): Promise<void> {
+      msg: string, options?: MessagePayloadOption): Promise<void> {
   // Split up message into max length chunks
   const msgChunks = chunkString(msg);
   // Send first message as a reply
   // If the interaction has been deferred, edit the reply instead of creating a new one
   if (interaction.deferred) {
-    await interaction.editReply({ content: msgChunks.shift() });
+    await interaction.editReply({ content: msgChunks.shift(), options: options });
   } else {
-    await interaction.reply({ content: msgChunks.shift() });
+    await interaction.reply({ content: msgChunks.shift(), options: options });
   }
   // Send subsequent messages as follow-ups
   for (const chunk of msgChunks) {
-    await interaction.followUp({ content: chunk });
+    await interaction.followUp({ content: chunk, options: options });
   }
 };
 

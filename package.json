@@ -1,9 +1,27 @@
 {
   "name": "bot-framework",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Central framework used to drive mxblue's weaboo bots.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./cluster": {
+      "default": "./dist/cluster/index.js",
+      "types": "./dist/cluster/index.d.ts"
+    },
+    "./discord": {
+      "default": "./dist/discord/index.js",
+      "types": "./dist/discord/index.d.ts"
+    },
+    "./cloudflare_bypass": {
+      "default": "./dist/cloudflare_bypass.js",
+      "types": "./dist/cloudflare_bypass.d.ts"
+    }
+  },
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

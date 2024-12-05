@@ -1,4 +1,4 @@
-import { Logger } from "bot-framework/logger";
+import { Logger } from "./logger";
 /**
  * Function type for `resolve` parameter provided by a Promise
  */

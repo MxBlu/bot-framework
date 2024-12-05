@@ -1,4 +1,4 @@
-import { DEFAULT_MODAL_DURATION } from "bot-framework/constants";
+import { DEFAULT_MODAL_DURATION } from "../constants";
 // Big fancy wrapper around ReactionCollectors that works out cleaner
 export class Reactable {
     constructor(message) {

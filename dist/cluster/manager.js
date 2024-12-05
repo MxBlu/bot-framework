@@ -1,8 +1,8 @@
 import { posix } from "path";
 import ZooKeeperPromise from "zookeeper";
-import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "bot-framework/constants";
-import { Dependency } from "bot-framework/dependency";
-import { Logger } from "bot-framework/logger";
+import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "../constants";
+import { Dependency } from "../dependency";
+import { Logger } from "../logger";
 class ClusterMmanagerImpl {
     constructor() {
         /** Connection state event handlers */

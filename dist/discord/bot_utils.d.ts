@@ -1,6 +1,6 @@
 import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, Role, SendableChannels, ThreadChannel, User } from "discord.js";
-import { LogLevel } from "bot-framework/constants/log_levels";
-import { Logger } from "bot-framework/logger";
+import { LogLevel } from "../constants/log_levels";
+import { Logger } from "../logger";
 /**
  * Split up a string into ideally endline terminated strings at most length DISCORD_MAX_LEN
  * @param str String to split

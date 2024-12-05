@@ -1,10 +1,10 @@
 import { Client as DiscordClient, GatewayIntentBits } from "discord.js";
 import { Routes, ApplicationCommandType } from 'discord-api-types/v10';
-import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "bot-framework/constants";
-import { LogLevel } from "bot-framework/constants/log_levels";
-import { Logger, NewLogEmitter } from "bot-framework/logger";
-import { sendMessage } from "bot-framework/discord/bot_utils";
-import { HelpCommand } from "bot-framework/discord/default_commands/help_command";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "../constants";
+import { LogLevel } from "../constants/log_levels";
+import { Logger, NewLogEmitter } from "../logger";
+import { sendMessage } from "./bot_utils";
+import { HelpCommand } from "./default_commands/help_command";
 /**
  * Base implementation of a Discord bot using the Discord.js framework
  */

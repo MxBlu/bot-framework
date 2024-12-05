@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import { CommandBuilder, CommandProvider } from "bot-framework/discord/command_provider";
+import { CommandBuilder, CommandProvider } from "../command_provider";
 /** Command to return a help message for the current bot */
 export declare class HelpCommand implements CommandProvider<ChatInputCommandInteraction> {
     /** Bot name, used to ensure the command is only run for a given bot */

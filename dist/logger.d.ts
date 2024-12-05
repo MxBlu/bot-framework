@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { LogLevel } from "bot-framework/constants/log_levels";
+import { LogLevel } from "./constants/log_levels";
 /**
  * Simple logging helper
  *

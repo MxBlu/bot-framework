@@ -1,1 +1,1 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../src/discord/index.ts"],"names":[],"mappings":"AAAA,cAAc,2BAA2B,CAAC;AAC1C,cAAc,iCAAiC,CAAC;AAChD,cAAc,wCAAwC,CAAC;AACvD,cAAc,oCAAoC,CAAC;AACnD,cAAc,iCAAiC,CAAC"}
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../src/discord/index.ts"],"names":[],"mappings":"AAAA,sBAA0C;AAC1C,4BAAgD;AAChD,mCAAuD;AACvD,+BAAmD;AACnD,4BAAgD"}

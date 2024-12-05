@@ -1,6 +1,6 @@
-import { CLUSTER_ENABLED } from "bot-framework/constants";
-import { DiscordBot } from "bot-framework/discord";
-import { ClusterDependency, ClusterManager } from "bot-framework/cluster/manager";
+import { CLUSTER_ENABLED } from "../constants";
+import { DiscordBot } from "../discord";
+import { ClusterDependency, ClusterManager } from "./manager";
 /**
  * Base implementation of a Discord bot using the Discord.js framework
  */

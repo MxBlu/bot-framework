@@ -1,6 +1,6 @@
 import ZooKeeperPromise from "zookeeper";
-import { Dependency } from "bot-framework/dependency";
-import { Logger } from "bot-framework/logger";
+import { Dependency } from "../dependency";
+import { Logger } from "../logger";
 /**
  * Configuration for the Zookeeper client
  */

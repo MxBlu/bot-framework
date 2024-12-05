@@ -1,4 +1,4 @@
-import { Logger } from "bot-framework/logger";
+import { Logger } from "./logger";
 export declare class TimerTask {
     id: string;
     targetTime: Date;

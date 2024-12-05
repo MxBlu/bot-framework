@@ -1,5 +1,5 @@
-import { TRIGGER_RESOLUTION } from "./constants/constants.js";
-import { Logger } from "./logger.js";
+import { TRIGGER_RESOLUTION } from "bot-framework/constants";
+import { Logger } from "bot-framework/logger";
 export class TimerTask {
 }
 export class HighResolutionTimer {

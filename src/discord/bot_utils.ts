@@ -1,7 +1,7 @@
 import { CommandInteraction, Guild, GuildChannel, GuildMember, MessageComponentInteraction, PermissionFlagsBits, Role, SendableChannels, ThreadChannel, User } from "discord.js";
 
-import { LogLevel } from "./constants/log_levels.js";
-import { Logger } from "./logger.js";
+import { LogLevel } from "bot-framework/constants/log_levels";
+import { Logger } from "bot-framework/logger";
 
 /** Max length a string can be in a Discord message */
 const DISCORD_MAX_LEN = 1900;

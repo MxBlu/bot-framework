@@ -1,4 +1,4 @@
-import { Logger } from "./logger.js";
+import { Logger } from "bot-framework/logger";
 
 /**
  * Function type for the callback function called on a new event

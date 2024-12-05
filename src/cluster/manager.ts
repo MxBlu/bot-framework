@@ -1,9 +1,9 @@
 import { posix } from "path";
 import ZooKeeperPromise from "zookeeper";
 
-import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "./constants/constants.js";
-import { Dependency } from "./dependency.js";
-import { Logger } from "./logger.js";
+import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "bot-framework/constants";
+import { Dependency } from "bot-framework/dependency";
+import { Logger } from "bot-framework/logger";
 
 /**
  * Configuration for the Zookeeper client
@@ -22,7 +22,7 @@ export interface ZKConfig {
   host_order_deterministic?: boolean;
 }
 
-class ClusterImpl {
+class ClusterMmanagerImpl {
 
   /** Logger */
   logger: Logger;
@@ -279,11 +279,11 @@ class ClusterImpl {
 /**
  * Zookeeper-based cluster management tools
  */
-export const Cluster = new ClusterImpl();
+export const ClusterManager = new ClusterMmanagerImpl();
 
 /** 
  * Dependency for Cluster.
  * 
  * Cluster is only ready after the initial membership update.
  */
-export const ClusterDependency = new Dependency('Cluster');
+export const ClusterDependency = new Dependency('ClusterManager');

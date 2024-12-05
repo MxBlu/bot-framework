@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { LogLevel } from "./constants/log_levels.js";
+import { LogLevel } from "bot-framework/constants/log_levels";
 /**
  * Simple logging helper
  *
@@ -59,4 +59,4 @@ export declare class Logger {
  *
  * Events emitted are the different levels of severity
  */
-export declare const NewLogEmitter: EventEmitter;
+export declare const NewLogEmitter: EventEmitter<[never]>;

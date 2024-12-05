@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
-import { CommandBuilder, CommandProvider } from "../command_provider.js";
+import { CommandBuilder, CommandProvider } from "bot-framework/discord/command_provider";
 
 /** Command to return a help message for the current bot */
 export class HelpCommand implements CommandProvider<ChatInputCommandInteraction> {

@@ -1,6 +1,6 @@
 import { CollectorFilter, GuildMember, Message, MessageReaction, ReactionCollector, User } from "discord.js";
 
-import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
+import { DEFAULT_MODAL_DURATION } from "bot-framework/constants";
 
 export type ReactionHandlerFunction<T> = (reactable: Reactable<T>, reaction: MessageReaction, 
   user: GuildMember) => Promise<void>;

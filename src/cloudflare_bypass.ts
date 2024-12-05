@@ -2,7 +2,7 @@ import { Browser, executablePath } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
-import { Logger } from './logger.js';
+import { Logger } from 'bot-framework/logger';
 
 // Stealth plugin to hopefully avoid triggering CloudFlare
 puppeteer.use(StealthPlugin());

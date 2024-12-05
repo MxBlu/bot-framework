@@ -1,4 +1,4 @@
-import { Logger } from "./logger.js";
+import { Logger } from "bot-framework/logger";
 /**
  * Utility to help synchronise the order of initiation of various services
  */

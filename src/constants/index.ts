@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { LogLevel } from "./log_levels.js";
+import { LogLevel } from "bot-framework/constants/log_levels";
 
 /** Default logging level */
 export const DEFAULT_LOG_LEVEL = LogLevel[process.env.LOG_LEVEL] || LogLevel.INFO;

@@ -1,13 +1,12 @@
 import { Client as DiscordClient, ClientOptions, Interaction, CommandInteraction, Guild, BitFieldResolvable, AutocompleteInteraction, GatewayIntentsString, GatewayIntentBits, ChatInputCommandInteraction, ContextMenuCommandInteraction } from "discord.js";
 import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult, Routes, ApplicationCommandType } from 'discord-api-types/v10';
 
-import { sendMessage } from "./bot_utils.js";
-import { CommandBuilder, CommandProvider } from "./command_provider.js";
-import { CLUSTER_ENABLED, DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "./constants/constants.js";
-import { LogLevel } from "./constants/log_levels.js";
-import { HelpCommand } from "./default_commands/help_command.js";
-import { Logger, NewLogEmitter } from "./logger.js";
-import { Cluster, ClusterDependency } from "./cluster.js";
+import { DISCORD_ERROR_CHANNEL, DISCORD_ERROR_LOGGING_ENABLED, DISCORD_GENERAL_LOGGING_ENABLED, DISCORD_LOG_ERROR_STATUS_RESET, DISCORD_REGISTER_COMMANDS, DISCORD_REGISTER_COMMANDS_AS_GLOBAL } from "bot-framework/constants";
+import { LogLevel } from "bot-framework/constants/log_levels";
+import { Logger, NewLogEmitter } from "bot-framework/logger";
+import { sendMessage } from "bot-framework/discord/bot_utils";
+import { CommandBuilder, CommandProvider } from "bot-framework/discord/command_provider";
+import { HelpCommand } from "bot-framework/discord/default_commands/help_command";
 
 /**
  * Discord.js ClientOptions type, but without the `intents` property
@@ -63,11 +62,6 @@ export class DiscordBot {
   public async init(discordToken: string, 
       intents: BitFieldResolvable<GatewayIntentsString, number> = [ GatewayIntentBits.Guilds ], 
       discordClientOptions: ClientOptionsWithoutIntents = {}): Promise<void> {
-    // If we're clustered, wait for the cluster connection to be set up
-    if (CLUSTER_ENABLED) {
-      await ClusterDependency.await();
-    }
-  
     // Create the Discord client
     this.discord = new DiscordClient({
       ...discordClientOptions,
@@ -92,7 +86,7 @@ export class DiscordBot {
    * 
    * Runs after {@link loadProviders} 
    */
-  private initDefaultCommandHandlers(): void {
+  protected initDefaultCommandHandlers(): void {
     // Add help command, passing in all currently registered providers
     this.providers.push(new HelpCommand(this.name, this.getHelpMessage(), this.providers));
   }
@@ -102,26 +96,26 @@ export class DiscordBot {
    * 
    * Runs before {@link initCustomEventHandlers}
    */
-  private initEventHandlers(): void {
-    this.discord.once('ready', this.readyHandler);
-    this.discord.on('interactionCreate', this.interactionHandler);
+  protected initEventHandlers(): void {
+    this.discord.once('ready', this.readyHandler.bind(this));
+    this.discord.on('interactionCreate', this.interactionHandler.bind(this));
     this.discord.on('error', err => this.logger.error(`Discord error: ${err}`));
     
     // If we're registering commands under a guild, register every command on guild join
     if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL && DISCORD_REGISTER_COMMANDS) {
-      this.discord.on('guildCreate', this.guildCreateHandler);
+      this.discord.on('guildCreate', this.guildCreateHandler.bind(this));
     }
 
     // Subscribe to ERROR logs being published
     if (DISCORD_ERROR_LOGGING_ENABLED || DISCORD_GENERAL_LOGGING_ENABLED) {
-      NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.logHandler);
+      NewLogEmitter.on(LogLevel[LogLevel.ERROR], this.logHandler.bind(this));
     }
     // If we have general logging enabled, send all logs to Discord
     if (DISCORD_GENERAL_LOGGING_ENABLED) {
-      NewLogEmitter.on(LogLevel[LogLevel.INFO], this.logHandler);
-      NewLogEmitter.on(LogLevel[LogLevel.WARN], this.logHandler);
-      NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler);
-      NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler);
+      NewLogEmitter.on(LogLevel[LogLevel.INFO], this.logHandler.bind(this));
+      NewLogEmitter.on(LogLevel[LogLevel.WARN], this.logHandler.bind(this));
+      NewLogEmitter.on(LogLevel[LogLevel.DEBUG], this.logHandler.bind(this));
+      NewLogEmitter.on(LogLevel[LogLevel.TRACE], this.logHandler.bind(this));
     }
   }
   
@@ -129,12 +123,7 @@ export class DiscordBot {
   /**
    * Register all command providers loaded as application commands
    */
-  private registerCommands(): void {
-    // Only the cluster leader should register commands
-    if (CLUSTER_ENABLED && !Cluster.isLeader()) {
-      return;
-    }
-
+  protected registerCommands(): void {
     // Assign aliases to handler command for each provider 
     this.providers.forEach(provider => {
       provider.provideCommands().forEach(async (command: CommandBuilder): Promise<void> => {
@@ -170,7 +159,7 @@ export class DiscordBot {
    * 
    * For a subclass to override
    */
-  public initCustomEventHandlers(): void {
+  protected initCustomEventHandlers(): void {
     // Stub function, subclass to override
     return;
   }
@@ -180,7 +169,7 @@ export class DiscordBot {
    * 
    * For a subclass to override
    */
-  public loadProviders(): void {
+  protected loadProviders(): void {
     // Stub function, subclass to override
     return;
   }
@@ -190,7 +179,7 @@ export class DiscordBot {
    * 
    * For a subclass to override
    */
-  public getHelpMessage(): string {
+  protected getHelpMessage(): string {
     throw new Error("Method not implemented");
   }
 
@@ -199,7 +188,7 @@ export class DiscordBot {
    * 
    * For a subclass to override
    */
-  public async prepareCommandInteraction(): Promise<void> {
+  protected async prepareCommandInteraction(): Promise<void> {
     return;
   }
 
@@ -208,7 +197,7 @@ export class DiscordBot {
   /**
    * Handle the `ready` Discord event 
    */
-  private readyHandler = (): void => {
+  protected readyHandler(): void {
     this.logger.info("Discord connected");
 
     // Register commands with API and map handlers
@@ -221,12 +210,7 @@ export class DiscordBot {
    * Handle the `interactionCreate` Discord event
    * @param interaction Discord interaction
    */
-  private interactionHandler = async (interaction: Interaction): Promise<void> => {
-    // Only the cluster leader should handle commands
-    if (CLUSTER_ENABLED && !Cluster.isLeader()) {
-      return;
-    }
-
+  protected async interactionHandler(interaction: Interaction): Promise<void> {
     // Ignore bot interactions to avoid messy situations
     if (interaction.user.bot) {
       return;
@@ -275,12 +259,7 @@ export class DiscordBot {
    * Handle the `guildCreate` Discord event
    * @param guild New Discord Guild
    */
-  private guildCreateHandler = async (guild: Guild): Promise<void> => {
-    // Only the cluster leader should potentially register commands
-    if (CLUSTER_ENABLED && !Cluster.isLeader()) {
-      return;
-    }
-
+  protected async guildCreateHandler(guild: Guild): Promise<void> {
     // If we're registering commands under a guild, register every command on guild join
     if (!DISCORD_REGISTER_COMMANDS_AS_GLOBAL) {
       this.providers.forEach(provider => {
@@ -300,7 +279,7 @@ export class DiscordBot {
    * Handle a new log message event on {@link NewLogEmitter}
    * @param log Log message
    */
-  private logHandler = async (log: string): Promise<void> => {
+  protected async logHandler(log: string): Promise<void> {
     // Ensure that logging isn't currently disabled and that a error channel is present
     if (!this.discordLogDisabled && DISCORD_ERROR_CHANNEL != "") {
       try {
@@ -336,7 +315,7 @@ export class DiscordBot {
    * @param guildId Discord Guild ID, or null to register globally
    * @returns 
    */
-  public async registerApplicationCommand(
+  protected async registerApplicationCommand(
       command: RESTPostAPIApplicationCommandsJSONBody, guildId: string | null): 
       Promise<RESTPostAPIApplicationCommandsResult | RESTPostAPIApplicationGuildCommandsResult> {
     // If guildId is set, register it as a guild command

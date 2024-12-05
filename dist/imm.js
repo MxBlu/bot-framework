@@ -1,4 +1,4 @@
-import { Logger } from "./logger.js";
+import { Logger } from "bot-framework/logger";
 /**
  * Utility for passing around messages in a similar fashion to a Node.JS Emitter, but with more typing
  */

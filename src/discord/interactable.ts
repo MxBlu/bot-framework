@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CollectorFilter, InteractionCollector, Message, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, StringSelectMenuInteraction, ComponentType } from "discord.js";
 
-import { DEFAULT_MODAL_DURATION } from "./constants/constants.js";
+import { DEFAULT_MODAL_DURATION } from "bot-framework/constants";
 
 /** Function type for a handler function on an button interaction event */
 export type ButtonInteractableHandlerFunction<T> = (interactable: Interactable<T>, interaction: ButtonInteraction) => Promise<void>;

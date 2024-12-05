@@ -7,7 +7,11 @@
         "esModuleInterop": true,
         "sourceMap": true,
         "downlevelIteration": true,
-        "declaration": true
+        "declaration": true,
+        "paths": {
+            "bot-framework/*": [ "./src/*" ]
+        }
     },
+    
     "include": ["./src/**/*"]
 }

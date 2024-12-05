@@ -1,5 +1,5 @@
 import { Browser } from 'puppeteer';
-import { Logger } from './logger.js';
+import { Logger } from 'bot-framework/logger';
 /** Implementation of CloudflareBypass */
 export declare class CloudflareBypassImpl {
     /** Puppeteer browser instance */

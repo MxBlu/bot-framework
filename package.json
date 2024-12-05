@@ -1,6 +1,6 @@
 {
   "name": "bot-framework",
-  "version": "8.0.6",
+  "version": "9.0.0",
   "description": "Central framework used to drive mxblue's weaboo bots.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,19 +26,21 @@
   },
   "homepage": "https://github.com/MxBlu/bot-framework#readme",
   "dependencies": {
+    "dotenv": "16.0.1"
+  },
+  "optionalDependencies": {
     "discord-api-types": "0.37.103",
     "discord.js": "14.16.3",
-    "dotenv": "16.0.1",
     "puppeteer": "19.3.0",
     "puppeteer-extra": "3.3.4",
     "puppeteer-extra-plugin-stealth": "2.11.1",
     "zookeeper": "6.2.3"
   },
   "devDependencies": {
-    "@types/node": "20.10.0",
+    "@types/node": "20.x.x",
     "@typescript-eslint/eslint-plugin": "4.26.1",
     "@typescript-eslint/parser": "4.26.1",
-    "eslint": "7.28.0",
-    "typescript": "5.6.3"
+    "eslint": "9.16.0",
+    "typescript": "5.7.2"
   }
 }

@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from "./logger.js";
 /**
  * Utility to help synchronise the order of initiation of various services
  */

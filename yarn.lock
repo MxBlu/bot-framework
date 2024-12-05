@@ -215,6 +215,13 @@
   resolved "https://registry.yarnpkg.com/@sapphire/snowflake/-/snowflake-3.5.3.tgz#0c102aa2ec5b34f806e9bc8625fc6a5e1d0a0c6a"
   integrity sha512-jjmJywLAFoWeBi1W7994zZyiNWPIiqRRNAmSERxyg93xRGzNYvGjlZ0gR6x0F4gPRi2+0O6S71kOZYyr3cxaIQ==
 
+"@soul-codes-dev/ts-transform-static-resolve-path@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@soul-codes-dev/ts-transform-static-resolve-path/-/ts-transform-static-resolve-path-2.1.0.tgz#09a11be3841ee9d3ecc1af2c4dd23cf08b693986"
+  integrity sha512-KtxwWkhU385PqS89/z/WJCI2y93Q6NrbhhSybdU2i3nFo01zxlP/wSq+fJr38F1UCjMQ6buJsU23WS6Wx/5lug==
+  dependencies:
+    resolve "^1.22.1"
+
 "@types/debug@^4.1.0":
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.6.tgz#0b7018723084918a865eff99249c490505df2163"
@@ -1701,7 +1708,7 @@ resolve-from@^4.0.0:
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-4.0.0.tgz#4abcd852ad32dd7baabfe9b40e00a36db5f392e6"
   integrity sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==
 
-resolve@^1.1.6, resolve@^1.22.2:
+resolve@^1.1.6, resolve@^1.22.1, resolve@^1.22.2:
   version "1.22.8"
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.22.8.tgz#b6c87a9f2aa06dfab52e3d70ac8cde321fa5a48d"
   integrity sha512-oKWePCxqpd6FlLvGV1VU0x7bkPmmCNolxzjMf4NczoDnQcIWrAF+cPtZn5i6n+RfD2d9i0tzpKnG6Yk168yIyw==

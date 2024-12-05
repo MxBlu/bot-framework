@@ -1,4 +1,4 @@
-import { DEFAULT_MODAL_DURATION } from "../constants";
+import { DEFAULT_MODAL_DURATION } from "./../constants/index.js";
 // Big fancy wrapper around ReactionCollectors that works out cleaner
 export class Reactable {
     constructor(message) {

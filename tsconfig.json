@@ -13,7 +13,9 @@
         },
         "plugins": [
             { "transform": "typescript-transform-paths" },
-            { "transform": "typescript-transform-paths", "afterDeclarations": true }
+            { "transform": "typescript-transform-paths", "afterDeclarations": true },
+            { "transform": "@soul-codes-dev/ts-transform-static-resolve-path", "after": true },
+            { "transform": "@soul-codes-dev/ts-transform-static-resolve-path", "afterDeclarations": true }
         ] 
     },
     

@@ -1,6 +1,6 @@
 import ZooKeeperPromise from "zookeeper";
-import { Dependency } from "../dependency";
-import { Logger } from "../logger";
+import { Dependency } from "./../dependency.js";
+import { Logger } from "./../logger.js";
 /**
  * Configuration for the Zookeeper client
  */

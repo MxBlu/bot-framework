@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from "./logger.js";
 /**
  * Function type for the callback function called on a new event
  */

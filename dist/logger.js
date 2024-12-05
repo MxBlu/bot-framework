@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import EventEmitter from "events";
-import { DEFAULT_LOG_LEVEL, LOGGER_NAME_PAD_LENGTH } from "./constants";
-import { LogLevel } from "./constants/log_levels";
+import { DEFAULT_LOG_LEVEL, LOGGER_NAME_PAD_LENGTH } from "./constants/index.js";
+import { LogLevel } from "./constants/log_levels.js";
 // Get a date-time string of the current date-time
 /**
  * Generate a date-time string of the current date-time

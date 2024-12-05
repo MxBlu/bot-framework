@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { LogLevel } from "./log_levels";
+import { LogLevel } from "./log_levels.js";
 /** Default logging level */
 export const DEFAULT_LOG_LEVEL = LogLevel[process.env.LOG_LEVEL] || LogLevel.INFO;
 /** Padding length with name */

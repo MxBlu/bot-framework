@@ -1,8 +1,8 @@
 import { posix } from "path";
 import ZooKeeperPromise from "zookeeper";
-import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "../constants";
-import { Dependency } from "../dependency";
-import { Logger } from "../logger";
+import { CLUSTER_ENABLED, CLUSTER_RECONNECT_TIMEOUT } from "./../constants/index.js";
+import { Dependency } from "./../dependency.js";
+import { Logger } from "./../logger.js";
 class ClusterMmanagerImpl {
     constructor() {
         /** Connection state event handlers */

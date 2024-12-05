@@ -24,9 +24,15 @@
   },
   "typesVersions": {
     "*": {
-      "./cluster": [ "./dist/cluster/index.d.ts" ],
-      "./discord": [ "./dist/discord/index.d.ts" ],
-      "./cloudflare_bypass": [ "./dist/cloudflare_bypass.d.ts" ]
+      "./cluster": [
+        "./dist/cluster/index.d.ts"
+      ],
+      "./discord": [
+        "./dist/discord/index.d.ts"
+      ],
+      "./cloudflare_bypass": [
+        "./dist/cloudflare_bypass.d.ts"
+      ]
     }
   },
   "type": "module",
@@ -63,6 +69,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
+    "@soul-codes-dev/ts-transform-static-resolve-path": "^2.1.0",
     "@types/node": "20.x.x",
     "eslint": "9.16.0",
     "ts-patch": "^3.3.0",

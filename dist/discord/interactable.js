@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
-import { DEFAULT_MODAL_DURATION } from "../constants";
+import { DEFAULT_MODAL_DURATION } from "./../constants/index.js";
 /**
  * Helper class to generate and handle events from an interaction.
  *

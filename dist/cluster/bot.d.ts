@@ -1,5 +1,5 @@
 import { BitFieldResolvable, GatewayIntentsString, Interaction, Guild } from "discord.js";
-import { ClientOptionsWithoutIntents, DiscordBot } from "../discord";
+import { ClientOptionsWithoutIntents, DiscordBot } from "./../discord/index.js";
 /**
  * Base implementation of a Discord bot using the Discord.js framework
  */

@@ -1,7 +1,7 @@
 import { Client as DiscordClient, ClientOptions, Interaction, CommandInteraction, Guild, BitFieldResolvable, GatewayIntentsString, ChatInputCommandInteraction, ContextMenuCommandInteraction } from "discord.js";
 import { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIApplicationGuildCommandsResult } from 'discord-api-types/v10';
-import { Logger } from "../logger";
-import { CommandProvider } from "./command_provider";
+import { Logger } from "./../logger.js";
+import { CommandProvider } from "./command_provider.js";
 /**
  * Discord.js ClientOptions type, but without the `intents` property
  *

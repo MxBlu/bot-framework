@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from "./logger.js";
 /**
  * Utility for passing around messages in a similar fashion to a Node.JS Emitter, but with more typing
  */

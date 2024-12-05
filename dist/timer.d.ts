@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from "./logger.js";
 export declare class TimerTask {
     id: string;
     targetTime: Date;

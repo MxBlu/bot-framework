@@ -16,6 +16,18 @@ There are example implementations of these frameworks found in weeb_bot and quot
 
 Min version of Node supported is v16.9.0 (thanks @discordjs/rest)
 
+To use any imports under /discord, you need:
+* discord-api-types@0.37.103
+* discord.js@14.16.3
+
+To use cloudflare_bypass, you need:
+* puppeteer@19.3.0
+* puppeteer-extra@3.3.4
+* puppeteer-extra-plugin-stealth@2.11.1
+
+To use any imports under /cluser, you need:
+* zookeeper@6.2.3
+
 ## Usage
 
 If you wish to use this framework for some psychopathic reason, you can install it utilizing

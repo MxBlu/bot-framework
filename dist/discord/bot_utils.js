@@ -201,9 +201,8 @@ export async function cleanupGuildCommands(discordToken) {
         let commands;
         try {
             commands = await discordRestClient.get(Routes.applicationGuildCommands(currentApplication.id, guild.id));
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         }
-        catch (e) {
+        catch (_) {
             console.error('Unable to get guild commands for guild');
             console.log(guild);
             return;
@@ -212,11 +211,8 @@ export async function cleanupGuildCommands(discordToken) {
             if (cmd.application_id == currentApplication.id) {
                 try {
                     await discordRestClient.delete(Routes.applicationGuildCommand(currentApplication.id, guild.id, cmd.id));
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 }
-                catch (e) {
-                    const _ = 0;
-                }
+                catch (_) { }
                 console.log(`Deleted '${cmd.name}' in ${guild.id}`);
             }
         }));

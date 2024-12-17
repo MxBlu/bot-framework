@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildChannel, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, MessageComponentInteraction, PermissionFlagsBits, Role, SendableChannels, ThreadChannel, User } from "discord.js";
+import { APIApplication, APIApplicationCommand, APIGuild, CommandInteraction, Guild, GuildChannel, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, MessageComponentInteraction, PermissionFlagsBits, REST, Role, Routes, SendableChannels, ThreadChannel, User } from "discord.js";
 
 import { LogLevel } from "bot-framework/constants/log_levels";
 import { Logger } from "bot-framework/logger";
@@ -207,4 +207,38 @@ export const findGuildRole = async (roleString: string, guild: Guild): Promise<R
     // Otherwise, try checking if it's a substring of role name
     return guild.roles.cache.find(r => stringEquivalence(r.name, roleString));
   }
+}
+
+/**
+ * Remove all guild commands for currently registered guilds
+ * @param discordToken Discord API token
+ */
+export async function cleanupGuildCommands(discordToken: string) {
+  const discordRestClient = new REST().setToken(discordToken);
+  
+  const currentApplication = await discordRestClient.get(Routes.currentApplication()) as APIApplication;
+  const guilds = await discordRestClient.get(Routes.userGuilds()) as APIGuild[];
+  
+  await Promise.all(guilds.map(async guild => {
+    let commands: APIApplicationCommand[];
+    try {
+      commands = await discordRestClient.get(Routes.applicationGuildCommands(currentApplication.id, guild.id)) as APIApplicationCommand[];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      console.error('Unable to get guild commands for guild');
+      console.log(guild);
+      return;
+    }
+    await Promise.all(commands.map(async cmd => {
+      if (cmd.application_id == currentApplication.id) {
+        try {
+          await discordRestClient.delete(
+            Routes.applicationGuildCommand(currentApplication.id, guild.id, cmd.id));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) { const _ = 0; }
+        console.log(`Deleted '${cmd.name}' in ${guild.id}`);
+      }
+    }));
+    console.log(`${guild.id} complete`);
+  }));
 }

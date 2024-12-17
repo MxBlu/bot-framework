@@ -79,3 +79,8 @@ export declare const findGuildChannel: (channelString: string, guild: Guild) => 
  * @returns A Role if one existing matching query, otherwise null
  */
 export declare const findGuildRole: (roleString: string, guild: Guild) => Promise<Role>;
+/**
+ * Remove all guild commands for currently registered guilds
+ * @param discordToken Discord API token
+ */
+export declare function cleanupGuildCommands(discordToken: string): Promise<void>;

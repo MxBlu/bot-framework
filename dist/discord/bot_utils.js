@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from "discord.js";
+import { PermissionFlagsBits, REST, Routes } from "discord.js";
 /** Max length a string can be in a Discord message */
 const DISCORD_MAX_LEN = 1900;
 /**
@@ -189,4 +189,38 @@ export const findGuildRole = async (roleString, guild) => {
         return guild.roles.cache.find(r => stringEquivalence(r.name, roleString));
     }
 };
+/**
+ * Remove all guild commands for currently registered guilds
+ * @param discordToken Discord API token
+ */
+export async function cleanupGuildCommands(discordToken) {
+    const discordRestClient = new REST().setToken(discordToken);
+    const currentApplication = await discordRestClient.get(Routes.currentApplication());
+    const guilds = await discordRestClient.get(Routes.userGuilds());
+    await Promise.all(guilds.map(async (guild) => {
+        let commands;
+        try {
+            commands = await discordRestClient.get(Routes.applicationGuildCommands(currentApplication.id, guild.id));
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        }
+        catch (e) {
+            console.error('Unable to get guild commands for guild');
+            console.log(guild);
+            return;
+        }
+        await Promise.all(commands.map(async (cmd) => {
+            if (cmd.application_id == currentApplication.id) {
+                try {
+                    await discordRestClient.delete(Routes.applicationGuildCommand(currentApplication.id, guild.id, cmd.id));
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                }
+                catch (e) {
+                    const _ = 0;
+                }
+                console.log(`Deleted '${cmd.name}' in ${guild.id}`);
+            }
+        }));
+        console.log(`${guild.id} complete`);
+    }));
+}
 //# sourceMappingURL=bot_utils.js.map

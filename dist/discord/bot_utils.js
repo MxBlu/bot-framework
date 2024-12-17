@@ -64,14 +64,14 @@ export const sendChunkedReply = async function (interaction, msg, options) {
     // Send first message as a reply
     // If the interaction has been deferred, edit the reply instead of creating a new one
     if (interaction.deferred) {
-        await interaction.editReply({ content: msgChunks.shift(), options: options });
+        await interaction.editReply({ content: msgChunks.shift(), ...options });
     }
     else {
-        await interaction.reply({ content: msgChunks.shift(), options: options });
+        await interaction.reply({ content: msgChunks.shift(), ...options });
     }
     // Send subsequent messages as follow-ups
     for (const chunk of msgChunks) {
-        await interaction.followUp({ content: chunk, options: options });
+        await interaction.followUp({ content: chunk, ...options });
     }
 };
 /**

@@ -15,7 +15,7 @@ export class Dependency {
    * @param dependencies 
    */
   public static async awaitMultiple(...dependencies: Dependency[]): Promise<void> {
-    await Promise.all(dependencies.map(d => d.await()));
+    await Promise.all(dependencies);
   }
 
   /** Name of the dependency */
@@ -46,7 +46,7 @@ export class Dependency {
    * 
    * If the Dependency is already resolved, this action does nothing.
    */
-  public async ready(): Promise<void> {
+  public ready(): void {
     if (!this.resolved) {
       this.logger.trace(`Ready state triggered`);
       this.resolve();
@@ -55,9 +55,17 @@ export class Dependency {
   }
 
   /**
+   * @deprecated Await the Dependency directly instead.
    * Returns a promise waiting on the {@link Dependency} to be ready
    */
   public async await(): Promise<void> {
     return this.readyPromise;
+  }
+
+  /**
+   * Wait for dependency to be ready
+   */
+  public then(onFulfilled?: (value: void) => void, onRejected?: (reason: any) => void): Promise<void> {
+    return this.readyPromise.then(onFulfilled, onRejected);
   }
 }

@@ -32,9 +32,14 @@ export declare class Dependency {
      *
      * If the Dependency is already resolved, this action does nothing.
      */
-    ready(): Promise<void>;
+    ready(): void;
     /**
+     * @deprecated Await the Dependency directly instead.
      * Returns a promise waiting on the {@link Dependency} to be ready
      */
     await(): Promise<void>;
+    /**
+     * Wait for dependency to be ready
+     */
+    then(onFulfilled?: (value: void) => void, onRejected?: (reason: any) => void): Promise<void>;
 }

@@ -8,7 +8,7 @@ export class Dependency {
      * @param dependencies
      */
     static async awaitMultiple(...dependencies) {
-        await Promise.all(dependencies.map(d => d.await()));
+        await Promise.all(dependencies);
     }
     /**
      * Construct a new {@link Dependency}
@@ -26,7 +26,7 @@ export class Dependency {
      *
      * If the Dependency is already resolved, this action does nothing.
      */
-    async ready() {
+    ready() {
         if (!this.resolved) {
             this.logger.trace(`Ready state triggered`);
             this.resolve();
@@ -34,10 +34,17 @@ export class Dependency {
         }
     }
     /**
+     * @deprecated Await the Dependency directly instead.
      * Returns a promise waiting on the {@link Dependency} to be ready
      */
     async await() {
         return this.readyPromise;
+    }
+    /**
+     * Wait for dependency to be ready
+     */
+    then(onFulfilled, onRejected) {
+        return this.readyPromise.then(onFulfilled, onRejected);
     }
 }
 //# sourceMappingURL=dependency.js.map
